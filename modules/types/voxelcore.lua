@@ -1,0 +1,21 @@
+---@alias vec3 [number,number,number]
+---@alias vec2 [number, number]
+
+---@alias voxelcore.class.HeightMapConstructor fun(width, height)
+
+---@class voxelcore.class.HeightMap
+---@field noiseSeed number
+---@field abs fun(self: voxelcore.class.HeightMap): voxelcore.class.HeightMap
+---@field add fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field sub fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field mul fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field pow fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field min fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field max fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap
+---@field mixin fun(value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap): voxelcore.class.HeightMap
+---@field dump fun(path: string)
+---@field noise fun(offset: vec2, scale: number, octaves?: integer, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap): nil
+---@field cellnoise fun(offset: vec2, scale: number, octaves?: integer, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap): nil
+---@field resize fun(width: number, height: number, lerp: "nearest"|"linear"|"cubic"): voxelcore.class.HeightMap
+---@field crop fun(x: number, y: number, width: number, height: number): voxelcore.class.HeightMap
+---@field at fun(x:number,y:number): number

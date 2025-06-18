@@ -8,5 +8,6 @@ not_utils.coroutines = require "coroutines";
 not_utils.ResourceLoader = require "resource_loader";
 not_utils.utils = require "utils";
 not_utils.title = require "title";
+not_utils.multiplayer = require "multiplayer/main"
 
 return not_utils;
