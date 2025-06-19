@@ -1,4 +1,4 @@
-require "coroutines";
+require "lib/coroutines";
 
 function on_world_tick()
   events.emit("not_utils:world_tick");

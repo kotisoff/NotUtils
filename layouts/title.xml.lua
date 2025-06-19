@@ -1,4 +1,4 @@
-local title = require "title";
+local title = require "lib/title";
 
 local function center_text(root, el)
   root.size = el.size;

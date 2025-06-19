@@ -126,6 +126,16 @@ function module.server_api()
         NotEquals = function() return 0 end,
         Always = function() return 0 end,
         Never = function() return 0 end
+      },
+      types = {
+        Custom = "custom_fields",
+        Standart = "standart_fields",
+        Models = "models",
+        Textures = "textures",
+        Components = "components"
+      },
+      players = {
+        add_field = function(...) end
       }
     },
     events = {

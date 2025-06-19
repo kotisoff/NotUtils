@@ -1,6 +1,6 @@
 ---@diagnostic disable: undefined-field
 
-local Logger = require "logger";
+local Logger = require "lib/logger";
 
 ---@param res_file string
 ---@return string

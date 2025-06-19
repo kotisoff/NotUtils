@@ -6,7 +6,7 @@ local api_list = {
 local module = {
   ---@type "standalone" | "server" | "client"
   mode = "standalone",
-  ---@type { server: neutron.server | nil, client: neutron.client | nil }
+  ---@type { server: neutron.server, client: neutron.client }
   api = nil
 }
 

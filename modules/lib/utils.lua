@@ -1,9 +1,7 @@
 local utils = {};
 
-local Logger = require "logger";
+local Logger = require "lib/logger";
 local log = Logger.new("not_utils", "utils");
-
-
 
 --[[
 Usage:

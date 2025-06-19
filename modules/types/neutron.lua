@@ -1,5 +1,3 @@
-require "types/voxelcore"
-
 -- UTILS
 
 -- aliases
@@ -109,9 +107,14 @@ require "types/voxelcore"
 ---@alias neutron.entity.field { maximum_deviation: number, evaluate_deviation: (fun(distance_to_player, server_value, client_value): number), provider?: fun(uid, field_name): boolean | any }
 ---@alias neutron.entity.registration_config {standart_fields?: table<string, neutron.entity.field>, custom_fields?: table<string, neutron.entity.field>, textures?: table<string, neutron.entity.field>, models?: table<string, neutron.entity.field>, components?: table<string, neutron.entity.field> }
 
+---@class neutron.server.entities.players
+---@field add_field fun( field_type: string, key: string, field: neutron.entity.field )
+
 ---@class neutron.server.entities
 ---@field register fun(entity_name: string, config: neutron.entity.registration_config, spawn_handler: fun(name: string, args: table | nil, client: neutron.class.client))
 ---@field eval { NotEquals: (fun(): number), Always: (fun(): number), Never: (fun(): number) }
+---@field players neutron.server.entities.players
+---@field types { Custom: string, Standart: string, Models: string, Textures: string, Components: string }
 
 -- Server.events
 
@@ -272,7 +275,7 @@ require "types/voxelcore"
 
 ---@class neutron.client.events
 ---@field send fun(pack: string, event: string, bytes: any)
----@field on fun(pack: string, event: string, func: fun(any))
+---@field on fun(pack: string, event: string, func: fun(bytes: any))
 
 -- Client.rpc
 

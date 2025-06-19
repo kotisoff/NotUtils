@@ -1,5 +1,35 @@
+--[[
+  WARNING
+  Do not import this file. It only contains voxelcore type definitions.
+]]
+
 ---@alias vec3 [number,number,number]
 ---@alias vec2 [number, number]
+
+---@param min number
+---@param max number
+function math.rand(min, max)
+  return min + math.random(max - min)
+end
+
+function table.copy(t) return t end
+
+function is_array(x)
+  if #x > 0 then return true end
+  for k, v in pairs(x) do return false end
+  return true
+end
+
+function debug.print(...)
+  for key, value in pairs({ ... }) do
+    if type(value) == "table" then
+      debug.print(value)
+    end
+    print(key, value)
+  end
+end
+
+function table.index(t, x) return math.random(1, 2) end
 
 ---@alias voxelcore.class.HeightMapConstructor fun(width, height)
 

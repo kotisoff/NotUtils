@@ -1,4 +1,4 @@
-local coroutines = require "coroutines";
+local coroutines = require "lib/coroutines";
 
 local title = {};
 title.utils = {};
@@ -11,8 +11,8 @@ end)
 
 function title.utils.set_opacity(name, opacity)
   local el = title.document[name];
-  local elcolor = el.color;
-  el.color = { elcolor[1], elcolor[2], elcolor[3], opacity };
+  local r, g, b, _ = unpack(el.color);
+  el.color = { r, g, b, opacity };
 end
 
 local function new_title_component(name)
