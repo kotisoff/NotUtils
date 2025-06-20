@@ -33,7 +33,8 @@ end
 
 ---@return neutron.class.player
 local function get_player()
-  local x, _, z = player.get_pos()
+  local pid = hud.get_player()
+  local x, _, z = player.get_pos(pid)
   local region_pos = { x = math.floor(x / 16), z = math.floor(z / 16) }
 
   return {
@@ -197,7 +198,18 @@ function module.server_api()
     particles = {
       emit = function(...)
         local id = gfx.particles.emit(...)
-        return gfx.particles.get(id)
+        ---@type neutron.gfx.particle
+        local obj = wrap_object(gfx.particles, id)
+        obj.get_pos = function(self)
+          local origin = self:get_origin()
+          if type(origin) == "number" then
+            local entity = entities.get(origin)
+            return entity.transform:get_pos()
+          end
+          return origin
+        end
+
+        return obj
       end,
       get = function(pid)
         if not pid then error("Pizdec! PID не указан!") end
