@@ -1,10 +1,12 @@
 --[[
-  WARNING
-  Do not import this file. It only contains voxelcore type definitions.
+  ВНИМАНИЕ
+  Старайтесь не импортировать этот скрипт. Он работает просто находясь в поле зрения языкового сервера.
+  При импорте он может сломать работу мода/модов, но защита от дебилов имеется.
 ]]
 
 --[[
   VoxelCore Lua Types
+  Engine version: 0.27-0.28
   v0.0.1
   Made for not_utils
 ]]

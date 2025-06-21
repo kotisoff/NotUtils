@@ -227,6 +227,21 @@
 ---@field set_rotation fun(id: number, rot: table) Тут ваще должно быть mat4, но делать алиас для этого я ебал, ибо не шарю. ultrapohuistas
 ---@field update_settings fun(id: number, preset: table)
 
+-- Server.blockwraps
+
+---@class neutron.gfx.blockwrap
+---@field unwrap fun(self: neutron.gfx.blockwrap)
+---@field set_pos fun(self: neutron.gfx.blockwrap, position: vec3)
+---@field get_pos fun(self: neutron.gfx.blockwrap): vec3
+---@field set_texture fun(self: neutron.gfx.blockwrap, texture: string)
+---@field get_texture fun(self: neutron.gfx.blockwrap): string
+
+---@class neutron.server.blockwraps
+---@field wrap fun(position: vec3, texture: string): integer, neutron.gfx.blockwrap
+---@field unwrap fun(id: integer)
+---@field set_pos fun(id: integer, pos: vec3)
+---@field set_texture fun(id: integer, texture: string)
+
 -- Server.weather
 
 ---@class neutron.class.weather
@@ -308,7 +323,8 @@
 ---@field sandbox neutron.server.sandbox
 ---@field audio neutron.server.audio
 ---@field particles neutron.server.particles
----@field text3d neutron.server.text3d
 ---@field weather neutron.server.weather
+---@field text3d neutron.server.text3d
+---@field blockwraps neutron.server.blockwraps
 
 ---------------------------------------- Теперь точно Всё нахуй
