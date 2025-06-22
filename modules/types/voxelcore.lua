@@ -6,16 +6,15 @@
 
 --[[
   VoxelCore Lua Types
-  Engine version: 0.27-0.28
-  v0.0.1
-  Made for not_utils
+  Engine version: v0.27-0.28
+  Version: v0.0.1
 ]]
 
 -- =========================================================
 
 -- Aliases
----@alias mat4 table Матрица трансформации размерностью 4x4.
----@alias quat table Кватернион
+---@alias mat4 number[] Матрица трансформации размерностью 4x4.
+---@alias quat number[] Кватернион
 ---@alias vecN number[] Вектор любой длины
 ---@alias vec4 [number, number, number, number] Вектор размерностью 4
 ---@alias vec3 [number, number, number] Вектор размерностью 3
@@ -146,13 +145,20 @@ base64 = base64
 ---@field length number длина луча
 ---@field normal vec3 вектор нормали поверхности, которой касается луч
 
+---@class voxelcore.libblock.material
+---@field breakSound str
+---@field placeSound str
+---@field stepsSound str
+---@field hitSound str
+---@field name str
+
 ---Библиотека block.
 ---@class voxelcore.libblock Библиотека block.
 ---@field name fun(blockid: int): str Возвращает строковый id блока по его числовому id.
 ---@field index fun(name: str): int Возвращает числовой id блока, принимая в качестве агрумента строковый
 ---@field material fun(blockid: int): str Возвращает id материала блока.
----@field materials table<str, table<str>> Таблица материалов по их полным именам (пример: base:carpet)
----@field properties table<int, table<str, table>> Таблица пользовательских свойств блоков (см. ../../block-properties.md)(git)
+---@field materials table<str, voxelcore.libblock.material> Таблица материалов по их полным именам (пример: base:carpet)
+---@field properties table<int, table<str, any>> Таблица пользовательских свойств блоков (см. ../../block-properties.md)(git)
 ---@field caption fun(blockid: int): str  Возвращает название блока, отображаемое в интерфейсе.
 ---@field get fun(x: int, y: int, z: int): int Возвращает числовой id блока на указанных координатах. Если чанк на указанных координатах не загружен, возвращает -1.
 ---@field get_states fun(x: int, y: int, z: int): int Возвращает полное состояние (поворот + сегмент + доп. информация) в виде целого числа
@@ -740,6 +746,7 @@ world = world
 ---@field reset fun(code: str, handler?: function) Удаляет событие, добавляя обработчик, если указан.
 ---@field emit fun(code: str, ...): bool Генерирует событие по коду. Если событие не существует, ничего не произойдет. Существование события определяется наличием обработчиков.
 ---@field remove_by_prefix fun(packid: str) Удаляет все события с префиксом packid:. Вы выходе из мира выгружаются события всех паков, включая core:.
+---@field handlers table<str, function[]> Все хендлеры ивентов
 events = events
 
 -- ========================audio==========================

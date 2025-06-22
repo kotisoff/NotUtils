@@ -40,7 +40,7 @@ local function get_player()
   return {
     username = "Player",
     active = true,
-    pid = 0,
+    pid = pid,
     region_pos = region_pos
   }
 end
@@ -60,9 +60,14 @@ local env = {
   end
 }
 
+---@type neutron.utils.bson
 local bson = {
-  serialize = json.tostring,
-  deserialize = json.parse
+  serialize = function(tbl)
+    return tbl
+  end,
+  deserialize = function(buf)
+    return buf
+  end
 }
 
 ---@return neutron.server
@@ -141,13 +146,15 @@ function module.server_api()
     },
     events = {
       tell = function(pack, event, client, bytes)
-        events.emit(pack .. ':' .. event, bytes)
+        events.emit(pack .. ':s:' .. event, bytes)
       end,
       echo = function(pack, event, bytes)
-        events.emit(pack .. ':' .. event, bytes)
+        events.emit(pack .. ':s:' .. event, bytes)
       end,
       on = function(pack, event, func)
-        events.on(pack .. ':' .. event, func)
+        events.on(pack .. ':c:' .. event, function(data)
+          func(get_client(), data)
+        end)
       end
     },
     ---@diagnostic disable-next-line: assign-type-mismatch
@@ -158,12 +165,12 @@ function module.server_api()
       emitter = {
         create_echo = function(pack, event)
           return function(...)
-            events.emit(pack .. ':' .. event, ...)
+            events.emit(pack .. ':s:' .. event, ...)
           end
         end,
         create_tell = function(pack, event)
           return function(client, ...)
-            events.emit(pack .. ':' .. event, ...)
+            events.emit(pack .. ':s:' .. event, ...)
           end
         end
       }
@@ -254,7 +261,21 @@ function module.server_api()
       update_settings = function(...)
         return gfx.text3d.update_settings(...)
       end
-
+    },
+    blockwraps = {
+      wrap = function(position, texture)
+        local id = gfx.blockwraps.wrap(position, texture)
+        return id, wrap_object(gfx.blockwraps, id)
+      end,
+      unwrap = function(id)
+        gfx.blockwraps.unwrap(id)
+      end,
+      set_pos = function(id, pos)
+        gfx.blockwraps.set_pos(id, pos)
+      end,
+      set_texture = function(id, texture)
+        gfx.blockwraps.set_texture(id, texture)
+      end
     },
     ---@diagnostic disable-next-line: assign-type-mismatch
     weather = nil
@@ -276,17 +297,17 @@ function module.client_api()
     env = env,
     events = {
       send = function(pack, event, bytes)
-        events.emit(pack .. ':' .. event, bytes)
+        events.emit(pack .. ':c:' .. event, bytes)
       end,
       on = function(pack, event, func)
-        events.on(pack .. ':' .. event, func)
+        events.on(pack .. ':s:' .. event, func)
       end
     },
     rpc = {
       emitter = {
         create_send = function(pack, event)
           return function(...)
-            events.emit(pack .. ':' .. event, ...)
+            events.emit(pack .. ':c:' .. event, ...)
           end
         end
       }
