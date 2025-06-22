@@ -257,7 +257,7 @@ entities = entities
 ---@class voxelcore.libfile Библиотека функций для работы с файлами
 ---@field resolve fun(path: str): str Функция приводит запись точка_входа:путь (например user:worlds/house1) к обычному пути. (например C://Users/user/.voxeng/worlds/house1). Функцию не нужно использовать в сочетании с другими функциями из библиотеки, так как они делают это автоматически. Возвращаемый путь не является каноническим и может быть как абсолютным, так и относительным.
 ---@field read fun(path: str): str Читает весь текстовый файл и возвращает в виде строки
----@field read_bytes fun(path: str, usetable: bool): bytearray|table Читает файл в массив байт. При значении usetable = false возвращает Bytearray вместо table.
+---@field read_bytes fun(path: str, usetable?: bool): bytearray|table Читает файл в массив байт. При значении usetable = false возвращает Bytearray вместо table.
 ---@field is_writeable fun(path: str): bool Проверяет, доступно ли право записи по указанному пути.
 ---@field write fun(path: str, text: str) Записывает текст в файл (с перезаписью)
 ---@field write_bytes fun(path: str, data: bytearray|table) Записывает массив байт в файл (с перезаписью)
@@ -345,7 +345,7 @@ local blockwraps = {}
 
 ---Библиотека для упрпавления частицами.
 ---@class voxelcore.libgfx.particles Библиотека для упрпавления частицами.
----@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: neutron.gfx.particle)
+---@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle)
 ---@field stop fun(id: int)
 ---@field is_alive fun(id: int): bool
 ---@field get_origin fun(id: int): vec3|int
@@ -599,34 +599,34 @@ pack = pack
 ---@class voxelcore.libplayer Библиотека player
 ---@field create fun(name: str): int Создаёт игрока и возвращает его id.
 ---@field delete fun(id: int) Удаляет игрока по id.
----@field get_pos fun(playerid: int): number, number, number Возвращает x, y, z координаты игрока
----@field set_pos fun(playerid: int, x: number, y: number, z: number) Устанавливает x, y, z координаты игрока
----@field get_vel fun(playerid: int): number, number, number Возвращает x, y, z линейной скорости игрока
----@field set_vel fun(playerid: int, x: number, y: number, z: number) Устанавливает x, y, z линейной скорости игрока
----@field get_rot fun(playerid: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в радианах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
----@field set_rot fun(playerid: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в радианах)
----@field get_dir fun(playerid: int): vec3 Позволяет получить вектор направления камеры игрока. Параметр playerid работает только если переназначить функцию, гарантированно с Neutron.
----@field get_inventory fun(playerid: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
----@field is_flight fun(playerid: int): bool Геттер режима полета
----@field set_flight fun(playerid: int, flag: bool) Сеттер режима полета
----@field is_noclip fun(playerid: int): bool Геттер noclip режима (выключенная коллизия игрока)
----@field set_noclip fun(playerid: int, flag: bool) Сеттер noclip режима (выключенная коллизия игрока)
----@field is_infinite_items fun(playerid: int): bool Геттер бесконечных предметов (не удаляются из инвентаря при использовании)
----@field set_infinite_items fun(playerid: int, flag: bool) Сеттер бесконечных предметов (не удаляются из инвентаря при использовании)
----@field is_instant_destruction fun(playerid: int): bool Геттер мгновенного разрушения блоков при активации привязки player.destroy.
----@field set_instant_destruction fun(playerid: int, flag: bool) Сеттер мгновенного разрушения блоков при активации привязки player.destroy.
----@field is_loading_chunks fun(playerid: int): bool Геттер свойства, определяющего, прогружает ли игрок чанки вокруг.
----@field set_loading_chunks fun(playerid: int, flag: bool) Сеттер свойства, определяющего, прогружает ли игрок чанки вокруг.
----@field get_spawnpoint fun(playerid: int): number, number, number Геттер точки спавна игрока
----@field set_spawnpoint fun(playerid: int, x: number, y: number, z: number) Сеттер точки спавна игрока
----@field is_suspended fun(playerid: int): bool Геттер статуса "заморозки" игрока.
----@field set_suspended fun(playerid: int, flag: bool) Сеттер статуса "заморозки" игрока.
----@field get_name fun(playerid: int): str Геттер имени игрока
----@field set_name fun(playerid: int, name: str) Сеттер имени игрока
----@field set_selected_slot fun(playerid: int, slotid: int) Устанавливает индекс выбранного слота
----@field get_selected_block fun(playerid: int): number, number, number Возвращает координаты выделенного блока, либо nil
----@field get_selected_entity fun(playerid: int): int Возвращает уникальный идентификатор сущности, на которую нацелен игрок
----@field get_entity fun(playerid: int): int Возвращает уникальный идентификатор сущности игрока
+---@field get_pos fun(playerid?: int): number, number, number Возвращает x, y, z координаты игрока
+---@field set_pos fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z координаты игрока
+---@field get_vel fun(playerid?: int): number, number, number Возвращает x, y, z линейной скорости игрока
+---@field set_vel fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z линейной скорости игрока
+---@field get_rot fun(playerid?: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в радианах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
+---@field set_rot fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в радианах)
+---@field get_dir fun(playerid?: int): vec3 Позволяет получить вектор направления камеры игрока. Параметр playerid работает только если переназначить функцию, гарантированно с Neutron.
+---@field get_inventory fun(playerid?: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
+---@field is_flight fun(playerid?: int): bool Геттер режима полета
+---@field set_flight fun(playerid?: int, flag: bool) Сеттер режима полета
+---@field is_noclip fun(playerid?: int): bool Геттер noclip режима (выключенная коллизия игрока)
+---@field set_noclip fun(playerid?: int, flag: bool) Сеттер noclip режима (выключенная коллизия игрока)
+---@field is_infinite_items fun(playerid?: int): bool Геттер бесконечных предметов (не удаляются из инвентаря при использовании)
+---@field set_infinite_items fun(playerid?: int, flag: bool) Сеттер бесконечных предметов (не удаляются из инвентаря при использовании)
+---@field is_instant_destruction fun(playerid?: int): bool Геттер мгновенного разрушения блоков при активации привязки player.destroy.
+---@field set_instant_destruction fun(playerid?: int, flag: bool) Сеттер мгновенного разрушения блоков при активации привязки player.destroy.
+---@field is_loading_chunks fun(playerid?: int): bool Геттер свойства, определяющего, прогружает ли игрок чанки вокруг.
+---@field set_loading_chunks fun(playerid?: int, flag: bool) Сеттер свойства, определяющего, прогружает ли игрок чанки вокруг.
+---@field get_spawnpoint fun(playerid?: int): number, number, number Геттер точки спавна игрока
+---@field set_spawnpoint fun(playerid?: int, x: number, y: number, z: number) Сеттер точки спавна игрока
+---@field is_suspended fun(playerid?: int): bool Геттер статуса "заморозки" игрока.
+---@field set_suspended fun(playerid?: int, flag: bool) Сеттер статуса "заморозки" игрока.
+---@field get_name fun(playerid?: int): str Геттер имени игрока
+---@field set_name fun(playerid?: int, name: str) Сеттер имени игрока
+---@field set_selected_slot fun(playerid?: int, slotid: int) Устанавливает индекс выбранного слота
+---@field get_selected_block fun(playerid?: int): number, number, number Возвращает координаты выделенного блока, либо nil
+---@field get_selected_entity fun(playerid?: int): int Возвращает уникальный идентификатор сущности, на которую нацелен игрок
+---@field get_entity fun(playerid?: int): int Возвращает уникальный идентификатор сущности игрока
 player = player
 
 -- =========================================================
