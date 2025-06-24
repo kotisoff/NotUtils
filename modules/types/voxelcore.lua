@@ -7,26 +7,29 @@
 --[[
   VoxelCore Lua Types
   Engine version: v0.27-0.28
-  Version: v0.0.1
+  Version: v0.0.2
 ]]
 
--- =========================================================
+-- =================aliases=and=shortcuts===================
 
 -- Aliases
+
 ---@alias mat4 number[] Матрица трансформации размерностью 4x4.
 ---@alias quat number[] Кватернион
 ---@alias vecN number[] Вектор любой длины
 ---@alias vec4 [number, number, number, number] Вектор размерностью 4
 ---@alias vec3 [number, number, number] Вектор размерностью 3
 ---@alias vec2 [number, number] Вектор размерностью 2
----@alias bytearray table<integer> Массив байт
+---@alias ffibytearray unknown Мутный массив байт от luajit.
+---@alias bytearray table<int>|ffibytearray Массив байт
 
 -- Short names
+
 ---@alias int integer
 ---@alias str string
 ---@alias bool boolean
 
--- =========================================================
+-- =========================funcs===========================
 
 ---Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
 ---@param x table
@@ -48,7 +51,7 @@ function timeit(iters, func, ...) return timeit(iters, func, ...) end
 ---@param timesec number
 function sleep(timesec) return sleep(timesec) end
 
--- =========================================================
+-- =========================math============================
 
 ---@class voxelcore.math
 ---@field clamp fun(_in: number, low: number, high: number): number Ограничивает число _in по лимитам low и high. Т.е.: Если _in больше чем high - вернётся high, если _in меньше чем low - вернётся low. В противном случае вернётся само число.
@@ -59,7 +62,7 @@ function sleep(timesec) return sleep(timesec) end
 ---@field sum fun(x: number, t: number[]): number Возвращает сумму всех принимаемых аргументов.
 math = math
 
--- =========================================================
+-- =========================table===========================
 
 ---@class voxelcore.table
 ---@field copy fun(t: table): table Создаёт и возвращает копию переданной таблицы путём создания новой и копирования в неё всех элементов из переданной.
@@ -80,7 +83,7 @@ math = math
 ---@field tostring fun(t: table): str Конвертирует переданную таблицу в строку.
 table = table
 
--- =========================================================
+-- ========================string===========================
 
 ---@class voxelcore.string
 ---@field explode fun(separator: str, str: str, withpattern: bool): str[] Разбивает строку str на части по указанному разделителю/выражению separator и возвращает результат ввиде таблицы из строк. Если withpattern равен true, то параметр separator будет определяться как регулярное выражение.
@@ -99,13 +102,16 @@ table = table
 ---@field right_pad fun(str: str, size: number, char?: str): str Добавляет char справа от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 string = string
 
--- =========================================================
+-- =========================debug===========================
 
 ---@class voxelcore.debug
----@field print fun(...)
+---@field print fun(...) Рекурсивно читает и выводит в консоль объект. Максимальная глубина: 10.
+---@field error fun(message: str) Выводит в консоль сообщение в виде ошибки
+---@field warning fun(message: str) Выводит в консоль сообщение в виде предупреждения
+---@field log fun(message: str) Выводит в консоль сообщение
 debug = debug
 
--- =========================================================
+-- ==========================app============================
 
 ---Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
 ---@class voxelcore.libapp Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
@@ -128,7 +134,7 @@ debug = debug
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
 app = app
 
--- =========================================================
+-- ========================base64===========================
 
 ---Библиотека для base64 кодирования/декодирования.
 ---@class voxelcore.libbase64
@@ -136,7 +142,7 @@ app = app
 ---@field decode fun(base64string: str, usetable?: bool): table | bytearray Декодирует base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
 base64 = base64
 
--- =========================================================
+-- =========================block===========================
 
 ---@class voxelcore.libblock.raycast_result
 ---@field block int id блока
@@ -194,7 +200,7 @@ base64 = base64
 ---@field get_field fun(x: int, y: int, z: int, name: str, index?: int): bool|int|number|str|nil Возвращает значение записанное в поле блока. Возвращает nil если поле не существует или ни в одно поле блока не было произведено записи. Бросает исключение при выходе за границы массива.
 block = block
 
--- =========================================================
+-- =======================byteutil==========================
 
 ---Библиотека предоставляет функции для работы с массивами байт, представленными в виде таблиц или Bytearray
 ---@class voxelcore.libbyteutil Библиотека предоставляет функции для работы с массивами байт, представленными в виде таблиц или Bytearray.
@@ -203,7 +209,7 @@ block = block
 ---@field unpack fun(format: str, bytes: table|bytearray): ... Извлекает значения из массива байт, ориентируясь на строку формата.
 byteutil = byteutil
 
--- =========================================================
+-- ========================cameras==========================
 
 ---Библиотека предназначена для работы с камерами.
 ---@class voxelcore.class.camera
@@ -232,7 +238,7 @@ byteutil = byteutil
 ---@field get fun(index: int): voxelcore.class.camera Возвращает камеру по индексу.
 cameras = cameras
 
--- =========================================================
+-- =======================entities==========================
 
 ---Библиотека предназначена для работы с реестром сущностей.
 ---@class voxelcore.libentities Библиотека предназначена для работы с реестром сущностей.
@@ -251,7 +257,7 @@ cameras = cameras
 ---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
 entities = entities
 
--- =========================================================
+-- =========================file============================
 
 ---Библиотека функций для работы с файлами
 ---@class voxelcore.libfile Библиотека функций для работы с файлами
@@ -286,7 +292,7 @@ entities = entities
 ---@field join fun(dir: str, path: str): str Соединяет путь. Пример: file.join("world:data", "base/config.toml) -> world:data/base/config.toml. Следует использовать данную функцию вместо конкатенации с /, так как префикс:/путь не является валидным.
 file = file
 
--- =========================================================
+-- ===================data=serializers======================
 
 ---Библиотека содержит функции для сериализации и десериализации таблиц
 ---@class voxelcore.json
@@ -312,7 +318,7 @@ yaml = yaml
 ---@field frombytes fun(code: table|bytearray): table Декодирует массив байт в таблицу
 bjson = bjson
 
--- =========================================================
+-- ====================gfx.blockwraps=======================
 
 ---Библиотека для работы с обертками блоков.
 ---@class voxelcore.libgfx.blockwraps Библиотека для работы с обертками блоков.
@@ -321,6 +327,8 @@ bjson = bjson
 ---@field set_pos fun(id: int, position: vec3) Меняет позицию обёртки, если она существует.
 ---@field set_texture fun(id: int, texture: str) Меняет текстуру обёртки, если она существует.
 local blockwraps = {}
+
+-- =====================gfx.particles=======================
 
 ---@class voxelcore.class.particle
 ---@field texture?	str Текстура частицы.	
@@ -352,6 +360,8 @@ local blockwraps = {}
 ---@field set_origin fun(id: int, origin: vec3|int)
 local particles = {}
 
+-- ======================gfx.weather========================
+
 ---@class voxelcore.class.weather.fall
 ---@field texture? str Текстура осадков
 ---@field noise? str Шум осадков
@@ -381,6 +391,8 @@ local particles = {}
 ---@field is_transition fun(): bool Проверяет, происходит ли в данный момент переключение погоды
 local weather = {}
 
+-- ======================gfx.text3d=========================
+
 ---@alias voxelcore.class.text3d.display_types "static_billboard" | "y_free_billboard" | "xy_free_billboard" | "projected"
 
 ---@class voxelcore.class.text3d
@@ -407,6 +419,8 @@ local weather = {}
 ---@field update_settings fun(id: int, preset: voxelcore.class.text3d) Обновляет настройки отображения текста.
 local text3d = {}
 
+-- ==========================gfx============================
+
 ---Библиотеки для работы с графическими эффектами
 gfx = gfx or {
   text3d = text3d,
@@ -415,7 +429,7 @@ gfx = gfx or {
   particles = particles,
 }
 
--- =========================================================
+-- ==========================gui============================
 
 ---Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex: document
 ---@class voxelcore.libgui Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex: document
@@ -430,7 +444,7 @@ gfx = gfx or {
 ---@field load_document fun(path: str, name: str, args: table): str Загружает UI документ с его скриптом, возвращает имя документа, если успешно загружен.
 gui = gui
 
--- =========================================================
+-- ==========================hud============================
 
 ---Библиотека hud
 ---@class voxelcore.libhud Библиотека hud
@@ -450,7 +464,7 @@ gui = gui
 ---@field set_allow_pause fun(flag: bool) Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
 hud = hud
 
--- =========================================================
+-- =========================input===========================
 
 ---Библиотека input
 ---@class voxelcore.libinput Библиотека input
@@ -465,7 +479,7 @@ hud = hud
 ---@field is_pressed fun(code: str): bool Проверяет активность ввода по коду, состоящему из: 1. типа ввода: key (клавиша) или mouse (кнопка мыши) 2. код ввода: имя клавиши или имя кнопки мыши (left, middle, right)
 input = input
 
--- =========================================================
+-- =======================inventory=========================
 
 ---Библиотека функций для работы с инвентарем.
 ---@class voxelcore.libinventory
@@ -491,7 +505,7 @@ input = input
 ---@field use fun(invid: int, slot: int) Уменьшает счётчик оставшихся использований / прочность предмета, создавая локальное свойство `uses` при отсутствии. Удаляет один предмет из слота при достижении нулевого значения счётчика. При отсутствии в JSON предмета свойства `uses` ничего не делает. См. свойство предметов `uses`
 inventory = inventory
 
--- =========================================================
+-- =========================item============================
 
 ---Библиотека item
 ---@class voxelcore.libitem Библиотека item
@@ -508,7 +522,7 @@ inventory = inventory
 ---@field uses fun(itemid: int): int Возвращает значение свойства `uses`
 item = item
 
--- =========================================================
+-- ========================matrix===========================
 
 ---mat4 содержит набор функций для работы с матрицами трансформации размерностью 4x4.
 ---@class voxelcore.libmat4 mat4 содержит набор функций для работы с матрицами трансформации размерностью 4x4.
@@ -538,7 +552,7 @@ item = item
 ---@field tostring fun(m: mat4, multiline?: bool): str Возвращает строку представляющую содержимое матрицы, многострочную, если multiline = true
 mat4 = mat4
 
--- =========================================================
+-- ========================network==========================
 
 ---@class voxelcore.class.socket
 ---@field send fun(self: voxelcore.class.socket, data: table|bytearray|str) Отправляет массив байт
@@ -565,7 +579,7 @@ mat4 = mat4
 ---@field get_total_download fun(): int Возвращает приблизительный объем полученных данных (включая соединения с localhost) в байтах.
 network = network
 
--- =========================================================
+-- =========================pack============================
 
 ---@class voxelcore.class.packinfo
 ---@field id str Буквенный идентификатор мода
@@ -593,7 +607,7 @@ network = network
 ---@field request_writeable fun(packid: str, callback: fun(str)) Запрашивает у пользователя право на модификацию пака. При подтвержении новая точка входа будет передана в callback.
 pack = pack
 
--- =========================================================
+-- ========================player===========================
 
 ---Библиотека player
 ---@class voxelcore.libplayer Библиотека player
@@ -629,7 +643,7 @@ pack = pack
 ---@field get_entity fun(playerid?: int): int Возвращает уникальный идентификатор сущности игрока
 player = player
 
--- =========================================================
+-- ======================quaternion=========================
 
 ---Библиотека для работы с кватернионами.
 ---@class voxelcore.libquat Библиотека для работы с кватернионами.
@@ -640,7 +654,7 @@ player = player
 ---@field tostring fun(q: quat): str возвращает строку представляющую содержимое кватерниона
 quat = quat
 
--- =========================================================
+-- =========================rules===========================
 
 ---@alias voxelcore.class.rulelist "cheat-commands" | "allow-content-access" | "allow-flight" | "allow-noclip" | "allow-attack" | "allow-destroy" | "allow-cheat-movement" | "allow-debug-cheats" | "allow-fast-interaction" | str
 
@@ -654,7 +668,7 @@ quat = quat
 ---@field reset fun(name: voxelcore.class.rulelist) Сбрасывает значение правила к значению по-умолчанию.
 rules = rules
 
--- =========================================================
+-- =========================time============================
 
 ---Библиотека time
 ---@class voxelcore.libtime Библиотека time
@@ -662,7 +676,7 @@ rules = rules
 ---@field delta fun(): number Возвращает дельту времени (время прошедшее с предыдущего кадра)
 time = time
 
--- =========================================================
+-- =========================utf-8===========================
 
 ---Библиотека предоставляет функции для работы с UTF-8.
 ---@class voxelcore.libutf8 Библиотека предоставляет функции для работы с UTF-8.
@@ -677,7 +691,7 @@ time = time
 ---@field escape fun(text: str): str Экранирует строку
 utf8 = utf8
 
--- =========================================================
+-- ========================vector===========================
 
 ---vecn содержит набор функций для работы с векторами размерностью 2, 3 или 4.
 ---@class voxelcore.libvecN vecn содержит набор функций для работы с векторами размерностью 2, 3 или 4.
@@ -716,7 +730,7 @@ vec3 = vec3
 ---@class voxelcore.libvec4: voxelcore.libvecN
 vec4 = vec4
 
--- =========================================================
+-- =========================world===========================
 
 ---Библиотека world
 ---@class voxelcore.libworld Библиотека world
@@ -738,7 +752,7 @@ vec4 = vec4
 ---@field save_chunk_data fun(x: int, z: int, data: bytearray) Сохраняет данные чанка в регион. Изменения будет записаны в файл только после сохранения мира.
 world = world
 
--- =========================================================
+-- ========================events===========================
 
 ---События движка
 ---@class voxelcore.libevents
@@ -749,7 +763,7 @@ world = world
 ---@field handlers table<str, function[]> Все хендлеры ивентов
 events = events
 
--- ========================audio==========================
+-- =========================audio===========================
 
 ---Библиотека для управления звуками
 ---@class voxelcore.libaudio
@@ -777,7 +791,7 @@ events = events
 ---@field count_streams fun(): int Получить текущее число проигрываемых аудио-потоков
 audio = audio
 
--- =======================================================
+-- ========================console==========================
 
 ---@class voxelcore.libconsole
 ---@field add_command fun(scheme: str, handler: function) Создаёт команду
@@ -789,13 +803,14 @@ audio = audio
 ---@field set fun(...): any
 ---@field execute fun(command: str) Выполняет команду
 
--- =======================================================
+-- ========================assets===========================
 
 ---@class voxelcore.libassets
----@field load_texture fun(path: str, texture: str) Загружает тектуру из path на место texture.
+---@field load_texture fun(bytes: str|bytearray, texture: str) Загружает тектуру по пути из path_or_bytes если это строка или использует массив байт из path_or_bytes и загружает на место texture.
+---@field parse_model fun(format: "xml"|"vcm", path: str, modelname: str) Загружает модель по пути path, парсит относительно format и заменяет/добавляет modelname в регистре.
 assets = assets
 
--- =========================ECS===========================
+-- ================entity=component=system==================
 
 ---@class voxelcore.class.entity.transform
 ---@field get_pos fun(self: voxelcore.class.entity.transform): vec3 Возвращает позицию сущности
@@ -936,7 +951,7 @@ assets = assets
 ---@class voxelcore.ui.document.inventory: voxelcore.ui.document.base_element
 ---@field inventory int id инвентаря, к которому привязан элемент
 
--- =========================================================
+-- ========================canvas===========================
 
 ---@class voxelcore.ui.canvas
 ---@field at fun(x: int, y: int): vec4 возвращает RGBA пиксель по указанным координатам
@@ -951,7 +966,7 @@ assets = assets
 ---@field set_data fun(data: table) заменяет данные пикселей (ширина * высота * 4 чисел)
 ---@field create_texture fun(name: str) создаёт и делится текстурой с рендерером
 
--- =====================world_generator=====================
+-- ====================world=generator======================
 
 ---@alias voxelcore.class.HeightMapConstructor fun(width, height)
 

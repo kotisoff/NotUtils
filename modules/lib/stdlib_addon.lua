@@ -47,3 +47,7 @@ function table.to_dict(tbl, pattern)
   for i, val in ipairs(pattern) do res[val] = tbl[i] end
   return res
 end
+
+function tohex(n)
+  return string.format("%x", n)
+end
