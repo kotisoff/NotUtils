@@ -54,16 +54,20 @@ local function get_client()
   }
 end
 
-local env = {
-  create_env = function(pack, env_name)
-    return {}
-  end
-}
-
----@type neutron.utils.bson
+---@type neutron.shared.bson
 local bson = {
   serialize = function(tbl)
     return tbl
+  end,
+  deserialize = function(buf)
+    return buf
+  end
+}
+
+---@type neutron.shared.inventory_data
+local inventory_data = {
+  serialize = function(inv)
+    return inv
   end,
   deserialize = function(buf)
     return buf
@@ -101,6 +105,7 @@ function module.server_api()
       }
     },
     bson = bson,
+    inventory_data = inventory_data,
     console = {
       set_command = function(scheme, permissions, handler, allow_not_authorized) end,
       create_state = function(name) return {} end,
@@ -175,7 +180,18 @@ function module.server_api()
         end
       }
     },
-    env = env,
+    env = {
+      private = {
+        create = function()
+          return {}
+        end
+      },
+      public = {
+        create = function()
+          return {}
+        end
+      }
+    },
     sandbox = {
       players = {
         get_all = function()
@@ -294,7 +310,12 @@ function module.client_api()
       sync = function(...) end
     },
     bson = bson,
-    env = env,
+    inventory_data = inventory_data,
+    env = {
+      create_env = function(pack, env_name)
+        return {}
+      end
+    },
     events = {
       send = function(pack, event, bytes)
         events.emit(pack .. ':c:' .. event, bytes)

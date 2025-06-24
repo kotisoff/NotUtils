@@ -1,7 +1,7 @@
 --[[
   Neutron Lua Types
   Neuton version: v0.2.0
-  Version: v0.0.1
+  Version: v0.0.2
 ]]
 
 -- ========================aliases==========================
@@ -27,11 +27,17 @@
 ---@field account neutron.class.account Аккаунт, привязанный к клиенту
 ---@field player neutron.class.player Игрок, привязанный к клиенту
 
--- =========================utils===========================
+-- ========================shared===========================
 
----@class neutron.utils.bson
----@field serialize fun(tbl: table): table Возвращает tbl в виде байт
----@field deserialize fun(buf: any): table Читает таблицу из массива байт
+---@class neutron.shared.bson
+---@field serialize fun(tbl: table): bytearray Возвращает tbl в виде байт
+---@field deserialize fun(buf: bytearray): table Читает таблицу из массива байт
+
+---@alias neutron.class.inventory {id: integer, count: integer, meta?: table}[]
+
+---@class neutron.shared.inventory_data
+---@field serialize fun(inv: neutron.class.inventory): bytearray Возвращает inv в виде байт
+---@field deserialize fun(bytes: bytearray): neutron.class.inventory Читает инвентарь из массива байт
 
 -- ========================server===========================
 
@@ -340,14 +346,16 @@
 
 ---@class neutron.client
 ---@field entities neutron.client.entities
----@field bson neutron.utils.bson
+---@field bson neutron.shared.bson
+---@field inventory_data neutron.shared.inventory_data
 ---@field env neutron.client.env
 ---@field events neutron.client.events
 ---@field rpc neutron.client.rpc
 
 ---@class neutron.server
 ---@field accounts neutron.server.accounts
----@field bson neutron.utils.bson
+---@field bson neutron.shared.bson
+---@field inventory_data neutron.shared.inventory_data
 ---@field console neutron.server.console
 ---@field db neutron.server.db
 ---@field entities neutron.server.entities

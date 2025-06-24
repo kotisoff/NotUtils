@@ -58,14 +58,6 @@ function utils.parse_function_string(prop)
   return func;
 end
 
----@param num number
----@param digits number Number of digits after comma.
----@return number
-function utils.round_to(num, digits)
-  local accuracy = 10 ^ digits;
-  return (math.floor(num) * accuracy) / accuracy
-end
-
 ---Random callback.
 ---@param chance number 0..1
 ---@param cb fun(): any
