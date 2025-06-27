@@ -1,3 +1,5 @@
+-- ========================module===========================
+
 local module = {}
 
 ---@return boolean
@@ -10,15 +12,19 @@ function module.mode()
   return "standalone"
 end
 
-local function wrap_object(object, ...)
+-- ======================class=utils========================
+
+---@param object any
+---@param data { id: int }
+local function wrap_object(object, data)
   local __index = {}
   for key, value in pairs(object) do
     __index[key] = function(self, ...)
-      value(table.unpack(self), ...)
+      value(self.id, ...)
     end
   end
 
-  return setmetatable({ ... }, { __index = __index })
+  return setmetatable(data, { __index = __index })
 end
 
 ---@return neutron.class.account
@@ -54,6 +60,8 @@ local function get_client()
   }
 end
 
+-- ====================shared=objects=======================
+
 ---@type neutron.shared.bson
 local bson = {
   serialize = function(tbl)
@@ -73,6 +81,46 @@ local inventory_data = {
     return buf
   end
 }
+
+-- =====================server=audio========================
+
+local function create_speaker(id)
+  ---@type neutron.class.speaker
+  local speaker = wrap_object(audio, { id = id })
+  function speaker:get_time_left()
+    local осталось_секунд_блядь = speaker:get_duration() - speaker:get_time()
+    return math.max(осталось_секунд_блядь, 0)
+  end
+
+  return speaker
+end
+
+---@type neutron.server.audio
+local audio = {
+  play_sound = function(...)
+    local id = audio.play_sound(...)
+    return id, create_speaker(id)
+  end,
+  play_sound_2d = function(...)
+    local id = audio.play_sound_2d(...)
+    return id, create_speaker(id)
+  end,
+  play_stream = function(...)
+    local id = audio.play_stream(...)
+    return id, create_speaker(id)
+  end,
+  play_stream_2d = function(...)
+    local id = audio.play_stream_2d(...)
+    return id, create_speaker(id)
+  end,
+  count_speakers = audio.count_speakers,
+  count_streams = audio.count_streams,
+  register_duration = function(name, duration)
+    -- А, да? ну ладно.
+  end
+}
+
+-- ===================module=server=api=====================
 
 ---@return neutron.server
 function module.server_api()
@@ -215,8 +263,22 @@ function module.server_api()
             return get_player()
           end
         end,
-        set_pos = function(_player, pos)
-          player.set_pos(_player.pid, pos.x, pos.y, pos.z)
+        sync_states = function(_player, states)
+          if states.pos then
+            local pos = states.pos
+            ---@diagnostic disable-next-line: need-check-nil
+            player.set_pos(_player.pid, pos.x, pos.y, pos.z)
+          end
+          if states.rot then
+            local rot = states.rot
+            ---@diagnostic disable-next-line: need-check-nil
+            player.set_rot(_player.pid, rot.yaw, rot.pitch, 0)
+          end
+          if states.cheats then
+            local noclip, flight = states.cheats.noclip, states.cheats.flight
+            player.set_flight(_player.pid, flight)
+            player.set_noclip(_player.pid, noclip)
+          end
         end
       }
     },
@@ -225,7 +287,7 @@ function module.server_api()
       emit = function(...)
         local id = gfx.particles.emit(...)
         ---@type neutron.gfx.particle
-        local obj = wrap_object(gfx.particles, id)
+        local obj = wrap_object(gfx.particles, { id = id })
         obj.get_pos = function(self)
           local origin = self:get_origin()
           if type(origin) == "number" then
@@ -237,15 +299,15 @@ function module.server_api()
 
         return obj
       end,
-      get = function(pid)
-        if not pid then error("Pizdec! PID не указан!") end
-        return wrap_object(gfx.particles, pid)
+      get = function(id)
+        if not id then error("Pizdec! PID не указан!") end
+        return wrap_object(gfx.particles, { id = id })
       end
     },
     text3d = {
       show = function(position, text, preset, extension)
         local id = gfx.text3d.show(position, text, preset, extension)
-        return id, wrap_object(gfx.text3d, id)
+        return id, wrap_object(gfx.particles, { id = id })
       end,
       hide = function(...)
         return gfx.text3d.hide(...)
@@ -284,7 +346,7 @@ function module.server_api()
     blockwraps = {
       wrap = function(position, texture)
         local id = gfx.blockwraps.wrap(position, texture)
-        return id, wrap_object(gfx.blockwraps, id)
+        return id, wrap_object(gfx.blockwraps, { id = id })
       end,
       unwrap = function(id)
         gfx.blockwraps.unwrap(id)

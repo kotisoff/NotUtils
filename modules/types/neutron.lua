@@ -189,7 +189,7 @@
 ---@field get_in_radius fun(pos: {x:number, y:number,z:number}, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
 ---@field get_by_pid fun(pid): neutron.class.player | nil Возвращает объект игрока по pid
----@field set_pos fun(player: neutron.class.player, pos: {x:number, y: number, z: number}) Устанавливает позицию игрока на сервере и синхронизирует её между клиентами
+---@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { yaw: number, pitch: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
 ---@class neutron.server.sandbox
 ---@field players neutron.server.sandbox.players
@@ -212,7 +212,8 @@
 ---@field set_position fun(self: neutron.class.speaker, x: number, y: number, z: number) Установка позиции спикера в мире
 ---@field get_velocity fun(self: neutron.class.speaker): number, number, number Получить скорость движения источника звука в мире
 ---@field set_velocity fun(self: neutron.class.speaker, x: number, y: number, z: number) Установить скорость движения источника звука в мире
----@field get_duration fun(self: neutron.class.speaker): number Получение длительности. Возвращает 0 из-за технических ограничений.
+---@field get_duration fun(self: neutron.class.speaker): number Получение длительности. Возвращает 0 из-за технических ограничений, если продолжительность звука не зарегистрирована.
+---@field get_time_left fun(self: neutron.class.speaker): number | nil Получение оставшегося времени до конца воспроизведения звука. Возвращает nil из-за технических ограничений, если продолжительность звука не зарегистрирована.
 ---@field id integer Идентификатор спикера
 
 ---@class neutron.server.audio
@@ -222,6 +223,7 @@
 ---@field play_sound_2d fun(name: string, volume: number, pitch: number, channel?: string, loop?: boolean): integer, neutron.class.speaker Воспроизведение звука в 2D. Возвращает ID спикера и объект Speaker.
 ---@field count_speakers fun(): number Возвращает количество активных спикеров.
 ---@field count_streams fun(): number Возвращает количество активных аудиопотоков.
+---@field register_duration fun(name: string, duration: number) Регистрирует продолжительность звука в секундах
 
 -- Server.blockwraps
 
@@ -249,7 +251,7 @@
 
 ---@class neutron.server.particles
 ---@field emit fun(origin: vec3 | number, count: number, preset: voxelcore.class.particle, extension?: voxelcore.class.particle): neutron.gfx.particle Создаёт частицу. Возвращает объект партиклов или nil, если эффект не найден.
----@field get fun(pid: integer): neutron.gfx.particle | nil Получает частицу. Возвращает объект партиклов или nil, если эффект не найден.
+---@field get fun(id: integer): neutron.gfx.particle | nil Получает частицу. Возвращает объект партиклов или nil, если эффект не найден.
 
 -- Server text3d
 
