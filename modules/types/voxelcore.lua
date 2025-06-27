@@ -870,6 +870,15 @@ assets = assets
 
 -- =======================document==========================
 
+---@alias voxelcore.ui.document.any voxelcore.ui.document.base_element | voxelcore.ui.document.container | voxelcore.ui.document.textbox | voxelcore.ui.document.trackbar | voxelcore.ui.document.pagebox | voxelcore.ui.document.checkbox | voxelcore.ui.document.button | voxelcore.ui.document.label | voxelcore.ui.document.image | voxelcore.ui.document.canvas | voxelcore.ui.document.iframe | voxelcore.ui.document.inventory
+
+---@type table<str, voxelcore.ui.document.any>
+document = document
+
+---@class voxelcore.libdocument
+---@field new fun(name: str): table<str, voxelcore.ui.document.any>
+Document = Document
+
 ---@class voxelcore.ui.document.base_element
 ---@field id str идентификатор элемента. запись: нет
 ---@field pos vec2 позиция элемента внутри контейнера
@@ -945,7 +954,7 @@ assets = assets
 ---@class voxelcore.ui.document.canvas: voxelcore.ui.document.base_element
 ---@field data voxelcore.ui.canvas пиксели холста
 
----@class voxelcore.ui.document.canvas: voxelcore.ui.document.base_element
+---@class voxelcore.ui.document.iframe: voxelcore.ui.document.base_element
 ---@field src str id встраиваемого документа
 
 ---@class voxelcore.ui.document.inventory: voxelcore.ui.document.base_element

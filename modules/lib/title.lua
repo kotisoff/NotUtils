@@ -31,7 +31,7 @@ local function new_title_component(name)
           coroutines.create(function()
             self.is_shown = true;
 
-            title.document[self.name .. "-root"].hidden = false;
+            title.document[self.name .. "-root"].visible = true;
             title.document[self.name].text = text;
             title.utils.set_opacity(self.name, 255);
 
@@ -57,7 +57,7 @@ local function new_title_component(name)
             self.is_shown = false;
             self.break_show = false;
 
-            title.document[self.name .. "-root"].hidden = true;
+            title.document[self.name .. "-root"].visible = false;
           end)
         end
       }

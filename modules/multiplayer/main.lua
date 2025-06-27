@@ -6,6 +6,8 @@ local api_list = {
 local module = {
   ---@type "standalone" | "server" | "client"
   mode = "standalone",
+  ---@type "standalone" | "neutron" | str
+  name = "standalone",
   ---@type { server: neutron.server, client: neutron.client }
   api = nil
 }
@@ -34,7 +36,8 @@ if not module.api then
 
       module = {
         mode = temp_api.mode(),
-        api = api
+        api = api,
+        name = value
       }
       break
     end

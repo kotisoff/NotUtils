@@ -50,8 +50,9 @@
 ---@field exists fun(role: table): boolean Возвращает true если роль существует
 
 ---@class neutron.server.accounts
----@field get_account_by_name fun(name: string): neutron.class.account Возвращает класс типа Account игрока с ником username
+---@field get_account_by_name fun(username: string): neutron.class.account Возвращает класс типа Account игрока с ником username
 ---@field get_client fun(account: neutron.class.account): neutron.class.client Возвращает класс типа Client игрока с аккаунтом account.
+---@field get_client_by_name fun(username: string): neutron.class.client Возвращает класс типа Client игрока с ником username
 ---@field kick fun(account: neutron.class.account, reason?: string) Кикает аккаунт account с сервера с причиной reason
 ---@field roles neutron.server.accounts.roles
 

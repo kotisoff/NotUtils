@@ -85,6 +85,9 @@ function module.server_api()
       get_client = function(account)
         return get_client()
       end,
+      get_client_by_name = function(username)
+        return get_client()
+      end,
       kick = function(account, reason) end,
       roles = {
         get = function(account)
