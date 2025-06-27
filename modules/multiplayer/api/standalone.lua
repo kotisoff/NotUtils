@@ -246,12 +246,14 @@ function module.server_api()
     sandbox = {
       players = {
         get_all = function()
-          return { get_account().username }
+          local player = get_player()
+          return { [player.username] = player }
         end,
         get_in_radius = function(pos, radius)
           local len = vec3.length(pos)
           if len <= radius then
-            return { get_account().username }
+            local player = get_player()
+            return { [player.username] = player }
           end
           return {}
         end,

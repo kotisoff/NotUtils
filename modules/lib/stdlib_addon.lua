@@ -1,16 +1,6 @@
 -- Здесь хоронятся разные функции, дополняющие основные библиотеки.
 -- Посему явного модуля здесь нет и не будет.
 
----Удаляет определённое кол-во предметов из руки игрока
----@param pid number
----@param amount number
-function inventory.consume_selected(pid, amount)
-  local invid, slot = player.get_inventory(pid);
-  local itemid, count = inventory.get(invid, slot);
-  ---@diagnostic disable-next-line: undefined-field
-  inventory.set(invid, slot, itemid, math.clamp(-amount, -count, -1))
-end
-
 local worldtime = 0;
 events.on("not_utils:world_tick", function()
   worldtime = worldtime + 1;
