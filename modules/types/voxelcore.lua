@@ -802,6 +802,7 @@ audio = audio
 ---@field get fun(...): any
 ---@field set fun(...): any
 ---@field execute fun(command: str) Выполняет команду
+console = console
 
 -- ========================assets===========================
 
