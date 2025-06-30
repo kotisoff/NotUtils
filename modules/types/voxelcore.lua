@@ -794,7 +794,7 @@ audio = audio
 -- ========================console==========================
 
 ---@class voxelcore.libconsole
----@field add_command fun(scheme: str, handler: function) Создаёт команду
+---@field add_command fun(scheme: str, description: str, handler: fun(args: any[], kwargs: str[])) Создаёт команду
 ---@field log fun(message: str) Выводит сообщение в консоль
 ---@field chat fun(message: str) Выводит сообщение в чат
 ---@field get_commands_list fun(): str[] Возвращает список команд

@@ -2,6 +2,7 @@
 local not_utils = {};
 
 require "lib/stdlib_addon";
+require "commands"
 
 not_utils.Logger = require "lib/logger";
 not_utils.coroutines = require "lib/coroutines";
