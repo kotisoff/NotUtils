@@ -869,10 +869,15 @@ assets = assets
 ---@field skeleton voxelcore.class.entity.skeleton Компонент отвечает за скелет сущности. См. риггинг. (git)
 ---@field components table<string, table> Таблица компонентов.
 
+---Доступен при получении или в компоненте сущности
+---@type voxelcore.class.entity
+entity = entity
+
 -- =======================document==========================
 
 ---@alias voxelcore.ui.document.any voxelcore.ui.document.base_element | voxelcore.ui.document.container | voxelcore.ui.document.textbox | voxelcore.ui.document.trackbar | voxelcore.ui.document.pagebox | voxelcore.ui.document.checkbox | voxelcore.ui.document.button | voxelcore.ui.document.label | voxelcore.ui.document.image | voxelcore.ui.document.canvas | voxelcore.ui.document.iframe | voxelcore.ui.document.inventory
 
+---Доступен при получении или в скрипте лейаута
 ---@type table<str, voxelcore.ui.document.any>
 document = document
 

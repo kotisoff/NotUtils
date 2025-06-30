@@ -250,7 +250,7 @@ function module.server_api()
           return { [player.username] = player }
         end,
         get_in_radius = function(pos, radius)
-          local len = vec3.length(pos)
+          local len = vec3.length({ pos.x, pos.y, pos.z })
           if len <= radius then
             local player = get_player()
             return { [player.username] = player }
@@ -361,7 +361,15 @@ function module.server_api()
       end
     },
     ---@diagnostic disable-next-line: assign-type-mismatch
-    weather = nil
+    weather = nil,
+    constants = {
+      render_distance = 0,
+      config = {
+        game = { content_packs = pack.get_installed(), main_world = "", plugins = {}, worlds = {} },
+        server = { auto_save_interval = 1, blacklist = {}, whitelist = {}, chunks_loading_distance = 0, chunks_loading_speed = 1, dev_mode = true, max_players = 1, name = "singleplayer", password_auth = false, port = -1, version = "0.28.0" },
+        roles = { default_role = "member", member = { priority = 1, game_rules = { ["allow-attack"] = true, ["allow-cheat-movement"] = true, ["allow-content-access"] = true, ["allow-debug-cheats"] = true, ["allow-destroy"] = true, ["allow-fast-interaction"] = true, ["allow-flight"] = true, ["allow-noclip"] = true, ["cheat-commands"] = true }, server_rules = { kick = false, role_management = false, time_management = false } } }
+      }
+    }
   }
 
   return api

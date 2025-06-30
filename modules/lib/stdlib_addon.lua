@@ -49,3 +49,23 @@ function math.round_to(num, digits)
   local accuracy = 10 ^ digits;
   return (math.floor(num) * accuracy) / accuracy
 end
+
+---Проверяет равнозначность векторов
+---@param veca vecN
+---@param vecb vecN
+---@return bool
+local function vec_equals(veca, vecb)
+  if #veca ~= #vecb then return false end
+
+  for index, value in ipairs(veca) do
+    if value ~= vecb[index] then
+      return false
+    end
+  end
+
+  return true
+end
+
+vec4.equals = vec_equals;
+vec3.equals = vec_equals;
+vec2.equals = vec_equals;

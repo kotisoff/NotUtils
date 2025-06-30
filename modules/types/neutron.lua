@@ -67,7 +67,7 @@
 ---@alias neutron.console.colors { red: string, yellow: string, blue: string, black: string, green: string, white: string }
 
 ---@class neutron.server.console
----@field set_command fun(scheme: string, permissions: table<table<string>>, handler: function, allow_not_authorized: boolean) Создаёт команду. Подробнее: https://github.com/Xertis/Neutron-Server/blob/main/docs/API/Библиотеки/сервер/console.md
+---@field set_command fun(scheme: string, permissions: table<table<string>>, handler: fun(args: table<string,any>, client: neutron.class.client), allow_not_authorized?: boolean) Создаёт команду. Подробнее: https://github.com/Xertis/Neutron-Server/blob/main/docs/API/Библиотеки/сервер/console.md
 ---@field create_state fun(name: string): neutron.console.state Создание состояния по имени
 ---@field set_state fun(state: neutron.console.state, client: neutron.class.client) Установка состояния клиенту
 ---@field set_state_handler fun(state: neutron.console.state, handler: fun(message: string, state: neutron.console.state, client: neutron.class.client)) Объявление обработчика состояния
@@ -317,6 +317,52 @@
 ---@field get fun(wid: number): neutron.class.weather | nil Возвращает объект погоды или nil, если эффект не найден.
 ---@field get_by_pos fun(x: number, z: number): neutron.class.weather | nil Возвращает объект погоды на указанных координатах или nil.
 
+-- Server.constants
+
+---@class neutron.server.constants.config.game
+---@field content_packs string[]
+---@field plugins string[]
+---@field worlds table<string, { seed: string, generator: string }>
+---@field main_world string
+
+---@class neutron.server.constants.config.server
+---@field version string
+---@field max_players integer
+---@field name string
+---@field port integer
+---@field auto_save_interval number
+---@field chunks_loading_distance integer
+---@field chunks_loading_speed integer
+---@field password_auth boolean
+---@field dev_mode boolean
+---@field whitelist string[]
+---@field blacklist string[]
+
+---@class neutron.server.constants.config.roles.class.role.game_rules
+---@field cheat-commands boolean
+---@field allow-content-access boolean
+---@field allow-flight boolean
+---@field allow-noclip boolean
+---@field allow-attack boolean
+---@field allow-destroy boolean
+---@field allow-cheat-movement boolean
+---@field allow-debug-cheats boolean
+---@field allow-fast-interaction boolean
+
+---@class neutron.server.constants.config.roles.class.role.server_rules
+---@field kick boolean
+---@field role_management boolean
+---@field time_management boolean
+
+---@class neutron.server.constants.config
+---@field game neutron.server.constants.config.game
+---@field server neutron.server.constants.config.server
+---@field roles table<string, { priority: integer, game_rules: neutron.server.constants.config.roles.class.role.game_rules, server_rules: neutron.server.constants.config.roles.class.role.server_rules }> | { default_role: string }
+
+---@class neutron.server.constants
+---@field render_distance integer
+---@field config neutron.server.constants.config
+
 -- ========================client===========================
 
 -- Client.entities
@@ -373,3 +419,4 @@
 ---@field weather neutron.server.weather
 ---@field text3d neutron.server.text3d
 ---@field blockwraps neutron.server.blockwraps
+---@field constants neutron.server.constants
