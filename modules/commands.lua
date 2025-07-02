@@ -16,6 +16,10 @@ if _mp.name == "neutron" then
         local mode = args.mode
         local text = args.text
 
+        if not table.has({ "title", "subtitle", "actionbar" }, mode) then
+          return mp.console.tell(string.format('Режим "%s" не найден.', mode), client)
+        end
+
         ---@type string
         local players = args.players
 
@@ -45,7 +49,6 @@ if _mp.name == "neutron" then
       local mode, text = unpack(args)
 
       local module = title[mode]
-      if not module then return console.log(string.format('Режим "%s" не найден.', mode)) end
       module:show(text)
     end)
   end

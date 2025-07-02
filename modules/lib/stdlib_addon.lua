@@ -21,6 +21,7 @@ end
 function player.is_on_ground(pid)
   local entid = player.get_entity(pid);
   local entity = entities.get(entid);
+  if not entity then return true end
   return entity.rigidbody:is_grounded();
 end
 

@@ -466,16 +466,40 @@ hud = hud
 
 -- =========================input===========================
 
+---@alias voxelcore.libinput.bindings
+---| 'hud.inventory'
+---| 'hud.chat'
+---| 'camera.zoom'
+---| 'camera.mode'
+---| 'movement.forward'
+---| 'movement.right'
+---| 'movement.left'
+---| 'movement.back'
+---| 'movement.jump'
+---| 'movement.crouch'
+---| 'movement.cheat'
+---| 'player.attack'
+---| 'player.build'
+---| 'player.destroy'
+---| 'player.pick'
+---| 'player.drop'
+---| 'player.flight'
+---| 'player.noclip'
+---| 'player.fast_interaction'
+---| 'chunks.reload'
+---| 'devtools.console'
+---| str
+
 ---Библиотека input
 ---@class voxelcore.libinput Библиотека input
 ---@field keycode fun(keyname: str): int Возвращает код клавиши по имени, либо -1
 ---@field mousecode fun(mousename: str): int Возвращает код кнопки мыши по имени, либо -1
----@field add_callback fun(bindname: str, callback: function, document?: table) Назначает функцию, которая будет вызываться при активации привязки. Можно привязать время жизни функции к UI контейнеру, вместо HUD. В таком случае, input.add_callback можно использовать до вызова on_hud_open.
+---@field add_callback fun(bindname: voxelcore.libinput.bindings, callback: function, document?: table) Назначает функцию, которая будет вызываться при активации привязки. Можно привязать время жизни функции к UI контейнеру, вместо HUD. В таком случае, input.add_callback можно использовать до вызова on_hud_open.
 ---@field get_mouse_pos fun(): [int, int] Возвращает позицию курсора на экране.
 ---@field get_bindings fun(): str[] Возвращает названия всех доступных привязок.
 ---@field get_binding_text fun(bindname: str): str Возвращает текстовое представление кнопки по имени привязки.
----@field is_active fun(bindname: str): bool Проверяет активность привязки.
----@field set_enabled fun(bindname: str, flag: bool) Включает/выключает привязку до выхода из мира.
+---@field is_active fun(bindname: voxelcore.libinput.bindings): bool Проверяет активность привязки.
+---@field set_enabled fun(bindname: voxelcore.libinput.bindings, flag: bool) Включает/выключает привязку до выхода из мира.
 ---@field is_pressed fun(code: str): bool Проверяет активность ввода по коду, состоящему из: 1. типа ввода: key (клавиша) или mouse (кнопка мыши) 2. код ввода: имя клавиши или имя кнопки мыши (left, middle, right)
 input = input
 
