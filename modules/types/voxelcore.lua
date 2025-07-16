@@ -51,6 +51,10 @@ function timeit(iters, func, ...) return timeit(iters, func, ...) end
 ---@param timesec number
 function sleep(timesec) return sleep(timesec) end
 
+---Возвращает строковое представление маасива байт
+---@param bytes bytearray
+function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
+
 -- =========================math============================
 
 ---@class voxelcore.math
@@ -406,7 +410,7 @@ local weather = {}
 ---@field perspective? number Коэффициент перспективы
 
 ---Библиотека для управления 2D текстом в 3D пространстве
----@class voxelcore.libgfx.text3d
+---@class voxelcore.libgfx.text3d Библиотека для управления 2D текстом в 3D пространстве
 ---@field show fun(position: vec3, text: str, preset: voxelcore.class.text3d, extension?: voxelcore.class.text3d): int Создаёт 3D текст, возвращая его id.
 ---@field hide fun(id: int) Удаляет 3D текст.
 ---@field get_text fun(id: int): str Геттер текста.
@@ -421,6 +425,19 @@ local weather = {}
 ---@field update_settings fun(id: int, preset: voxelcore.class.text3d) Обновляет настройки отображения текста.
 local text3d = {}
 
+-- ====================gfx.posteffects======================
+
+---Библиотека для работы с эффектами пост-обработки
+---@class voxelcore.libgfx.posteffects Библиотека для работы с эффектами пост-обработки
+---@field index fun(name: str): int Возвращает индекс слота эффектов по имени (пак:имя_слота). При отсутствии указанного слота возвращает -1
+---@field set fun(slot: int, effect: str) Назначает эффект на слот
+---@field get_intensity fun(slot: int): number Возвращает интенсивность эффекта (от 0.0 до 1.0). Если слот пуст, возвращает 0.0
+---@field set_intensity fun(slot: int, intensity: number) Устанавливает интенсивность эффекта (от 0.0 до 1.0). Корректность обработки параметра между значениями 0.0 и 1.0 зависит от эффекта
+---@field is_active fun(slot: int): bool Возвращает true если слот не пуст и интенсивность эффекта ненулевая
+---@field set_params fun(params: table) Устанавливает значения параметров (директивы 'param')
+---@field set_array fun(slot: int, name: str, data: str) Устанавливает значения в массив. slot: индекс слота эффектов; name: имя параметра (масссива); data: строка данных (используйте функцию Bytearray_as_string)
+local posteffects = {}
+
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
@@ -429,6 +446,7 @@ gfx = gfx or {
   blockwraps = blockwraps,
   weather = weather,
   particles = particles,
+  posteffects = posteffects
 }
 
 -- ==========================gui============================
