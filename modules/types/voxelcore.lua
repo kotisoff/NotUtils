@@ -6,8 +6,8 @@
 
 --[[
   VoxelCore Lua Types
-  Engine version: v0.27-0.28
-  Version: v0.0.2
+  Engine version: v0.28
+  Version: v0.0.3
 ]]
 
 -- =================aliases=and=shortcuts===================
