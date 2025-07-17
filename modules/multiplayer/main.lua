@@ -16,8 +16,7 @@ local module = {
 ---@class not_utils.mp.api_template
 ---@field check fun(): boolean
 ---@field mode fun(): "standalone" | "client" | "server"
----@field server_api fun(): neutron.server
----@field client_api fun(): neutron.client
+---@field load fun(): { server: neutron.server, client: neutron.client }
 
 if not module.api then
   for _, value in ipairs(api_list) do
@@ -25,17 +24,11 @@ if not module.api then
     local temp_api = require("multiplayer/api/" .. value)
 
     if temp_api.check() then
-      local mode = temp_api.mode()
-      local api = {}
-      if mode == "client" or mode == "standalone" then
-        api.client = temp_api.client_api()
-      end
-      if mode == "server" or mode == "standalone" then
-        api.server = temp_api.server_api()
-      end
+      local mode = temp_api.mode();
+      local api = temp_api.load();
 
       module = {
-        mode = temp_api.mode(),
+        mode = mode,
         api = api,
         name = value
       }

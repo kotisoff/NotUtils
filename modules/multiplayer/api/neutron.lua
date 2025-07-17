@@ -1,27 +1,37 @@
 local module = {}
 
+---@alias MultiplayerData { side: "client"|"server", pack_id: str, api_references: table<string, number[]> }
+
 ---@return boolean
 function module.check()
-  return not not _G["$Neutron"]
+  ---@type MultiplayerData
+  local data = _G["$Multiplayer"];
+
+  -- Уж лучше так, чем делать `not not N`
+  if data and data.api_references["Neutron"] then
+    return true;
+  end
+
+  return false;
 end
 
 ---@return "standalone" | "client" | "server"
 function module.mode()
-  return _G["$Neutron"]
+  ---@type MultiplayerData
+  local data = _G["$Multiplayer"];
+
+  return data and data.side or "standalone"
 end
 
-function module.server_api()
-  ---@type neutron.server
-  local api = require "server:api/api".server
+function module.load()
+  ---@type MultiplayerData
+  local data = _G["$Multiplayer"];
+  local temp = {};
 
-  return api
-end
+  local api = require(string.format("%s:api/%s/api", data.pack_id, data.api_references.Neutron[1]))[data.side]
 
-function module.client_api()
-  ---@type neutron.client
-  local api = require "multiplayer:api/api".client
-
-  return api
+  temp[data.side] = api;
+  return temp;
 end
 
 return module

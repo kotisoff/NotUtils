@@ -122,10 +122,12 @@ local audio = {
 
 -- ===================module=server=api=====================
 
----@return neutron.server
-function module.server_api()
+---@return {server: neutron.server, client: neutron.client}
+function module.load()
+  local api = {};
+
   ---@type neutron.server
-  local api = {
+  api.server = {
     accounts = {
       get_account_by_name = function(name)
         return get_account()
@@ -372,13 +374,8 @@ function module.server_api()
     }
   }
 
-  return api
-end
-
----@return neutron.client
-function module.client_api()
   ---@type neutron.client
-  local api = {
+  api.client = {
     entities = {
       set_handler = function(...) end,
       desync = function(...) end,
