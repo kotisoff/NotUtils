@@ -25,6 +25,31 @@ function player.is_on_ground(pid)
   return entity.rigidbody:is_grounded();
 end
 
+---Проверка на возможность добавления предмета в инвентарь.
+---@param itemid int
+---@param count int
+---@param invid int
+---@param data? { invsize?: int, stacksize?: int }
+function inventory.can_add_item(itemid, count, invid, data)
+  data = data or {};
+
+  local size = data.invsize or inventory.size(invid);
+  local stack = data.stacksize or item.stack_size(itemid);
+
+  for slot = 0, size - 1 do
+    local _itemid, _count = inventory.get(invid, slot);
+    if _itemid ~= 0 then
+      if itemid == _itemid and (_count + count) <= stack then
+        return true;
+      end
+    else
+      return true;
+    end
+  end
+
+  return false;
+end
+
 -- Не важно что эти функции уже есть в нейтроне, я рассчитываю что без нейтрона моды на not_utils тоже будут шикарно работать
 
 function table.to_arr(tbl, pattern)
