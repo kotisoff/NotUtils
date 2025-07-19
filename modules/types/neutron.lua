@@ -1,7 +1,7 @@
 --[[
   Neutron Lua Types
-  Neuton version: v0.2.0
-  Version: v0.0.2
+  Neutron version: v1.0.0
+  Version: v0.0.3
 ]]
 
 -- ========================aliases==========================

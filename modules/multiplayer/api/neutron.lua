@@ -1,6 +1,6 @@
 local module = {}
 
----@alias MultiplayerData { side: "client"|"server", pack_id: str, api_references: table<string, number[]> }
+---@alias MultiplayerData { side: "client"|"server", pack_id: str, api_references: table<string, (number|string)[]> }
 
 ---@return boolean
 function module.check()
