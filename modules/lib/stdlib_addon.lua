@@ -39,6 +39,16 @@ function table.to_dict(tbl, pattern)
   return res
 end
 
+function table.reverse(tbl)
+  local t = {};
+
+  for key, value in ipairs(tbl) do
+    t[#tbl - key + 1] = value;
+  end
+
+  return t;
+end
+
 function tohex(n)
   return string.format("%x", n)
 end
