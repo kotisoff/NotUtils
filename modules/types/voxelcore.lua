@@ -556,7 +556,7 @@ inventory = inventory
 ---@field name fun(itemid: int): str Возвращает строковый id предмета по его числовому id (как block.name)
 ---@field index fun(name: str): int Возвращает числовой id предмета по строковому id (как block_index)
 ---@field caption fun(itemid: int): str Возвращает название предмета, отображаемое в интерфейсе.
----@field properties table<int, table<str, table>> Таблица пользовательских свойств блоков (см. ../../item-properties.md)(git)
+---@field properties table<int, table<str, any>> Таблица пользовательских свойств блоков (см. ../../item-properties.md)(git)
 ---@field stack_size fun(itemid: int): int Возвращает максимальный размер стопки для предмета.
 ---@field defs_count fun(): int Возвращает общее число доступных предметов (включая сгенерированные)
 ---@field icon fun(itemid: int): str Возвращает имя иконки предмета для использования в свойстве 'src' элемента image

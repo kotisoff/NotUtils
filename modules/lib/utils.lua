@@ -1,7 +1,7 @@
 local utils = {};
 
 local Logger = require "lib/logger";
-local log = Logger.new("not_utils", "utils");
+local log = Logger.new("not_utils:utils");
 
 --[[
 Usage:
@@ -37,6 +37,7 @@ function utils.parse_function_string(prop)
     local fn, error = loadstring("(" .. prop .. ")(...)");
     if error then
       log:println(
+        "I",
         "Error occured while parsing function:\n" .. prop
       )
     elseif fn then

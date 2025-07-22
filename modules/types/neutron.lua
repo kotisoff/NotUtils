@@ -39,6 +39,8 @@
 ---@field serialize fun(inv: neutron.class.inventory): bytearray Возвращает inv в виде байт
 ---@field deserialize fun(bytes: bytearray): neutron.class.inventory Читает инвентарь из массива байт
 
+---@alias neutron.util.pos { x: int, y: int, z: int }
+
 -- ========================server===========================
 
 -- Server.accounts
@@ -191,8 +193,13 @@
 ---@field get_by_pid fun(pid): neutron.class.player | nil Возвращает объект игрока по pid
 ---@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { yaw: number, pitch: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
+---@class neutron.server.sandbox.blocks
+---@field sync_inventory fun(pos: neutron.util.pos, client: neutron.class.client) Синхронизирует инвентарь.
+---@field sync_slot fun(pos: neutron.util.pos, slot: int, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
+
 ---@class neutron.server.sandbox
 ---@field players neutron.server.sandbox.players
+---@field blocks neutron.server.sandbox.blocks
 
 -- Server.audio
 
@@ -391,6 +398,15 @@
 ---@class neutron.client.rpc
 ---@field emitter neutron.client.rpc.emitter
 
+-- Client.sandbox
+
+---@class neutron.client.sandbox.blocks
+---@field sync_inventory fun(pos: neutron.util.pos) Синхронизирует инвентарь.
+---@field sync_slot fun(pos: neutron.util.pos, slot: int) Синхронизирует определённый слот инвентаря.
+
+---@class neutron.client.sandbox
+---@field blocks neutron.client.sandbox.blocks
+
 -- =========================total===========================
 
 ---@class neutron.client
@@ -400,6 +416,7 @@
 ---@field env neutron.client.env
 ---@field events neutron.client.events
 ---@field rpc neutron.client.rpc
+---@field sandbox neutron.client.sandbox
 
 ---@class neutron.server
 ---@field accounts neutron.server.accounts

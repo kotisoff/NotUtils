@@ -1,50 +1,72 @@
+---@class Logger
+---@field private name string
+---@field private history string[]
+---@field private prefix fun(self, level: not_utils.logger.levels): string
+---@field private filepath fun(self): string
 local logger = {
-  ---@class Logger
-  ---@field private silentlogs string[]
-  ---@field private logs string[]
-  ---@field private prefix fun(self): string
-  ---@field private filepath fun(self): string
-  __index = {
-    silentlog = {},
-    log = {},
-    prefix = function(self) return '[' .. self.packid .. '][' .. self.name .. '] ' end,
+  history = {},
 
-    filepath = function(self)
-      return pack.shared_file(self.packid, self.name .. "-latest.log")
-    end,
-
-    silent = function(self, ...)
-      table.insert(self.silentlog, self:prefix() .. table.concat({ ... }, " "));
-    end,
-
-    info = function(self, ...)
-      table.insert(self.log, self:prefix() .. table.concat({ ... }, " "));
-      self:silent(...);
-    end,
-
-    save = function(self)
-      file.write(self:filepath(), table.concat(self.silentlog, "\n"))
-    end,
-
-    clear_info_log = function(self)
-      self.log = {};
-    end,
-
-    print = function(self)
-      print(table.concat(self.log, "\n"));
-      self.log = {};
-    end,
-
-    println = function(self, ...)
-      print(self:prefix() .. table.concat({ ... }, " "))
-    end
+  ---@enum not_utils.logger.levels
+  levels = {
+    ---Silent
+    S = "S",
+    ---Info
+    I = "I",
+    ---Warn
+    W = "W",
+    ---Error
+    E = "E"
   }
 }
 
-local Logger = {
-  new = function(packid, name)
-    return setmetatable({ packid = packid, name = name }, logger);
+local function format_name(name)
+  local len = 20;
+  local spaces_count = len - #name;
+
+  local spaces = string.rep(" ", spaces_count);
+
+  return string.format("[%s%s]", spaces, name);
+end
+
+---@param logLevel not_utils.logger.levels
+function logger:prefix(logLevel)
+  local date = os.date("%Y/%m/%d %H:%M:%S%z    ");
+  local log_prefix = string.format("[%s] %s %s ", logLevel, date, format_name(self.name));
+  return log_prefix
+end
+
+---@param logType not_utils.logger.levels
+function logger:log(logType, ...)
+  table.insert(self.history, self:prefix(logType) .. table.concat({ ... }, " "));
+end
+
+function logger:clear()
+  self.history = {};
+end
+
+function logger:print()
+  if #self.history == 0 then return end;
+  print(table.concat(self.history, "\n"));
+  self.history = {};
+end
+
+---@param logLevel not_utils.logger.levels
+function logger:println(logLevel, ...)
+  print(self:prefix(logLevel) .. table.concat({ ... }, " "))
+end
+
+local loggers = {};
+
+local module = {
+  new = function(name)
+    if loggers[name] then
+      return loggers[name]
+    else
+      local instance = setmetatable({ name = name }, { __index = logger });
+      loggers[name] = instance;
+      return instance;
+    end
   end
 }
 
-return Logger
+return module

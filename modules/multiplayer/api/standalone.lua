@@ -284,6 +284,10 @@ function module.load()
             player.set_noclip(_player.pid, noclip)
           end
         end
+      },
+      blocks = {
+        sync_inventory = function(...) end,
+        sync_slot = function(...) end
       }
     },
     audio = audio,
@@ -403,6 +407,12 @@ function module.load()
             events.emit(pack .. ':c:' .. event, ...)
           end
         end
+      }
+    },
+    sandbox = {
+      blocks = {
+        sync_inventory = function(...) end,
+        sync_slot = function(...) end
       }
     }
   }

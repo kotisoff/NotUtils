@@ -52,15 +52,15 @@ end
 
 -- Не важно что эти функции уже есть в нейтроне, я рассчитываю что без нейтрона моды на not_utils тоже будут шикарно работать
 
-function table.to_arr(tbl, pattern)
+function table.to_arr(tbl, pattern, ignored_symb)
   local res = {}
-  for i, val in ipairs(pattern) do res[i] = tbl[val] end
+  for i, val in ipairs(pattern) do res[i] = tbl[val] or ignored_symb end
   return res
 end
 
-function table.to_dict(tbl, pattern)
+function table.to_dict(tbl, pattern, ignored_symb)
   local res = {}
-  for i, val in ipairs(pattern) do res[val] = tbl[i] end
+  for i, val in ipairs(pattern) do res[val] = tbl[i] ~= ignored_symb and tbl[i] or nil end
   return res
 end
 
