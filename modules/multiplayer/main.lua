@@ -39,14 +39,9 @@ if not module.api then
     local temp_api = require("multiplayer/api/" .. value)
 
     if temp_api.check() then
-      local mode = temp_api.mode();
-      local api = temp_api.load();
-
-      module = {
-        mode = mode,
-        api = api,
-        name = value
-      }
+      module.mode = temp_api.mode();
+      module.api = temp_api.load();
+      module.name = value;
       break
     end
   end
