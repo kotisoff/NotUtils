@@ -3,8 +3,10 @@ local api_list = {
   "standalone"
 }
 
+---@alias not_utils.mp.mode "standalone" | "server" | "client"
+
 local module = {
-  ---@type "standalone" | "server" | "client"
+  ---@type not_utils.mp.mode
   mode = "standalone",
   ---@type "standalone" | "neutron" | str
   name = "standalone",
@@ -12,10 +14,23 @@ local module = {
   api = nil
 }
 
+---@param cb fun(server: neutron.server, mode: not_utils.mp.mode)
+function module.as_server(cb)
+  if module.api.server then
+    cb(module.api.server, module.mode);
+  end
+end
+
+---@param cb fun(client: neutron.client, mode: not_utils.mp.mode)
+function module.as_client(cb)
+  if module.api.client then
+    cb(module.api.client, module.mode);
+  end
+end
 
 ---@class not_utils.mp.api_template
 ---@field check fun(): boolean
----@field mode fun(): "standalone" | "client" | "server"
+---@field mode fun(): not_utils.mp.mode
 ---@field load fun(): { server: neutron.server, client: neutron.client }
 
 if not module.api then
