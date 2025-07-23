@@ -10,4 +10,5 @@ end
 
 function on_world_quit()
   events.remove_by_prefix(PACK_ID);
+  events.remove_by_prefix("server"); -- потому что надо сука.
 end

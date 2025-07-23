@@ -417,6 +417,11 @@ function module.load()
     }
   }
 
+  -- Ну клиент вот он нахуй.
+  events.on("not_utils:hud_open", function()
+    events.emit("server:client_connected", get_client());
+  end)
+
   return api
 end
 

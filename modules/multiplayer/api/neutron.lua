@@ -8,7 +8,7 @@ function module.check()
   local data = _G["$Multiplayer"];
 
   -- Уж лучше так, чем делать `not not N`
-  if data and data.api_references["Neutron"] then
+  if data and pack.is_installed(data.pack_id) and data.api_references["Neutron"] then
     return true;
   end
 
