@@ -14,17 +14,19 @@ local module = {
   api = nil
 }
 
----@param cb fun(server: neutron.server, mode: not_utils.mp.mode)
+---@param cb fun(server: neutron.server, mode: not_utils.mp.mode): any
+---@return any
 function module.as_server(cb)
   if module.api.server then
-    cb(module.api.server, module.mode);
+    return cb(module.api.server, module.mode);
   end
 end
 
----@param cb fun(client: neutron.client, mode: not_utils.mp.mode)
+---@param cb fun(client: neutron.client, mode: not_utils.mp.mode): any
+---@return any
 function module.as_client(cb)
   if module.api.client then
-    cb(module.api.client, module.mode);
+    return cb(module.api.client, module.mode);
   end
 end
 

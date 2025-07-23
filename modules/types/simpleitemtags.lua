@@ -1,0 +1,11 @@
+---@class simpleitemtags.api
+---@field get_items_by_tags fun(...: str): int[] Получает идентификаторы предметов, у которых есть один из тегов.
+---@field get_tags_by_itemid fun(itemid: int): str[] Получает теги по идентификатору предмета.
+---@field get_items_have_tags fun(...: str): int[] Получает идентификаторы предметов, у которых есть все перечисленные теги.
+---@field add_tags_to_item fun(itemid: int, ...: str) Добавляет теги предмету по указанному идентификатору.
+---@field get_blocks_by_tags fun(...: str): int[] Получает идентификаторы блоков, у которых есть один из тегов.
+---@field get_tags_by_blockid fun(blockid: int): str[] Получает теги по идентификатору блока.
+---@field get_blocks_have_tags fun(...: str): int[] Получает идентификаторы блоков, у которых есть все перечисленные теги.
+---@field add_tags_to_block fun(blockid: int, ...: str) Добавляет теги блоку и его предмету по указанному идентификатору.
+---@field get_registry fun(): { items: table<string, integer[]>, blocks: table<string, integer[]> } Получает копию регистра тегов.
+---@field get_all_tags fun(): string[] Получает все теги.
