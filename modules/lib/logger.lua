@@ -1,3 +1,5 @@
+local module = {}
+
 ---@class Logger
 ---@field private name string
 ---@field private history string[]
@@ -19,19 +21,10 @@ local logger = {
   }
 }
 
-local function format_name(name)
-  local len = 20;
-  local spaces_count = len - #name;
-
-  local spaces = string.rep(" ", spaces_count);
-
-  return string.format("[%s%s]", spaces, name);
-end
-
 ---@param logLevel not_utils.logger.levels
 function logger:prefix(logLevel)
   local date = os.date("%Y/%m/%d %H:%M:%S%z    ");
-  local log_prefix = string.format("[%s] %s %s ", logLevel, date, format_name(self.name));
+  local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(self.name));
   return log_prefix
 end
 
@@ -57,16 +50,27 @@ end
 
 local loggers = {};
 
-local module = {
-  new = function(name)
-    if loggers[name] then
-      return loggers[name]
-    else
-      local instance = setmetatable({ name = name }, { __index = logger });
-      loggers[name] = instance;
-      return instance;
-    end
+
+---@param name string
+function module.new(name)
+  if loggers[name] then
+    return loggers[name]
+  else
+    local instance = setmetatable({ name = name }, { __index = logger });
+    loggers[name] = instance;
+    return instance;
   end
-}
+end
+
+---Форматирует строку в строку типа префикса логгера.
+---@param name string
+function module.format_name(name)
+  local len = 20;
+  local spaces_count = len - #name;
+
+  local spaces = string.rep(" ", spaces_count);
+
+  return string.format("[%s%s]", spaces, name);
+end
 
 return module

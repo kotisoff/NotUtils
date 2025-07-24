@@ -10,6 +10,7 @@ not_utils.FileReader = require "lib/fileReader"
 not_utils.utils = require "lib/utils";
 not_utils.title = require "lib/title";
 not_utils.table_compress = require "lib/table_compress"
+not_utils.tags = require "lib/tags"
 not_utils.multiplayer = require "multiplayer/main"
 
 return not_utils;

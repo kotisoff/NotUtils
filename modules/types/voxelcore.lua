@@ -2,13 +2,16 @@
   ВНИМАНИЕ
   Старайтесь не импортировать этот скрипт. Он работает просто находясь в поле зрения языкового сервера.
   При импорте он может сломать работу мода/модов, но защита от дебилов имеется.
-]]
+  ]]
 
 --[[
-  VoxelCore Lua Types
-  Engine version: v0.28
-  Version: v0.0.3
-]]
+    VoxelCore Lua Types
+    Engine version: v0.28
+    Version: v0.0.3
+    ]]
+
+---@diagnostic disable: duplicate-doc-alias
+---@diagnostic disable: duplicate-doc-field
 
 -- =================aliases=and=shortcuts===================
 
