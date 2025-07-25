@@ -374,6 +374,10 @@ function module.load()
         game = { content_packs = pack.get_installed(), main_world = "", plugins = {}, worlds = {} },
         server = { auto_save_interval = 1, blacklist = {}, whitelist = {}, chunks_loading_distance = 0, chunks_loading_speed = 1, dev_mode = true, max_players = 1, name = "singleplayer", password_auth = false, port = -1, version = "0.28.0" },
         roles = { default_role = "member", member = { priority = 1, game_rules = { ["allow-attack"] = true, ["allow-cheat-movement"] = true, ["allow-content-access"] = true, ["allow-debug-cheats"] = true, ["allow-destroy"] = true, ["allow-fast-interaction"] = true, ["allow-flight"] = true, ["allow-noclip"] = true, ["cheat-commands"] = true }, server_rules = { kick = false, role_management = false, time_management = false } } }
+      },
+      tps = {
+        tps = 20,
+        mspt = 50
       }
     }
   }

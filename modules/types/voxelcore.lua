@@ -159,11 +159,11 @@ base64 = base64
 ---@field normal vec3 вектор нормали поверхности, которой касается луч
 
 ---@class voxelcore.libblock.material
----@field breakSound str
----@field placeSound str
----@field stepsSound str
----@field hitSound str
----@field name str
+---@field breakSound str Звук разрушения
+---@field placeSound str Звук установки
+---@field stepsSound str Звук шагов
+---@field hitSound str Звук удара
+---@field name str Название материала
 
 ---Библиотека block.
 ---@class voxelcore.libblock Библиотека block.

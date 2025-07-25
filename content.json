@@ -1,0 +1,34 @@
+{
+  "entities": [],
+  "items": [
+    "base:bazalt_breaker"
+  ],
+  "blocks": [
+    "base:bazalt",
+    "base:blue_lamp",
+    "base:brick",
+    "base:coal_ore",
+    "base:dirt",
+    "base:flower",
+    "base:glass",
+    "base:grass",
+    "base:grass_block",
+    "base:green_lamp",
+    "base:ice",
+    "base:lamp",
+    "base:leaves",
+    "base:lightbulb",
+    "base:metal",
+    "base:pane",
+    "base:pipe",
+    "base:planks",
+    "base:red_lamp",
+    "base:rust",
+    "base:sand",
+    "base:stone",
+    "base:torch",
+    "base:water",
+    "base:wood",
+    "base:wooden_door"
+  ]
+}

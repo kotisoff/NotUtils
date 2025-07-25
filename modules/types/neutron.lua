@@ -2,7 +2,10 @@
   Neutron Lua Types
   Neutron version: v1.0.0
   Version: v0.0.3
-]]
+  ]]
+
+---@diagnostic disable: duplicate-doc-field
+---@diagnostic disable: duplicate-doc-alias
 
 -- ========================aliases==========================
 
@@ -368,6 +371,7 @@
 
 ---@class neutron.server.constants
 ---@field render_distance integer
+---@field tps { tps: number, mspt: number }
 ---@field config neutron.server.constants.config
 
 -- ========================client===========================
