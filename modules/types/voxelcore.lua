@@ -139,6 +139,8 @@ debug = debug
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
+---@field reset_content fun() Сбрасывает контент загруженных паков.
+---@field load_content fun() Загружает контент конфигурированных паков.
 app = app
 
 -- ========================base64===========================
@@ -637,6 +639,7 @@ network = network
 ---@field path str Путь до мода
 ---@field icon? str Название текстуры иконки. Отсутствует в headless режиме
 ---@field dependencies str[] Строки в формате {lvl}{id}, где lvl: ! - required, ? - optional, ~ - weak.
+---@field has_indices bool Есть ли у пака новые айди.
 
 ---Библиотека pack
 ---@class voxelcore.libpack Библиотека pack
@@ -1016,17 +1019,17 @@ Document = Document
 -- ========================canvas===========================
 
 ---@class voxelcore.ui.canvas
----@field at fun(x: int, y: int): vec4 возвращает RGBA пиксель по указанным координатам
----@field set fun(x: int, y: int, rgba: int) изменяет RGBA пиксель по указанным координатам
----@field set fun(x: int, y: int, r: int, g: int, b: int, a?: int) изменяет RGBA пиксель по указанным координатам
----@field line fun(x1: int, y1: int, x2: int, y2: int, rgba: int) рисует линию с указанным RGBA цветом
----@field line fun(x1: int, y1: int, x2: int, y2: int, r: int, g: int, b: int, a?: int) рисует линию с указанным RGBA цветом
----@field blit fun(src: voxelcore.ui.canvas, dst_x: int, dst_y: int) рисует src-холст на указанных координатах
----@field clear fun(rgba?: int) очищает холст
----@field clear fun(r: int, g: int, b: int, a?: int) заполняет холст указанным RGBA цветом
----@field update fun() применяет изменения и загружает холст в видеопамять
----@field set_data fun(data: table) заменяет данные пикселей (ширина * высота * 4 чисел)
----@field create_texture fun(name: str) создаёт и делится текстурой с рендерером
+---@field at fun(self: voxelcore.ui.canvas, x: int, y: int): vec4 возвращает RGBA пиксель по указанным координатам
+---@field set fun(self: voxelcore.ui.canvas, x: int, y: int, rgba: int) изменяет RGBA пиксель по указанным координатам
+---@field set fun(self: voxelcore.ui.canvas, x: int, y: int, r: int, g: int, b: int, a?: int) изменяет RGBA пиксель по указанным координатам
+---@field line fun(self: voxelcore.ui.canvas, x1: int, y1: int, x2: int, y2: int, rgba: int) рисует линию с указанным RGBA цветом
+---@field line fun(self: voxelcore.ui.canvas, x1: int, y1: int, x2: int, y2: int, r: int, g: int, b: int, a?: int) рисует линию с указанным RGBA цветом
+---@field blit fun(self: voxelcore.ui.canvas, src: voxelcore.ui.canvas, dst_x: int, dst_y: int) рисует src-холст на указанных координатах
+---@field clear fun(self: voxelcore.ui.canvas, rgba?: int) очищает холст
+---@field clear fun(self: voxelcore.ui.canvas, r: int, g: int, b: int, a?: int) заполняет холст указанным RGBA цветом
+---@field update fun(self: voxelcore.ui.canvas) применяет изменения и загружает холст в видеопамять
+---@field set_data fun(self: voxelcore.ui.canvas, data: table) заменяет данные пикселей (ширина * высота * 4 чисел)
+---@field create_texture fun(self: voxelcore.ui.canvas, name: str) создаёт и делится текстурой с рендерером
 
 -- ====================world=generator======================
 
