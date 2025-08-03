@@ -6,8 +6,8 @@
 
 --[[
     VoxelCore Lua Types
-    Engine version: v0.28
-    Version: v0.0.3
+    Engine version: v0.28-pre0.29
+    Version: v0.0.4
     ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -61,6 +61,7 @@ function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
 ---Собирает аргументы в массив байт
 function Bytearray_construct(...) return Bytearray_construct(...) end
 
+---Вычисляет контрольную сумму массива байт
 function crc32(...) return crc32(...) end
 
 -- =========================math============================
@@ -741,7 +742,7 @@ pack = pack
 ---@field set_vel fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z линейной скорости игрока
 ---@field get_rot fun(playerid?: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в радианах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
 ---@field set_rot fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в радианах)
----@field get_dir fun(playerid?: int): vec3 Позволяет получить вектор направления камеры игрока. Параметр playerid работает только если переназначить функцию, гарантированно с Neutron.
+---@field get_dir fun(playerid?: int): vec3 Позволяет получить вектор направления камеры игрока. Параметр playerid работает только если переназначить функцию, гарантированно с Quartz.
 ---@field get_inventory fun(playerid?: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
 ---@field is_flight fun(playerid?: int): bool Геттер режима полета
 ---@field set_flight fun(playerid?: int, flag: bool) Сеттер режима полета
@@ -822,6 +823,7 @@ utf8 = utf8
 ---@field get_entry fun(name: "commands_history" | "new_world" | str): any Вовращает некий энтри
 ---@field reset_entry fun(name: "commands_history" | "new_world" | str) Удаляет некий энтри
 ---@field entries table<str, any> Таблица этих самых энтри
+session = session
 
 -- ========================vector===========================
 
@@ -993,17 +995,19 @@ assets = assets
 ---@field get_color fun(self: voxelcore.class.entity.skeleton): vec3 Возвращает цвет сущности
 ---@field set_color fun(self: voxelcore.class.entity.skeleton, color: vec3) Устанавливает цвет сущности
 
+---@alias voxelcore.class.entity.components "core:pathfinding" | str
+
 ---@class voxelcore.class.entity
 ---@field despawn fun(self: voxelcore.class.entity) Удаляет сущность (сущность может продолжать существовать до завершения кадра, но не будет отображена в этом кадре)
----@field def_index fun(self: voxelcore.class.entity): int Возвращает индекс определения сущности (числовой ID)
----@field def_name fun(self: voxelcore.class.entity): str Возвращает имя определения сущности (строковый ID)
----@field get_skeleton fun(self: voxelcore.class.entity): str Возращает имя скелета сущности
+---@field def_index fun(self: voxelcore.class.entity): eid: int Возвращает индекс определения сущности (числовой ID)
+---@field def_name fun(self: voxelcore.class.entity): entity_name: str Возвращает имя определения сущности (строковый ID)
+---@field get_skeleton fun(self: voxelcore.class.entity): skeleton_name: str Возращает имя скелета сущности
 ---@field set_skeleton fun(self: voxelcore.class.entity, name: str) Заменяет скелет сущности
 ---@field get_uid fun(self: voxelcore.class.entity): int Возращает уникальный идентификатор сущности
----@field get_component fun(self: voxelcore.class.entity, name: str): table | nil Возвращает компонент по имени
----@field has_component fun(self: voxelcore.class.entity, name: str): bool Проверяет наличие компонента по имени
+---@field get_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): component: table | nil Возвращает компонент по имени
+---@field has_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): has_component: bool Проверяет наличие компонента по имени
 ---@field set_enabled fun(self: voxelcore.class.entity, name: str, flag: bool) Включает/выключает компонент по имени
----@field get_player fun(self: voxelcore.class.entity): int | nil Возвращает id игрока, к которому привязана сущность
+---@field get_player fun(self: voxelcore.class.entity): pid: int | nil Возвращает id игрока, к которому привязана сущность
 ---@field transform voxelcore.class.entity.transform Компонент отвечает за позицию, масштаб и вращение сущности.
 ---@field rigidbody voxelcore.class.entity.rigidbody Компонент отвечает за физическое тело сущности.
 ---@field skeleton voxelcore.class.entity.skeleton Компонент отвечает за скелет сущности. См. риггинг. (git)
@@ -1012,6 +1016,25 @@ assets = assets
 ---Доступен при получении или в компоненте сущности
 ---@type voxelcore.class.entity
 entity = entity
+
+-- ======================pathfinding========================
+
+---@class voxelcore.class.pathfinding
+---@field set_target fun(target: vec3) Установка цели для агента
+---@field get_target fun(): target: vec3 | nil Получение текущей цели агента
+---@field get_route fun(): route: vec3[] | nil
+---@field create_agent fun(): agent: int Создаёт нового агента и возвращает его идентификатор
+---@field remove_agent fun(agent: int): removed: bool Удаление агента по идентификатору, если он существует. Возвращает булевое значение того существовал он или нет.
+---@field set_enabled fun(agent: int, enabled: bool) Установка состояния агента
+---@field is_enabled fun(agent: int): enabled: bool Возвращает состояние агента
+---@field make_route fun(start: vec3, target: vec3): route: vec3[] Создание маршрута на основе заданных точек
+---@field make_route_async fun(agent: int, start: vec3, target: vec3) Асинхронное создание маршрута на основе заданных точек (получение маршрута происходит в pull_route)
+---@field pull_route fun(agent: int): route: vec3[] | nil Получение маршрута, который агент уже нашел. Используется для получения маршрута после асинхронного поиска. Если поиск ещё не завершён, возвращает nil. Если маршрут не найден, возвращает пустую таблицу.
+---@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
+
+---Доступен при получении из компонента сущности
+---@type voxelcore.class.pathfinding
+pf = pf
 
 -- =======================document==========================
 
@@ -1022,11 +1045,11 @@ entity = entity
 document = document
 
 ---@class voxelcore.Document
----@field new fun(name: str): table<str, voxelcore.ui.document.any>
+---@field new fun(name: str): document: table<str, voxelcore.ui.document.any>
 Document = Document
 
 ---@class voxelcore.Element
----@field new fun(docname: str, name: str): table
+---@field new fun(docname: str, name: str): element: table
 Element = Element
 
 ---@class voxelcore.ui.document.base_element

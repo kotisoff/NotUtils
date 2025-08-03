@@ -1,7 +1,7 @@
 --[[
-  Neutron Lua Types
-  Neutron version: v1.0.0
-  Version: v0.0.3
+  Neutron/Quartz Lua Types
+  Neutron version: v1.0.0 / Quartz version: v0.1.5
+  Version: v0.0.4
   ]]
 
 ---@diagnostic disable: duplicate-doc-field
