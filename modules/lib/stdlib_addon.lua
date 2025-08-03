@@ -102,6 +102,22 @@ local function vec_equals(veca, vecb)
   return true
 end
 
+---Округляет значения вектора до нижнего значения
+---@param vec vecN
+local function vec_floor(vec)
+  local t
+
+  for index, value in ipairs(vec) do
+    t[index] = math.floor(value);
+  end
+
+  return t;
+end
+
 vec4.equals = vec_equals;
 vec3.equals = vec_equals;
 vec2.equals = vec_equals;
+
+vec4.floor = vec_floor;
+vec3.floor = vec_floor;
+vec2.floor = vec_floor;

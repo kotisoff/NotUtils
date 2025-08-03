@@ -963,6 +963,8 @@ assets = assets
 ---@field get_rot fun(self: voxelcore.class.entity.transform): mat4 Возвращает вращение сущности
 ---@field set_rot fun(self: voxelcore.class.entity.transform, rotation: mat4) Устанавливает вращение сущности
 
+---@alias voxelcore.class.entity.body_types "dyncamic" | "kinematic" | "static"
+
 ---@class voxelcore.class.entity.rigidbody
 ---@field is_enabled fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включен ли рассчет физики тела
 ---@field set_enabled fun(self: voxelcore.class.entity.rigidbody, flag: bool) Включает/выключает рассчет физики тела
@@ -979,8 +981,8 @@ assets = assets
 ---@field is_grounded fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, находится ли сущность на земле (приземлена)
 ---@field is_crouching fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, находится ли сущность в "крадущемся" состоянии (не может упасть с блоков)
 ---@field set_crouching fun(self: voxelcore.class.entity.rigidbody, flag: bool) Включает/выключает "крадущееся" состояние
----@field get_body_type fun(self: voxelcore.class.entity.rigidbody): "dynamic"|"kinematic" Возвращает тип физического тела (dynamic/kinematic)
----@field set_body_type fun(self: voxelcore.class.entity.rigidbody, type: "dynamic"|"kinematic") Устанавливает тип физического тела
+---@field get_body_type fun(self: voxelcore.class.entity.rigidbody): voxelcore.class.entity.body_types Возвращает тип физического тела (dynamic/kinematic)
+---@field set_body_type fun(self: voxelcore.class.entity.rigidbody, type: voxelcore.class.entity.body_types) Устанавливает тип физического тела
 
 ---@class voxelcore.class.entity.skeleton
 ---@field get_model fun(self: voxelcore.class.entity.skeleton, index: int): str Возвращает имя модели, назначенной на кость с указанным индексом
