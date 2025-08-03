@@ -28,9 +28,9 @@ function logger:prefix(logLevel)
   return log_prefix
 end
 
----@param logType not_utils.logger.levels
-function logger:log(logType, ...)
-  table.insert(self.history, self:prefix(logType) .. table.concat({ ... }, " "));
+---@param logLevel not_utils.logger.levels
+function logger:log(logLevel, ...)
+  table.insert(self.history, self:prefix(logLevel) .. table.concat({ ... }, " "));
 end
 
 function logger:clear()
@@ -52,6 +52,7 @@ local loggers = {};
 
 
 ---@param name string
+---@return Logger
 function module.new(name)
   if loggers[name] then
     return loggers[name]

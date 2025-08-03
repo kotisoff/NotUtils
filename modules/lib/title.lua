@@ -65,9 +65,9 @@ local function new_title_component(name)
 end
 
 title.types = {
-  actionbar = "actionbar",
-  title = "title",
-  subtitle = "subtitle"
+  actionbar = "",
+  title = "",
+  subtitle = ""
 }
 
 title.actionbar = new_title_component("actionbar");

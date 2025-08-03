@@ -24,7 +24,7 @@
 ---@alias vec3 [number, number, number] Вектор размерностью 3
 ---@alias vec2 [number, number] Вектор размерностью 2
 ---@alias ffibytearray unknown Мутный массив байт от luajit.
----@alias bytearray table<int>|ffibytearray Массив байт
+---@alias bytearray voxelcore.Bytearray|table<int>|ffibytearray Массив байт. Собран на ffi и метатаблицах.
 
 -- Short names
 
@@ -58,6 +58,11 @@ function sleep(timesec) return sleep(timesec) end
 ---@param bytes bytearray
 function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
 
+---Собирает аргументы в массив байт
+function Bytearray_construct(...) return Bytearray_construct(...) end
+
+function crc32(...) return crc32(...) end
+
 -- =========================math============================
 
 ---@class voxelcore.math
@@ -67,6 +72,7 @@ function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
 ---@field round fun(num: number, places?: number): number Возвращает округлённое значение num до указанного количества знаков после запятой places.
 ---@field sum fun(...): number Возвращает сумму всех принимаемых аргументов.
 ---@field sum fun(x: number, t: number[]): number Возвращает сумму всех принимаемых аргументов.
+---@field normal_random fun(): number Рандом из генератора в C++
 math = math
 
 -- =========================table===========================
@@ -111,12 +117,50 @@ string = string
 
 -- =========================debug===========================
 
----@class voxelcore.debug
+---@class voxelcore.libdebug
 ---@field print fun(...) Рекурсивно читает и выводит в консоль объект. Максимальная глубина: 10.
 ---@field error fun(message: str) Выводит в консоль сообщение в виде ошибки
 ---@field warning fun(message: str) Выводит в консоль сообщение в виде предупреждения
 ---@field log fun(message: str) Выводит в консоль сообщение
+---@field count_frames fun(): int Выводит количество неких кадров
+---@field get_traceback fun(start: int): debuginfo[] Возвращает трейсбек в виде массива debuginfo
 debug = debug
+
+-- ========================stdcomp==========================
+
+---Сомнительная библиотека. Лучше использовать entities.
+---@class voxelcore.stdcomp
+---@field __reset fun() Удаляет все энтити (из lua, не связано напрямую с движком)
+---@field get_Entity fun(eid: int): voxelcore.class.entity Возращает энтити по идентификатору
+---@field get_all fun(eids?: int[]): table<int, voxelcore.class.entity> Возвращает все энтити по идентификаторам
+---@field new_Entity fun(eid: int): voxelcore.class.entity Создаёт нового энтити (из lua, не связано напрямую с движком)
+---@field remove_Entity fun(eid: int) Удаляет энтити (из lua, не связано напрямую с движком)
+---@field render fun(delta: number) Вызывает все события on_render всех энтити
+---@field update fun(tps: number, parts: number, part: number) Вызывает все события on_update всех энтити
+stdcomp = stdcomp
+
+-- =========================core============================
+
+---Библиотека для управления работой движка. По идее скрытая, но доступна в скриптинге
+---@class voxelcore.libcore
+---@field blank fun() Ничего не делает. xD
+---@field capture_output fun(func: function): str Перехватывает все принты и возвращает их в виде строки
+---@field open_world fun(name: str) Открывает мир по названию.
+---@field reopen_world fun() Переоткрывает мир.
+---@field save_world fun() Сохраняет мир.
+---@field close_world fun(save_world: bool) Закрывает мир.
+---@field delete_world fun(name: str) Удаляет мир по названию.
+---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
+---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
+---@field get_version fun(): int, int Возвращает мажорную и минорную версии движка.
+---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
+---@field load_content fun() Загружает контент конфигурированных паков.
+---@field open_folder fun(path: str) Открывает движком папку по указанного пути
+---@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
+---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
+---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
+---@field str_setting fun(name: str): str Возвращает значение настройки в виде строки.
+core = core
 
 -- ==========================app============================
 
@@ -141,6 +185,7 @@ debug = debug
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
 ---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
+---@field script str
 app = app
 
 -- ========================base64===========================
@@ -150,6 +195,21 @@ app = app
 ---@field encode fun(bytes: table | bytearray): str Кодирует массив байт в base64 строку
 ---@field decode fun(base64string: str, usetable?: bool): table | bytearray Декодирует base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
 base64 = base64
+
+-- =======================Bytearray=========================
+
+---Класс FFIBytearray
+---@class voxelcore.Bytearray
+---@field append fun(self: bytearray, b: bytearray | int) Дополняет массив байт
+---@field clear fun(self: bytearray) Очищает массив байт
+---@field get_capacity fun(self: bytearray) Возвращает размер массива байт
+---@field insert fun(self: bytearray, index_or_val: int, val?: int) Устанавливает или дополняет массив байт
+---@field remove fun(self: bytearray, index: int, elements?: int) Удаляет elements или 1 значение из массива байт начиная с позиции index
+---@field reserve fun(self: bytearray, new_capacity: int) Расширяет массив байт до new_capacity
+---@field trim fun(self: bytearray) Устанавливает максимальный размер массива байт до настоящего размера
+
+---@type fun(...): bytearray
+Bytearray = Bytearray
 
 -- =========================block===========================
 
@@ -274,6 +334,7 @@ entities = entities
 ---@class voxelcore.libfile Библиотека функций для работы с файлами
 ---@field resolve fun(path: str): str Функция приводит запись точка_входа:путь (например user:worlds/house1) к обычному пути. (например C://Users/user/.voxeng/worlds/house1). Функцию не нужно использовать в сочетании с другими функциями из библиотеки, так как они делают это автоматически. Возвращаемый путь не является каноническим и может быть как абсолютным, так и относительным.
 ---@field read fun(path: str): str Читает весь текстовый файл и возвращает в виде строки
+---@field readlines fun(path: str): str[] Читает весь текстовый файл и возвращает в виде массива строк
 ---@field read_bytes fun(path: str, usetable?: bool): bytearray|table Читает файл в массив байт. При значении usetable = false возвращает Bytearray вместо table.
 ---@field is_writeable fun(path: str): bool Проверяет, доступно ли право записи по указанному пути.
 ---@field write fun(path: str, text: str) Записывает текст в файл (с перезаписью)
@@ -301,6 +362,8 @@ entities = entities
 ---@field parent fun(path: str): str Возвращает путь на уровень выше. Пример: world:data/base/config.toml -> world:data/base
 ---@field path fun(path: str): str Убирает точку входа (префикс) из пути. Пример: world:data/base/config.toml -> data/base/config.toml
 ---@field join fun(dir: str, path: str): str Соединяет путь. Пример: file.join("world:data", "base/config.toml) -> world:data/base/config.toml. Следует использовать данную функцию вместо конкатенации с /, так как префикс:/путь не является валидным.
+---@field gzip_compress fun(bytearray: bytearray): bytearray Возвращает сжатую таблицу байт.
+---@field gzip_decompress fun(bytearray: bytearray): bytearray Возвращает разжатую таблицу байт.
 file = file
 
 -- ===================data=serializers======================
@@ -467,12 +530,19 @@ gfx = gfx or {
 ---@field alert fun(message: str, on_ok: function) Выводит окно с сообщением. Не останавливает выполнение кода.
 ---@field confirm fun(message: str, on_confirm: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает у пользователя подтверждение действия. Не останавливает выполнение кода.
 ---@field load_document fun(path: str, name: str, args: table): str Загружает UI документ с его скриптом, возвращает имя документа, если успешно загружен.
+---@field getattr fun(docname: str, elementname: str, key: str): any Возвращает значение параметра элемента. (Лучше использовать класс Element или Document).
+---@field setattr fun(docname: str, elementname: str, key: str, value: any) Устанавливает значение параметра элемента. (Лучше использовать класс Element или Document).
+---@field template fun(name: str, params: table<str, any>): str Возвращает темплейт как строку xml элемента. (Параметры в xml'ке темплейта можно использовать с помощью "%{param_name}")
+---@field str fun(text: str, context?: str): str Возвращает перевод строки.
 gui = gui
 
 -- ==========================hud============================
 
 ---Библиотека hud
 ---@class voxelcore.libhud Библиотека hud
+---@field _is_content_access fun(): bool Возвращает может ли игрок брать вещи из контент-панели в инвентаре
+---@field _set_content_access fun(flag: bool) Переключает возможность игроку брать вещи из контент-панели в инвентаре
+---@field _set_debug_cheats fun(flag: bool) Переключает возможность игроку использовать дебаг-читы из F3
 ---@field open_inventory fun() Открывает инвентарь.
 ---@field close_inventory fun() Закрывает инвентарь.
 ---@field open fun(layoutid: str, disablePlayerInventory?: bool, invid?: int): int Открывает инвентарь и UI. Если макет UI не существует - бросается исключение. Если invid не указан, создаётся виртуальный (временный) инвентарь. Возвращает invid или id виртуального инвентаря.
@@ -655,6 +725,8 @@ network = network
 ---@field get_info fun(packsid: str[]): table<string, voxelcore.class.packinfo> Возвращает информацию о нескольких паках (не обязательно установленных).
 ---@field assemble fun(packs: table<string, voxelcore.class.packinfo>): table<string, voxelcore.class.packinfo> Проверяет корректность конфигурации и добавляет зависимости, возвращая полную.
 ---@field request_writeable fun(packid: str, callback: fun(str)) Запрашивает у пользователя право на модификацию пака. При подтвержении новая точка входа будет передана в callback.
+---@field assemble fun(packdata: table): str[] Собирает пак и возвращает массив идентификаторов которые он добавляет
+---@field unload fun(packid: str) Выгружает пак (а точнее просто удаляет все его ивенты)
 pack = pack
 
 -- ========================player===========================
@@ -716,6 +788,9 @@ quat = quat
 ---@field get fun(name: voxelcore.class.rulelist): bool | nil Возвращает значение правила или nil, если оно ещё не было создано.
 ---@field set fun(name: voxelcore.class.rulelist, value: bool) Устанавливает значение правила, вызывая обработчики. Может использоваться и до создания правила.
 ---@field reset fun(name: voxelcore.class.rulelist) Сбрасывает значение правила к значению по-умолчанию.
+---@field nexid int Возможно вы имели ввиду nextid xD
+---@field nextid int Следующий идентификатор правила
+---@field rules table<str, {default: bool, listeners: function[], value: bool}>
 rules = rules
 
 -- =========================time============================
@@ -740,6 +815,13 @@ time = time
 ---@field lower fun(text: str): str Переводит строку в нижний регистр
 ---@field escape fun(text: str): str Экранирует строку
 utf8 = utf8
+
+-- ========================session==========================
+
+---@class voxelcore.session
+---@field get_entry fun(name: "commands_history" | "new_world" | str): any Вовращает некий энтри
+---@field reset_entry fun(name: "commands_history" | "new_world" | str) Удаляет некий энтри
+---@field entries table<str, any> Таблица этих самых энтри
 
 -- ========================vector===========================
 
@@ -800,6 +882,7 @@ vec4 = vec4
 ---@field get_chunk_data fun(x: int, z: int): bytearray | nil Возвращает сжатые данные чанка для отправки. Если чанк не загружен, возвращает сохранённые данные.
 ---@field set_chunk_data fun(x: int, z: int, data: bytearray)  Изменяет чанк на основе сжатых данных. Возвращает true если чанк существует.
 ---@field save_chunk_data fun(x: int, z: int, data: bytearray) Сохраняет данные чанка в регион. Изменения будет записаны в файл только после сохранения мира.
+---@field reload_script fun(packid: str) Перезагружает скрипт мира определённого пака
 world = world
 
 -- ========================events===========================
@@ -843,15 +926,22 @@ audio = audio
 
 -- ========================console==========================
 
+---@class voxelcore.libconsole.command_info
+---@field kwargs any[] Практически никогда не используется
+---@field description str
+---@field name str
+---@field args { optional?: bool, type: str, name: str }[]
+
 ---@class voxelcore.libconsole
 ---@field add_command fun(scheme: str, description: str, handler: fun(args: any[], kwargs: str[])) Создаёт команду
 ---@field log fun(message: str) Выводит сообщение в консоль
 ---@field chat fun(message: str) Выводит сообщение в чат
 ---@field get_commands_list fun(): str[] Возвращает список команд
----@field get_command_info fun(name: str): table Возвращает данные команды
----@field get fun(...): any
----@field set fun(...): any
+---@field get_command_info fun(name: str): voxelcore.libconsole.command_info Возвращает данные команды
+---@field get fun(name: str): any Получает команду. (Правда странно как-то, я так и не понял как им оперировать).
+---@field set fun(name: str, value: any) Устанавливает команду. (Не уверен как оно работает).
 ---@field execute fun(command: str) Выполняет команду
+---@field cheats str[] Список чит команд
 console = console
 
 -- ========================assets===========================
@@ -931,9 +1021,13 @@ entity = entity
 ---@type table<str, voxelcore.ui.document.any>
 document = document
 
----@class voxelcore.libdocument
+---@class voxelcore.Document
 ---@field new fun(name: str): table<str, voxelcore.ui.document.any>
 Document = Document
+
+---@class voxelcore.Element
+---@field new fun(docname: str, name: str): table
+Element = Element
 
 ---@class voxelcore.ui.document.base_element
 ---@field id str идентификатор элемента. запись: нет
@@ -1064,4 +1158,6 @@ HeightMap = HeightMap
 ---@field create_fragment fun(a: vec3, b: vec3, crop: bool): voxelcore.class.VoxelFragment Создаёт фрагмент по координатам
 ---@field load_fragment fun(filename: str): voxelcore.class.VoxelFragment Загружает фрагмент из файла
 ---@field save_fragment fun(fragment: voxelcore.class.VoxelFragment, filename: str) Сохраняет фрагмент в файл
+---@field get_generators fun(): str[] Возвращает таблицу из идентификаторов всех доступных генераторов
+---@field get_default_generator fun(): str Возвращает генератор по умолчанию
 generation = generation

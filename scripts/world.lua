@@ -1,3 +1,4 @@
+require "main";
 require "lib/coroutines";
 
 function on_world_tick()

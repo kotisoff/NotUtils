@@ -53,10 +53,13 @@ if _mp.name == "neutron" then
     end)
   end
 elseif _mp.name == "standalone" then
-  console.add_command("title mode:str text:str", "Выводит текст на экран", function(args)
-    local mode, text = unpack(args)
-    local module = title[mode]
-    if not module then return console.log(string.format('Режим "%s" не найден.', mode)) end
-    module:show(text)
+  events.on("not_utils:hud_open", function()
+    print("Add title command")
+    console.add_command("title mode:str text:str", "Выводит текст на экран", function(args)
+      local mode, text = unpack(args)
+      local module = title[mode]
+      if not module then return console.log(string.format('Режим "%s" не найден.', mode)) end
+      module:show(text)
+    end)
   end)
 end

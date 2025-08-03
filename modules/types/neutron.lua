@@ -10,6 +10,7 @@
 -- ========================aliases==========================
 
 ---@alias neutron.utils.proxy_table table
+---@alias neutron.sandbox.blocks.slot { slot_id: int, item_id: int, item_count: int }
 
 -- ========================classes==========================
 
@@ -198,7 +199,7 @@
 
 ---@class neutron.server.sandbox.blocks
 ---@field sync_inventory fun(pos: neutron.util.pos, client: neutron.class.client) Синхронизирует инвентарь.
----@field sync_slot fun(pos: neutron.util.pos, slot: int, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
+---@field sync_slot fun(pos: neutron.util.pos, slot: neutron.sandbox.blocks.slot, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
 
 ---@class neutron.server.sandbox
 ---@field players neutron.server.sandbox.players
@@ -406,7 +407,7 @@
 
 ---@class neutron.client.sandbox.blocks
 ---@field sync_inventory fun(pos: neutron.util.pos) Синхронизирует инвентарь.
----@field sync_slot fun(pos: neutron.util.pos, slot: int) Синхронизирует определённый слот инвентаря.
+---@field sync_slot fun(pos: neutron.util.pos, slot: neutron.sandbox.blocks.slot) Синхронизирует определённый слот инвентаря.
 
 ---@class neutron.client.sandbox
 ---@field blocks neutron.client.sandbox.blocks
