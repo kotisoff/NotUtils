@@ -116,6 +116,12 @@ table = table
 ---@field right_pad fun(str: str, size: number, char?: str): str Добавляет char справа от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 string = string
 
+-- =======================coroutine=========================
+
+---@class voxelcore.coroutine
+---@field stop nil | (fun(co: thread): noerror: bool, errorobject: any)
+coroutine = coroutine
+
 -- =========================debug===========================
 
 ---@class voxelcore.libdebug
@@ -146,6 +152,7 @@ stdcomp = stdcomp
 ---@class voxelcore.libcore
 ---@field blank fun() Ничего не делает. xD
 ---@field capture_output fun(func: function): str Перехватывает все принты и возвращает их в виде строки
+---@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
 ---@field open_world fun(name: str) Открывает мир по названию.
 ---@field reopen_world fun() Переоткрывает мир.
 ---@field save_world fun() Сохраняет мир.
@@ -155,10 +162,12 @@ stdcomp = stdcomp
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
 ---@field get_version fun(): int, int Возвращает мажорную и минорную версии движка.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
+---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
 ---@field open_folder fun(path: str) Открывает движком папку по указанного пути
 ---@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
+---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field str_setting fun(name: str): str Возвращает значение настройки в виде строки.
 core = core
@@ -209,7 +218,7 @@ base64 = base64
 ---@field reserve fun(self: bytearray, new_capacity: int) Расширяет массив байт до new_capacity
 ---@field trim fun(self: bytearray) Устанавливает максимальный размер массива байт до настоящего размера
 
----@type fun(...): bytearray
+---@type voxelcore.Bytearray | (fun(...): bytearray)
 Bytearray = Bytearray
 
 -- =========================block===========================
@@ -238,6 +247,7 @@ Bytearray = Bytearray
 ---@field caption fun(blockid: int): str  Возвращает название блока, отображаемое в интерфейсе.
 ---@field get fun(x: int, y: int, z: int): int Возвращает числовой id блока на указанных координатах. Если чанк на указанных координатах не загружен, возвращает -1.
 ---@field get_states fun(x: int, y: int, z: int): int Возвращает полное состояние (поворот + сегмент + доп. информация) в виде целого числа
+---@field set_states fun(x: int, y: int, z: int, states: int) Устанавливает блоку полное состояние (поворот + сегмент + доп. информация) на заданных координатах.
 ---@field set fun(x: int, y: int, z: int, id: int, states?: int) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
 ---@field place fun(x: int, y: int, z: int, id: int, states?: int, playerid?: int) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах от лица игрока, вызывая событие on_placed.
 ---@field destruct fun(x: int, y: int, z: int, playerid?: int) Ломает блок на заданных координатах от лица игрока, вызывая событие on_broken.
@@ -270,6 +280,7 @@ Bytearray = Bytearray
 ---@field get_textures fun(id: int): [str, str, str, str, str, str] Возвращает массив из 6 текстур, назначенных на стороны блока
 ---@field set_field fun(x: int, y: int, z: int, name: str, value: bool|int|number|str, index?: int) Записывает значение в указанное поле блока. Бросает исключение при несовместимости типов, выходе за границы массива. Ничего не делает при отсутствии поля у блока
 ---@field get_field fun(x: int, y: int, z: int, name: str, index?: int): bool|int|number|str|nil Возвращает значение записанное в поле блока. Возвращает nil если поле не существует или ни в одно поле блока не было произведено записи. Бросает исключение при выходе за границы массива.
+---@field reload_script fun(name: str) Перезагружает скрипт блока
 block = block
 
 -- =======================byteutil==========================
@@ -327,6 +338,7 @@ cameras = cameras
 ---@field get_all_in_box fun(pos: vec3, size: vec3): int[] Возвращает список UID сущностей, попадающих в прямоугольную область
 ---@field get_all_in_radius fun(center: vec3, radius: number): int[] Возвращает список UID сущностей, попадающих в радиус
 ---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
+---@field reload_component fun(name: str) Перезагружает скрипт энтити
 entities = entities
 
 -- =========================file============================
@@ -505,6 +517,7 @@ local text3d = {}
 ---@field is_active fun(slot: int): bool Возвращает true если слот не пуст и интенсивность эффекта ненулевая
 ---@field set_params fun(params: table) Устанавливает значения параметров (директивы 'param')
 ---@field set_array fun(slot: int, name: str, data: str) Устанавливает значения в массив. slot: индекс слота эффектов; name: имя параметра (масссива); data: строка данных (используйте функцию Bytearray_as_string)
+---@field set_effect fun(slot: int, name: str) Назначает эффект на слот
 local posteffects = {}
 
 -- ==========================gfx============================
@@ -558,6 +571,7 @@ gui = gui
 ---@field is_paused fun(): bool Возвращает true если открыто меню паузы.
 ---@field is_inventory_open fun(): bool Возвращает true если открыт инвентарь или оверлей.
 ---@field set_allow_pause fun(flag: bool) Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
+---@field reload_script fun(layout: str) Перезагружает скрипт лейаута
 hud = hud
 
 -- =========================input===========================
@@ -597,6 +611,7 @@ hud = hud
 ---@field is_active fun(bindname: voxelcore.libinput.bindings): bool Проверяет активность привязки.
 ---@field set_enabled fun(bindname: voxelcore.libinput.bindings, flag: bool) Включает/выключает привязку до выхода из мира.
 ---@field is_pressed fun(code: str): bool Проверяет активность ввода по коду, состоящему из: 1. типа ввода: key (клавиша) или mouse (кнопка мыши) 2. код ввода: имя клавиши или имя кнопки мыши (left, middle, right)
+---@field reset_bindings fun() Сбрасывает установленные бинды до стандартных
 input = input
 
 -- =======================inventory=========================
@@ -607,8 +622,8 @@ input = input
 ---@field set fun(invid: int, slot: int, itemid: int, count: int) Устанавливает содержимое слота, удаляя содержащиеся данные.
 ---@field set_count fun(invid: int, slot: int, count: int) Устанавливает количество предмета в слоте не затрагивая данные при ненулевом значении аргумента.
 ---@field size fun(invid: int): int Возвращает размер инвентаря (число слотов). Если указанного инвентаря не существует, бросает исключение.
----@field add fun(invid: int, itemid: int, count: int): int Добавляет предмет в инвентарь. Если не удалось вместить все количество, возвращает остаток.
----@field find_by_item fun(invid: int, itemid: int, range_begin?: int, range_end?: int, min_count: int): int Возвращает индекс первого подходящего под критерии слота в заданном диапазоне. Если подходящий слот не был найден, возвращает nil
+---@field add fun(invid: int, itemid: int, count: int, data?: table): int Добавляет предмет в инвентарь. Если не удалось вместить все количество, возвращает остаток.
+---@field find_by_item fun(invid: int, itemid: int, range_begin?: int, range_end?: int, min_count?: int): int Возвращает индекс первого подходящего под критерии слота в заданном диапазоне. Если подходящий слот не был найден, возвращает nil
 ---@field get_block fun(x: int, y: int, z: int): int Функция возвращает id инвентаря блока. Если блок не может иметь инвентарь - возвращает 0.
 ---@field bind_block fun(invid: int, x: int, y: int, z: int) Привязывает указанный инвентарь к блоку.
 ---@field unbind_block fun(x: int, y: int, z: int) Отвязывает инвентарь от блока.
@@ -637,9 +652,10 @@ inventory = inventory
 ---@field defs_count fun(): int Возвращает общее число доступных предметов (включая сгенерированные)
 ---@field icon fun(itemid: int): str Возвращает имя иконки предмета для использования в свойстве 'src' элемента image
 ---@field placing_block fun(itemid: int): int Возвращает числовой id блока, назначенного как 'placing-block' или 0
----@field model_name fun(itemid: int): int Возвращает значение свойства `model-name`
+---@field model_name fun(itemid: int): str Возвращает значение свойства `model-name`
 ---@field emission fun(itemid: int): str Возвращает emission параметр у предмета
 ---@field uses fun(itemid: int): int Возвращает значение свойства `uses`
+---@field reload_script fun(name: str) Перезагружает скрипт предмета
 item = item
 
 -- ========================matrix===========================
@@ -800,6 +816,7 @@ rules = rules
 ---@class voxelcore.libtime Библиотека time
 ---@field uptime fun(): number Возвращает время с момента запуска движка в секундах.
 ---@field delta fun(): number Возвращает дельту времени (время прошедшее с предыдущего кадра)
+---@field post_runnable fun(func: function) Вызывает функцию после такта обновления движка
 time = time
 
 -- =========================utf-8===========================
@@ -820,7 +837,7 @@ utf8 = utf8
 -- ========================session==========================
 
 ---@class voxelcore.session
----@field get_entry fun(name: "commands_history" | "new_world" | str): any Вовращает некий энтри
+---@field get_entry fun(name: "commands_history" | "new_world" | str): any Возвращает некий энтри
 ---@field reset_entry fun(name: "commands_history" | "new_world" | str) Удаляет некий энтри
 ---@field entries table<str, any> Таблица этих самых энтри
 session = session
@@ -944,6 +961,7 @@ audio = audio
 ---@field set fun(name: str, value: any) Устанавливает команду. (Не уверен как оно работает).
 ---@field execute fun(command: str) Выполняет команду
 ---@field cheats str[] Список чит команд
+---@field submit? fun(message: str) Служебная функция
 console = console
 
 -- ========================assets===========================
@@ -1071,15 +1089,16 @@ Element = Element
 ---@field contentOffset vec2 смещение содержимого. запись: нет
 ---@field cursor str курсор, отображаемый при наведении
 ---@field parent voxelcore.ui.document.base_element | table родительский элемент или nil. запись: нет
----@field moveInto fun(container: voxelcore.ui.document.container) перемещает элемент в указанный контейнер (указывается элемент, а не id)
----@field destruct fun() удаляет элемент
----@field reposition fun() обновляет позицию элемента на основе функции позиционирования
+---@field moveInto fun(self: voxelcore.ui.document.any, container: voxelcore.ui.document.any) перемещает элемент в указанный контейнер (указывается элемент, а не id)
+---@field destruct fun(self: voxelcore.ui.document.any) удаляет элемент
+---@field reposition fun(self: voxelcore.ui.document.any) обновляет позицию элемента на основе функции позиционирования
 
 ---@class voxelcore.ui.document.container: voxelcore.ui.document.base_element
----@field scroll string прокрутка содержимого
----@field clear fun() очищает контент
----@field add fun(xml: str) добавляет элемент, создавая его по xml коду. Пример: container:add("<image src='test'/>")
----@field setInterval fun(interval: integer, callback: function) назначает функцию на повторяющееся выполнение с заданным в миллисекундах интервалом
+---@field scroll number прокрутка содержимого
+---@field clear fun(self: voxelcore.ui.document.any) очищает контент
+---@field add fun(self: voxelcore.ui.document.any, xml: str) добавляет элемент, создавая его по xml коду. Пример: container:add("<image src='test'/>")
+---@field setInterval fun(self: voxelcore.ui.document.any, interval: integer, callback: function) назначает функцию на повторяющееся выполнение с заданным в миллисекундах интервалом
+---@field refresh fun() Обновляет элемент
 
 ---@class voxelcore.ui.document.textbox: voxelcore.ui.document.base_element
 ---@field text str введенный текст или заполнитель
@@ -1095,9 +1114,9 @@ Element = Element
 ---@field textColor vec4 цвет текста
 ---@field syntax str подсветка синтаксиса ("lua" - Lua)
 ---@field markup str язык разметки текста ("md" - Markdown)
----@field paste fun(text: str) вставляет указанный текст на позицию каретки
----@field lineAt fun(pos: int): int определяет номер строки по позиции в тексте
----@field linePos fun(line: int): int определяет позицию начала строки в тексте
+---@field paste fun(self: voxelcore.ui.document.any, text: str) вставляет указанный текст на позицию каретки
+---@field lineAt fun(self: voxelcore.ui.document.any, pos: int): int определяет номер строки по позиции в тексте
+---@field linePos fun(self: voxelcore.ui.document.any, line: int): int определяет позицию начала строки в тексте
 
 ---@class voxelcore.ui.document.trackbar: voxelcore.ui.document.base_element
 ---@field value number выбранное значение
@@ -1107,15 +1126,15 @@ Element = Element
 ---@field trackWidth number ширина управляющего элемента
 ---@field trackColor vec4 цвет управляющего элемента
 
----@class voxelcore.ui.document.pagebox: voxelcore.ui.document.base_element
+---@class voxelcore.ui.document.pagebox: voxelcore.ui.document.container
 ---@field page str текущая страница
----@field back fun() переключает на прошлую страницу
----@field reset fun() сбрасывает страницу и историю переключений
+---@field back fun(self: voxelcore.ui.document.any) переключает на прошлую страницу
+---@field reset fun(self: voxelcore.ui.document.any) сбрасывает страницу и историю переключений
 
 ---@class voxelcore.ui.document.checkbox: voxelcore.ui.document.base_element
 ---@field checked bool состояние отметки
 
----@class voxelcore.ui.document.button: voxelcore.ui.document.base_element
+---@class voxelcore.ui.document.button: voxelcore.ui.document.container
 ---@field text str текст кнопки
 
 ---@class voxelcore.ui.document.label: voxelcore.ui.document.base_element
@@ -1134,6 +1153,14 @@ Element = Element
 
 ---@class voxelcore.ui.document.inventory: voxelcore.ui.document.base_element
 ---@field inventory int id инвентаря, к которому привязан элемент
+
+-- ======================RadioGroup=========================
+
+---@class voxelcore.class.RadioGroup
+---@field set fun(self: voxelcore.class.RadioGroup, key: str)
+
+---@type fun(elements: str[], onset: fun(mode: str), default: str): voxelcore.class.RadioGroup Создаёт новый переключатель типа Radio.
+RadioGroup = RadioGroup
 
 -- ========================canvas===========================
 
@@ -1172,7 +1199,7 @@ Element = Element
 ---@field at fun(x:number,y:number): number Возвращает значение высота на заданной позиции.
 
 ---@type voxelcore.class.HeightMapConstructor
-HeightMap = HeightMap
+Heightmap = Heightmap
 
 ---@class voxelcore.class.VoxelFragment
 ---@field crop fun(self: voxelcore.class.VoxelFragment) Обрезает фрагмент до размеров содержимого
