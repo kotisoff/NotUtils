@@ -33,40 +33,48 @@
 
 -- =========================funcs===========================
 
+local _is_array = is_array;
 ---Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
 ---@param x table
 ---@return bool
-function is_array(x) return is_array(x) end
+function is_array(x) return _is_array(x) end
 
+local _parse_path = parse_path;
 ---Разбивает путь на две части и возвращает их: входную точку и путь к файлу.
 ---@param path str
 ---@return string, string
-function parse_path(path) return parse_path(path) end
+function parse_path(path) return _parse_path(path) end
 
+local _timeit = timeit;
 ---Вызывает функцию func iters раз, передавая ей аргументы ..., а после выводит в консоль время в микросекундах, которое прошло с момента вызова timeit.
 ---@param iters int
 ---@param func function
 ---@param ... any
-function timeit(iters, func, ...) return timeit(iters, func, ...) end
+function timeit(iters, func, ...) return _timeit(iters, func, ...) end
 
+local _sleep = sleep;
 ---Вызывает остановку корутины до тех пор, пока не пройдёт количество секунд, указанное в timesec. Функция может быть использована только внутри корутины.
 ---@param timesec number
-function sleep(timesec) return sleep(timesec) end
+function sleep(timesec) return _sleep(timesec) end
 
+local _await = await;
 ---Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
 ---@param co thread
 ---@return any result, str error
-function await(co) return await(co) end
+function await(co) return _await(co) end
 
+local _Bytearray_as_string = Bytearray_as_string;
 ---Возвращает строковое представление маасива байт
 ---@param bytes bytearray
-function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
+function Bytearray_as_string(bytes) return _Bytearray_as_string(bytes) end
 
+local _Bytearray_construct = Bytearray_construct;
 ---Собирает аргументы в массив байт
-function Bytearray_construct(...) return Bytearray_construct(...) end
+function Bytearray_construct(...) return _Bytearray_construct(...) end
 
+local _crc32 = crc32;
 ---Вычисляет контрольную сумму массива байт
-function crc32(...) return crc32(...) end
+function crc32(...) return _crc32(...) end
 
 -- =========================math============================
 
@@ -925,6 +933,7 @@ session = session
 ---@field pow fun(vec: vector, exponent: number): vector Возвращает вектор с элементами, возведенными в степень
 ---@field pow fun(vec: vector, exponent: number, dst: vector) Записывает вектор, возведенный в степень, в dst
 ---@field dot fun(vecA: vector, vecB: vector): vector Возвращает скалярное произведение векторов
+---@field distance fun(a: vector, b: vector): number Возвращает расстояние между двумя векторами
 ---@field tostring fun(vec: vector): str Возвращает строку представляющую содержимое вектора
 
 ---@class voxelcore.libvec2: voxelcore.libvector
