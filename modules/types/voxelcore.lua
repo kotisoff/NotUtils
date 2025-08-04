@@ -33,48 +33,29 @@
 
 -- =========================funcs===========================
 
-local _is_array = is_array;
----Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
----@param x table
----@return bool
-function is_array(x) return _is_array(x) end
+---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
+is_array = is_array;
 
-local _parse_path = parse_path;
----Разбивает путь на две части и возвращает их: входную точку и путь к файлу.
----@param path str
----@return string, string
-function parse_path(path) return _parse_path(path) end
+---@type fun(path: str): str, str Разбивает путь на две части и возвращает их: входную точку и путь к файлу.
+parse_path = parse_path;
 
-local _timeit = timeit;
----Вызывает функцию func iters раз, передавая ей аргументы ..., а после выводит в консоль время в микросекундах, которое прошло с момента вызова timeit.
----@param iters int
----@param func function
----@param ... any
-function timeit(iters, func, ...) return _timeit(iters, func, ...) end
+---@type fun(iters: int, func: function, ...) Вызывает функцию func iters раз, передавая ей аргументы ..., а после выводит в консоль время в микросекундах, которое прошло с момента вызова timeit.
+timeit = timeit;
 
-local _sleep = sleep;
----Вызывает остановку корутины до тех пор, пока не пройдёт количество секунд, указанное в timesec. Функция может быть использована только внутри корутины.
----@param timesec number
-function sleep(timesec) return _sleep(timesec) end
+---@type fun(timesec: number) Вызывает остановку корутины до тех пор, пока не пройдёт количество секунд, указанное в timesec. Функция может быть использована только внутри корутины.
+sleep = sleep;
 
-local _await = await;
----Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
----@param co thread
----@return any result, str error
-function await(co) return _await(co) end
+---@type fun(co: thread): result: any, error: str Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
+await = await;
 
-local _Bytearray_as_string = Bytearray_as_string;
----Возвращает строковое представление маасива байт
----@param bytes bytearray
-function Bytearray_as_string(bytes) return _Bytearray_as_string(bytes) end
+---@type fun(bytes: bytearray): str Возвращает строковое представление маасива байт
+Bytearray_as_string = Bytearray_as_string;
 
-local _Bytearray_construct = Bytearray_construct;
----Собирает аргументы в массив байт
-function Bytearray_construct(...) return _Bytearray_construct(...) end
+---@type fun(...): bytearray Собирает аргументы в массив байт
+Bytearray_construct = Bytearray_construct;
 
-local _crc32 = crc32;
----Вычисляет контрольную сумму массива байт
-function crc32(...) return _crc32(...) end
+---@type fun(bytes: bytearray | str, chksum: int): int Вычисляет контрольную сумму массива байт
+crc32 = crc32;
 
 -- =========================math============================
 
