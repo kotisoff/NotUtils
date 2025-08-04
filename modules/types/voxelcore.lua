@@ -53,6 +53,11 @@ function timeit(iters, func, ...) return timeit(iters, func, ...) end
 ---@param timesec number
 function sleep(timesec) return sleep(timesec) end
 
+---Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
+---@param co thread
+---@return any result, str error
+function await(co) return await(co) end
+
 ---Возвращает строковое представление маасива байт
 ---@param bytes bytearray
 function Bytearray_as_string(bytes) return Bytearray_as_string(bytes) end
@@ -120,6 +125,11 @@ string = string
 ---@class voxelcore.coroutine
 ---@field stop nil | (fun(co: thread): noerror: bool, errorobject: any)
 coroutine = coroutine
+
+-- ==========================os=============================
+
+---@class voxelcore.os
+---@field pid int Идентификатор процесса движка
 
 -- =========================debug===========================
 
@@ -376,7 +386,54 @@ entities = entities
 ---@field join fun(dir: str, path: str): str Соединяет путь. Пример: file.join("world:data", "base/config.toml) -> world:data/base/config.toml. Следует использовать данную функцию вместо конкатенации с /, так как префикс:/путь не является валидным.
 ---@field gzip_compress fun(bytearray: bytearray): bytearray Возвращает сжатую таблицу байт.
 ---@field gzip_decompress fun(bytearray: bytearray): bytearray Возвращает разжатую таблицу байт.
+---@field open fun(path: str, mode: str): voxelcore.class.io_stream Открывает поток для записи/чтения в файл по указанному пути. Режим может быть составлен из "r", "w", "b", а также "+" (для "w")
+---@field open_named_pipe fun(path: str, mode: str): voxelcore.class.io_stream Открывает поток для записи/чтения в Named Pipe по указанному пути. Режим может быть составлен только из "r", "w", "b". `/tmp/` или `\\\\.\\pipe\\` добавлять не нужно - движок делает это автоматически.
+---@field __open_descriptor fun(path: str, mode: str): int Создаёт поток
+---@field __has_descriptor fun(descriptor: int): bool Проверяет наличие потока
+---@field __read_descriptor fun(descriptor: int, max_len: int): bytearray Читает из потока
+---@field __write_descriptor fun(descriptor: int, data: str) Пишет в поток
+---@field __flush_descriptor fun(descriptor: int) Записывает все данные из write-буфера в поток
+---@field __close_descriptor fun(descriptor: int): bool Закрывает поток
+---@field __close_all_descriptors fun() Закрывает все потоки
 file = file
+
+-- =======================io_stream=========================
+
+
+---@alias voxelcore.class.io_stream.data bytearray | int[] | str | str[]
+---@alias voxelcore.class.io_stream.mode "default" | "yield" | "buffered"
+---@alias voxelcore.class.io_stream.flushmode "all" | "buffer"
+
+---@class voxelcore.class.io_stream
+---@field is_binary_mode fun(self: voxelcore.class.io_stream): bool Возвращает true, если поток используется в двоичном режиме
+---@field set_binary_mode fun(self: voxelcore.class.io_stream, flag: bool) Включает или выключает двоичный режим
+---@field get_mode fun(self: voxelcore.class.io_stream): voxelcore.class.io_stream.mode Возвращает режим работы потока
+---@field set_mode fun(self: voxelcore.class.io_stream, mode:  voxelcore.class.io_stream.mode) Задаёт режим работы потока. Выбрасывает ошибку, если передан неизвестный режим
+---@field get_flush_mode fun(self: voxelcore.class.io_stream): voxelcore.class.io_stream.flushmode Возвращает режим работы flush
+---@field set_flush_mode fun(self: voxelcore.class.io_stream, mode: voxelcore.class.io_stream.flushmode) Задаёт режим работы flush
+---@field read fun(self: voxelcore.class.io_stream, arg?: int | str, use_table_or_trim?: bool): voxelcore.class.io_stream.data | ... Читает данные из потока. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
+---@field write fun(self: voxelcore.class.io_stream, arg: voxelcore.class.io_stream.data, ...) Записывает данные в поток. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
+---@field read_line fun(self: voxelcore.class.io_stream): str Читает одну строку с окончанием CRLF/LF из потока вне зависимости от двоичного режима
+---@field write_line fun(self: voxelcore.class.io_stream, line: str) Записывает одну строку с окончанием LF в поток вне зависимости от двоичного режима
+---@field read_fully fun(self: voxelcore.class.io_stream, useTable?: bool): voxelcore.class.io_stream.data Читает все доступные данные из потока. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
+---@field available fun(self: voxelcore.class.io_stream, length?: int): int | bool Если length определён, то возвращает true, если length байт доступно к чтению. Иначе возвращает false. Если не определён, то возвращает количество байт, которое можно прочитать
+---@field get_max_buffer_size fun(self: voxelcore.class.io_stream): int Возвращает максимальный размер буферов
+---@field set_max_buffer_size fun(self: voxelcore.class.io_stream, size: int) Задаёт новый максимальный размер буферов
+---@field is_alive fun(self: voxelcore.class.io_stream): bool Возвращает true, если поток открыт на данный момент
+---@field is_closed fun(self: voxelcore.class.io_stream): bool Возвращает true, если поток закрыт на данный момент
+---@field close fun(self: voxelcore.class.io_stream) Закрывает поток
+---@field flush fun(self: voxelcore.class.io_stream) Записывает все данные из write-буфера в поток в buffer/all flush-режимах. Вызывает ioLib.flush() в all flush-режиме
+
+---@class voxelcore.class.io_stream.lib
+---@field read fun(descriptor: int, max_len: int): bytearray Читает из потока
+---@field write fun(descriptor: int, data: str) Пишет в поток
+---@field flush fun(descriptor: int) Записывает все данные из write-буфера в поток
+---@field is_alive fun(descriptor: int): bool Возвращает true, если поток открыт на данный момент
+---@field close fun(descriptor: int) Закрывает поток
+
+---@class voxelcore.class.io_stream.constructor
+---@field new fun(descriptor: int, binaryMode: bool, ioLib: voxelcore.class.io_stream.lib, mode?: voxelcore.class.io_stream.mode, flushmode?: voxelcore.class.io_stream.flushmode): voxelcore.class.io_stream Создаёт новый поток с переданным дескриптором и использующим переданную I/O библиотеку. (Более подробно в core:io_stream.lua)
+io_stream = io_stream
 
 -- ===================data=serializers======================
 
@@ -816,6 +873,9 @@ rules = rules
 ---@field uptime fun(): number Возвращает время с момента запуска движка в секундах.
 ---@field delta fun(): number Возвращает дельту времени (время прошедшее с предыдущего кадра)
 ---@field post_runnable fun(func: function) Вызывает функцию после такта обновления движка
+---@field utc_time fun(): int Возвращает время UTC в секундах
+---@field local_time fun(): int Возвращает локальное (системное) время в секундах
+---@field utc_offset fun(): int Возвращает смещение локального времени от UTC в секундах
 time = time
 
 -- =========================utf-8===========================
@@ -1212,3 +1272,10 @@ Heightmap = Heightmap
 ---@field get_generators fun(): str[] Возвращает таблицу из идентификаторов всех доступных генераторов
 ---@field get_default_generator fun(): str Возвращает генератор по умолчанию
 generation = generation
+
+-- ===================modules/schedule======================
+
+---@class voxelcore.modules.schedule
+---@field set_interval fun(self: voxelcore.modules.schedule, ms: number, callback: function, repetions?: int): int Создаёт новый интервал. Работает repetions раз или бесконечно.
+---@field tick fun(self: voxelcore.modules.schedule, dt: number) Тикает интервалы
+---@field remove_interval fun(self: voxelcore.modules.schedule, id: int) Удаляет интервал
