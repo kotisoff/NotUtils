@@ -87,8 +87,8 @@ function math.round_to(num, digits)
 end
 
 ---Проверяет равнозначность векторов
----@param veca vecN
----@param vecb vecN
+---@param veca vector
+---@param vecb vector
 ---@return bool
 local function vec_equals(veca, vecb)
   if #veca ~= #vecb then return false end
@@ -103,7 +103,7 @@ local function vec_equals(veca, vecb)
 end
 
 ---Округляет значения вектора до нижнего значения
----@param vec vecN
+---@param vec vector
 local function vec_floor(vec)
   local t
 

@@ -19,12 +19,11 @@
 
 ---@alias mat4 number[] Матрица трансформации размерностью 4x4.
 ---@alias quat number[] Кватернион
----@alias vecN number[] Вектор любой длины
+---@alias vector number[] Вектор любой длины
 ---@alias vec4 [number, number, number, number] Вектор размерностью 4
 ---@alias vec3 [number, number, number] Вектор размерностью 3
 ---@alias vec2 [number, number] Вектор размерностью 2
----@alias ffibytearray unknown Мутный массив байт от luajit.
----@alias bytearray voxelcore.Bytearray|table<int>|ffibytearray Массив байт. Собран на ffi и метатаблицах.
+---@alias bytearray voxelcore.Bytearray|table<int> Массив байт. Собран на ffi и метатаблицах.
 
 -- Short names
 
@@ -667,8 +666,8 @@ item = item
 ---@field determinant fun(m: mat4): number Вычисляет определитель матрицы
 ---@field from_quat fun(quaternion: quat): mat4 Создает матрицу вращения по кватерниону
 ---@field from_quat fun(quaternion: quat, dst: mat4) Записывает матрицу вращения по кватерниону в dst
----@field mul fun(a: mat4, b: mat4|vecN): mat4 Возвращает результат умножения матриц
----@field mul fun(a: mat4, v: mat4|vecN, dst: mat4) Записывает результат умножения матриц в dst
+---@field mul fun(a: mat4, b: mat4|vector): mat4 Возвращает результат умножения матриц
+---@field mul fun(a: mat4, v: mat4|vector, dst: mat4) Записывает результат умножения матриц в dst
 ---@field inverse fun(m: mat4): mat4 Возвращает результат инверсии матрицы
 ---@field inverse fun(m: mat4, dst: mat4) Записывает результат инверсии матрицы в dst
 ---@field transpose fun(m: mat4): mat4 Возвращает результат транспонирования матрицы
@@ -844,41 +843,41 @@ session = session
 
 -- ========================vector===========================
 
----vecn содержит набор функций для работы с векторами размерностью 2, 3 или 4.
----@class voxelcore.libvecN vecn содержит набор функций для работы с векторами размерностью 2, 3 или 4.
----@field add fun(a: vecN, b: vecN|number): vecN Возвращает результат сложения векторов
----@field add fun(a: vecN, b: vecN|number, dst: vecN) Записывает результат сложения двух векторов в dst
----@field sub fun(a: vecN, b: vecN|number): vecN Возвращает результат вычитания векторов
----@field sub fun(a: vecN, b: vecN|number, dst: vecN) Записывает результат вычитания двух векторов в dst
----@field mul fun(a: vecN, b: vecN|number): vecN Возвращает результат умножения векторов
----@field mul fun(a: vecN, b: vecN|number, dst: vecN) Записывает результат умножения двух векторов в dst
----@field div fun(a: vecN, b: vecN|number): vecN Возвращает результат деления векторов
----@field div fun(a: vecN, b: vecN|number, dst: vecN) Записывает результат деления двух векторов в dst
----@field inverse fun(vec: vecN): vecN Возвращает результат инверсии (противоположный) вектора
----@field inverse fun(vec: vecN, dst: vecN) Записывает инвертированный вектор в dst
----@field normalize fun(vec: vecN): vecN Возвращает нормализованный вектор
----@field normalize fun(vec: vecN, dst: vecN) Записывает нормализованный вектор в dst
----@field length fun(vec: vecN): number Возвращает длину вектора
----@field abs fun(vec: vecN): vecN Возвращает вектор с абсолютными значениями
----@field abs fun(vec: vecN, dst: vecN) Записывает абсолютное значение вектора в dst
----@field round fun(vec: vecN): vecN Возвращает вектор с округленными значениями
----@field round fun(vec: vecN, dst: vecN) Записывает округленный вектор в dst
----@field pow fun(vec: vecN, exponent: number): vecN Возвращает вектор с элементами, возведенными в степень
----@field pow fun(vec: vecN, exponent: number, dst: vecN) Записывает вектор, возведенный в степень, в dst
----@field dot fun(vecA: vecN, vecB: vecN): vecN Возвращает скалярное произведение векторов
----@field tostring fun(vec: vecN): str Возвращает строку представляющую содержимое вектора
+---vector содержит набор функций для работы с векторами размерностью 2, 3 или 4.
+---@class voxelcore.libvector vector содержит набор функций для работы с векторами размерностью 2, 3 или 4.
+---@field add fun(a: vector, b: vector|number): vector Возвращает результат сложения векторов
+---@field add fun(a: vector, b: vector|number, dst: vector) Записывает результат сложения двух векторов в dst
+---@field sub fun(a: vector, b: vector|number): vector Возвращает результат вычитания векторов
+---@field sub fun(a: vector, b: vector|number, dst: vector) Записывает результат вычитания двух векторов в dst
+---@field mul fun(a: vector, b: vector|number): vector Возвращает результат умножения векторов
+---@field mul fun(a: vector, b: vector|number, dst: vector) Записывает результат умножения двух векторов в dst
+---@field div fun(a: vector, b: vector|number): vector Возвращает результат деления векторов
+---@field div fun(a: vector, b: vector|number, dst: vector) Записывает результат деления двух векторов в dst
+---@field inverse fun(vec: vector): vector Возвращает результат инверсии (противоположный) вектора
+---@field inverse fun(vec: vector, dst: vector) Записывает инвертированный вектор в dst
+---@field normalize fun(vec: vector): vector Возвращает нормализованный вектор
+---@field normalize fun(vec: vector, dst: vector) Записывает нормализованный вектор в dst
+---@field length fun(vec: vector): number Возвращает длину вектора
+---@field abs fun(vec: vector): vector Возвращает вектор с абсолютными значениями
+---@field abs fun(vec: vector, dst: vector) Записывает абсолютное значение вектора в dst
+---@field round fun(vec: vector): vector Возвращает вектор с округленными значениями
+---@field round fun(vec: vector, dst: vector) Записывает округленный вектор в dst
+---@field pow fun(vec: vector, exponent: number): vector Возвращает вектор с элементами, возведенными в степень
+---@field pow fun(vec: vector, exponent: number, dst: vector) Записывает вектор, возведенный в степень, в dst
+---@field dot fun(vecA: vector, vecB: vector): vector Возвращает скалярное произведение векторов
+---@field tostring fun(vec: vector): str Возвращает строку представляющую содержимое вектора
 
----@class voxelcore.libvec2: voxelcore.libvecN
+---@class voxelcore.libvec2: voxelcore.libvector
 ---@field angle fun(v: vec2): number Возвращает угол направления вектора v в градусах [0, 360]
 ---@field angle fun(x: number, y: number): number Возвращает угол направления вектора {x, y} в градусах [0, 360]
 vec2 = vec2
 
----@class voxelcore.libvec3: voxelcore.libvecN
+---@class voxelcore.libvec3: voxelcore.libvector
 ---@field spherical_rand fun(radius: number): vec3 Возвращает случайный вектор, координаты которого равномерно распределены на сфере заданного радиуса
 ---@field spherical_rand fun(radius: number, dst: vec3) Записывает случайный вектор, координаты которого равномерно распределены на сфере заданного радиуса в dst
 vec3 = vec3
 
----@class voxelcore.libvec4: voxelcore.libvecN
+---@class voxelcore.libvec4: voxelcore.libvector
 vec4 = vec4
 
 -- =========================world===========================
