@@ -48,7 +48,7 @@ sleep = sleep;
 ---@type fun(co: thread): result: any, error: str Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
 await = await;
 
----@type fun(bytes: bytearray): str Возвращает строковое представление маасива байт
+---@type fun(bytes: bytearray): str Возвращает строковое представление массива байт
 Bytearray_as_string = Bytearray_as_string;
 
 ---@type fun(...): bytearray Собирает аргументы в массив байт
@@ -586,7 +586,7 @@ gfx = gfx or {
 ---@field get_locales_info fun(): table<str, table> Возвращает информацию о всех загруженных локалях (res/texts/*).
 ---@field clear_markup fun(language: str, text: str): str Удаляет разметку из текста.
 ---@field escape_markup fun(language: str, text: str): str Экранирует разметку в тексте.
----@field alert fun(message: str, on_ok: function) Выводит окно с сообщением. Не останавливает выполнение кода.
+---@field alert fun(message: str, on_ok?: function) Выводит окно с сообщением. Не останавливает выполнение кода.
 ---@field confirm fun(message: str, on_confirm: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает у пользователя подтверждение действия. Не останавливает выполнение кода.
 ---@field load_document fun(path: str, name: str, args: table): str Загружает UI документ с его скриптом, возвращает имя документа, если успешно загружен.
 ---@field getattr fun(docname: str, elementname: str, key: str): any Возвращает значение параметра элемента. (Лучше использовать класс Element или Document).
