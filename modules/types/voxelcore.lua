@@ -246,7 +246,7 @@ Bytearray = Bytearray
 ---@field get fun(x: int, y: int, z: int): int Возвращает числовой id блока на указанных координатах. Если чанк на указанных координатах не загружен, возвращает -1.
 ---@field get_states fun(x: int, y: int, z: int): int Возвращает полное состояние (поворот + сегмент + доп. информация) в виде целого числа
 ---@field set_states fun(x: int, y: int, z: int, states: int) Устанавливает блоку полное состояние (поворот + сегмент + доп. информация) на заданных координатах.
----@field set fun(x: int, y: int, z: int, id: int, states?: int) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
+---@field set fun(x: int, y: int, z: int, id: int, states?: int, cancel_update?: bool) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
 ---@field place fun(x: int, y: int, z: int, id: int, states?: int, playerid?: int) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах от лица игрока, вызывая событие on_placed.
 ---@field destruct fun(x: int, y: int, z: int, playerid?: int) Ломает блок на заданных координатах от лица игрока, вызывая событие on_broken.
 ---@field compose_state fun(state: [ int, int, int ]): int Собирает полное состояние в виде целого числа
