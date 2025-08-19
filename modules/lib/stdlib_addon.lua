@@ -52,18 +52,25 @@ end
 
 -- Не важно что эти функции уже есть в нейтроне, я рассчитываю что без нейтрона моды на not_utils тоже будут шикарно работать
 
+---@param tbl table
+---@param pattern table
+---@param ignored_symb? str
 function table.to_arr(tbl, pattern, ignored_symb)
   local res = {}
   for i, val in ipairs(pattern) do res[i] = tbl[val] or ignored_symb end
   return res
 end
 
+---@param tbl table
+---@param pattern table
+---@param ignored_symb? str
 function table.to_dict(tbl, pattern, ignored_symb)
   local res = {}
   for i, val in ipairs(pattern) do res[val] = tbl[i] ~= ignored_symb and tbl[i] or nil end
   return res
 end
 
+---@param tbl table
 function table.reverse(tbl)
   local t = {};
 
@@ -74,12 +81,24 @@ function table.reverse(tbl)
   return t;
 end
 
+---@param tbl table
+function table.keys(tbl)
+  local keys = {};
+
+  for key, _ in pairs(tbl) do
+    table.insert(keys, key);
+  end
+
+  return keys;
+end
+
+---@param n number
 function tohex(n)
   return string.format("%x", n)
 end
 
 ---@param num number
----@param digits number Number of digits after comma.
+---@param digits int Number of digits after comma.
 ---@return number
 function math.round_to(num, digits)
   local accuracy = 10 ^ digits;
