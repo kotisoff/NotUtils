@@ -14,7 +14,7 @@ cor.create(function()
     { 
       time_function = time.worldtime,
       cycle_task = function(data, passed_time) print(passed_time); data.passed = passed_time end,
-      break_function = function(data) return data.passed > 5 end
+      break_function = function(data) return data.passed > 3 end
     }
   )
 
@@ -32,7 +32,7 @@ function cor.create(func: function): thread
 function cor.sleep(seconds: number,
   options: { 
     time_function: fun(): number, -- Функция для отсчёта времени
-    break_function: fun(temp: table): boolean -- Если возвращает true, то sleep обрывается
+    break_function: fun(temp: table): boolean, -- Если возвращает true, то sleep обрывается
     cycle_task: fun(temp: table, passed_time: number) -- Задача, которая будет выполняться всё время до конца или обрывания
   }
 ): boolean
