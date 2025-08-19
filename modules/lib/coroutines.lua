@@ -5,6 +5,7 @@ local coroutines = {};
 function module.create(func)
   local co = coroutine.create(func);
   table.insert(coroutines, co);
+  return co
 end
 
 ---@class sleep_options
@@ -52,11 +53,9 @@ function module.set_interval(func, time_seconds, time_function)
     coroutine.yield();
   end
 
-  return {
-    stop = function()
-      _break = true;
-    end
-  }
+  return function()
+    _break = true;
+  end
 end
 
 events.on("not_utils:world_tick", function()

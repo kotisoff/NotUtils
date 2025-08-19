@@ -1,65 +1,79 @@
 local module = {}
 
----@class Logger
----@field private name string
----@field private history string[]
----@field private prefix fun(self, level: not_utils.logger.levels): string
----@field private filepath fun(self): string
-local logger = {
-  history = {},
-
-  ---@enum not_utils.logger.levels
-  levels = {
-    ---Silent
-    S = "S",
-    ---Info
-    I = "I",
-    ---Warn
-    W = "W",
-    ---Error
-    E = "E"
-  }
+---@enum not_utils.logger.levels
+local logLevels = {
+  ---Silent
+  S = "S",
+  ---Info
+  I = "I",
+  ---Warn
+  W = "W",
+  ---Error
+  E = "E"
 }
 
 ---@param logLevel not_utils.logger.levels
-function logger:prefix(logLevel)
+---@param logger Logger
+local function prefix(logLevel, logger)
   local date = os.date("%Y/%m/%d %H:%M:%S%z    ");
-  local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(self.name));
+  local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(logger.name));
   return log_prefix
 end
 
 ---@param logLevel not_utils.logger.levels
-function logger:log(logLevel, ...)
-  table.insert(self.history, self:prefix(logLevel) .. table.concat({ ... }, " "));
+---@param logger Logger
+local function log(logLevel, logger, ...)
+  table.insert(logger.history, prefix(logLevel, logger) .. table.concat({ ... }, " "));
 end
 
-function logger:clear()
-  self.history = {};
-end
-
-function logger:print()
-  if #self.history == 0 then return end;
-  print(table.concat(self.history, "\n"));
-  self.history = {};
+---@param logger Logger
+local function print_history(logger)
+  if #logger.history == 0 then return end;
+  print(table.concat(logger.history, "\n"));
+  logger.history = {};
 end
 
 ---@param logLevel not_utils.logger.levels
-function logger:println(logLevel, ...)
-  print(self:prefix(logLevel) .. table.concat({ ... }, " "))
+---@param logger Logger
+local function println(logLevel, logger, ...)
+  print(prefix(logLevel, logger) .. table.concat({ ... }, " "))
 end
 
 local loggers = {};
 
 
 ---@param name string
----@return Logger
 function module.new(name)
   if loggers[name] then
     return loggers[name]
   else
-    local instance = setmetatable({ name = name }, { __index = logger });
-    loggers[name] = instance;
-    return instance;
+    ---@class Logger
+    local logger = {
+      name = name,
+      history = {},
+      levels = logLevels
+    }
+
+    ---@param logLevel not_utils.logger.levels
+    logger.log = function(logLevel, ...)
+      log(logLevel, logger, ...);
+    end
+
+    logger.clear_history = function()
+      logger.history = {};
+    end
+
+    logger.print = function()
+      print_history(logger);
+    end
+
+    ---@param logLevel not_utils.logger.levels
+    logger.println = function(logLevel, ...)
+      println(logLevel, logger, ...);
+    end
+
+    loggers[name] = logger;
+    return logger;
   end
 end
 

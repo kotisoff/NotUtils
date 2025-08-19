@@ -1,11 +1,11 @@
-# Документация NotUtils:tags
+# Модуль *tags*
 
 ## Импортирование и пример
 
 ```lua
-local api = require "not_utils".tags;
+local tags = require "not_utils:main".tags;
 
-local blocks = api.get_blocks_by_tags("lamps");
+local blocks = tags.get_blocks_by_tags("lamps");
   
 for _, blockid in ipairs(blocks) do
   print(string.format("Привет, %s!", block.name(blockid))); -- Привет всем лампам!
@@ -65,3 +65,5 @@ function api.add_tags_to_block(blockid: integer, ...: string)
   "not_utils:tags@append": [ "Уже здесь указывайте новые теги" ]
 }
 ```
+
+[Вернуться на главную](../index.md)

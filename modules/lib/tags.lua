@@ -3,7 +3,7 @@ local logger = Logger.new("not_utils");
 
 ---@param log_level not_utils.logger.levels
 local function log(log_level, ...)
-  logger:println(log_level, Logger.format_name("item_tags"), ...);
+  logger.println(log_level, Logger.format_name("item_tags"), ...);
 end
 
 local module = {};

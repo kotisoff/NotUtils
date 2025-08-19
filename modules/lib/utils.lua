@@ -36,7 +36,7 @@ function utils.parse_function_string(prop)
   if string.starts_with(prop, "function(") then
     local fn, error = loadstring("(" .. prop .. ")(...)");
     if error then
-      log:println(
+      log.println(
         "I",
         "Error occured while parsing function:\n" .. prop
       )
