@@ -26,7 +26,7 @@ function table.reverse(tbl: table): table
 -- Возвращает массив ключей таблицы
 function table.keys(tbl: table): string[]
 
--- Прревращает число в hex значение
+-- Превращает число в hex значение
 function tohex(n: number): string
 
 -- Округляет число до digits чисел после запятой
