@@ -30,6 +30,11 @@ function module.as_client(cb)
   end
 end
 
+function module.get_shared_field(name)
+  local api = module.api;
+  return (api.server and api.server[name]) or (api.client and module.api.client[name])
+end
+
 ---@class not_utils.mp.api_template
 ---@field check fun(): boolean
 ---@field mode fun(): not_utils.mp.mode

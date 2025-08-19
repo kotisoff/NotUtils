@@ -11,7 +11,7 @@ local packets = {
 
 if _mp.name == "neutron" then
   if _mp.mode == "server" then
-    mp.console.set_command("title: players=<string> mode=<string> text=<string> -> Выводит текст на экран", {},
+    mp.console.set_command("title: selector=<string> mode=<string> text=<string> -> Выводит текст на экран", {},
       function(args, client)
         local mode = args.mode
         local text = args.text
@@ -25,7 +25,6 @@ if _mp.name == "neutron" then
 
         if string.starts_with(players, "@") then
           local players_mode = string.sub(players, 2, 2)
-          print(players_mode)
           if players_mode == "a" then
             mp.events.echo(pack_id, packets.title, mp.bson.serialize({ mode, text }))
           elseif players_mode == "s" then
@@ -54,7 +53,6 @@ if _mp.name == "neutron" then
   end
 elseif _mp.name == "standalone" then
   events.on("not_utils:hud_open", function()
-    print("Add title command")
     console.add_command("title mode:str text:str", "Выводит текст на экран", function(args)
       local mode, text = unpack(args)
       local module = title[mode]
