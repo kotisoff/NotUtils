@@ -97,14 +97,6 @@ function tohex(n)
   return string.format("%x", n)
 end
 
----@param num number
----@param digits int Number of digits after comma.
----@return number
-function math.round_to(num, digits)
-  local accuracy = 10 ^ digits;
-  return (math.floor(num) * accuracy) / accuracy
-end
-
 ---Проверяет равнозначность векторов
 ---@param veca vector
 ---@param vecb vector

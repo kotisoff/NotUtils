@@ -29,9 +29,6 @@ function table.keys(tbl: table): string[]
 -- Превращает число в hex значение
 function tohex(n: number): string
 
--- Округляет число до digits чисел после запятой
-function math.round_to(num: number, digits: integer): number
-
 -- Проверяет равны ли векторы
 function vector.equals(veca: vector, vecb: vector): boolean
 
