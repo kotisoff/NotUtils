@@ -1,8 +1,8 @@
 require "main";
 require "lib/coroutines";
 
-function on_world_tick()
-  events.emit("not_utils:world_tick");
+function on_world_tick(tps)
+  events.emit("not_utils:world_tick", tps);
 end
 
 function on_world_open()
