@@ -8,7 +8,7 @@
 
 ```lua
 -- Импортируем not_utils и из него ивент провайдер
-local EventProvider = require "not_utils:main".Event_provider;
+local EventProvider = require "not_utils:main".EventProvider;
 
 -- Создадим новый инстанс ивентов
 local my_events = EventProvider.new("my_pack");
