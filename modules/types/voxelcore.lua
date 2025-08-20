@@ -817,8 +817,10 @@ pack = pack
 ---@field set_loading_chunks fun(playerid?: int, flag: bool) Сеттер свойства, определяющего, прогружает ли игрок чанки вокруг.
 ---@field get_spawnpoint fun(playerid?: int): number, number, number Геттер точки спавна игрока
 ---@field set_spawnpoint fun(playerid?: int, x: number, y: number, z: number) Сеттер точки спавна игрока
----@field is_suspended fun(playerid?: int): bool Геттер статуса "заморозки" игрока.
----@field set_suspended fun(playerid?: int, flag: bool) Сеттер статуса "заморозки" игрока.
+---@field is_suspended fun(playerid?: int): bool Геттер статуса "заморозки" игрока
+---@field set_suspended fun(playerid?: int, flag: bool) Сеттер статуса "заморозки" игрока
+---@field get_camera fun(playerid?: int): int Возвращает идентификатор текущей камеры игрока (Если есть, иначе nil, обычно есть)
+---@field set_camera fun(playerid?: int, cameraid: int) Устанавливает идентификатор текущей камеры игрока
 ---@field get_name fun(playerid?: int): str Геттер имени игрока
 ---@field set_name fun(playerid?: int, name: str) Сеттер имени игрока
 ---@field set_selected_slot fun(playerid?: int, slotid: int) Устанавливает индекс выбранного слота
