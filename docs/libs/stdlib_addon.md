@@ -29,6 +29,15 @@ function table.reverse(tbl: table): table
 -- Возвращает массив ключей таблицы
 function table.keys(tbl: table): string[]
 
+-- Возвращает тип значения, лежащего в строке и функцию для его парсинга
+function string.type(str: string): string, func
+
+-- Удаляет кавычки из строки
+function string.trim_quotes(str: string): string
+
+-- Разделяет строку по пробелам, обращая внимание на ккавычки и скобки
+function string.soft_space_split(str: string): table
+
 -- Превращает число в hex значение
 function tohex(n: number): string
 
