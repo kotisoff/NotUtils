@@ -25,6 +25,21 @@ function player.is_on_ground(pid)
   return entity.rigidbody:is_grounded();
 end
 
+local max_world_height = 255;
+
+---@param x number
+---@param z number
+---@param check_solid? bool
+function block.get_highest_block_y(x, z, check_solid)
+  local y = max_world_height;
+
+  while check_solid and (not block.is_solid_at(x, y, z)) or (block.get(x, y, z) == 0) do
+    y = y - 1;
+  end
+
+  return y;
+end
+
 ---Проверка на возможность добавления предмета в инвентарь.
 ---@param itemid int
 ---@param count int

@@ -11,6 +11,9 @@ function time.worldtime(): number
 -- Проверяет стоит ли игрок на земле
 function player.is_on_ground(pid: int): boolean
 
+-- Находит и возвращает самую высокую Y координату.
+function block.get_highest_block_y(x: number, z: number, check_solid?: bool): number
+
 -- Проверка на возможность добавления предмета в инвентарь.
 function inventory.can_add_item(itemid: int, count: int, invid: int, data?: { invsize?: int, stacksize?: int }): boolean
 
