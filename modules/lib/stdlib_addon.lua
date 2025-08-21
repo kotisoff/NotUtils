@@ -125,6 +125,93 @@ local function vec_floor(vec)
   return t;
 end
 
+---Возвращает тип значения, лежащего в строке и функцию для его парсинга
+---@param str string
+---@return string, function
+function string.type(str)
+    if not str then
+        return "nil", function (s)
+            if s then
+                return s
+            end
+        end
+    end
+
+    str = str:lower()
+
+    if tonumber(str) then
+        return "number", tonumber
+    elseif str == "true" or str == "false" then
+        return "boolean", function(s) return s:lower() == "true" end
+    elseif pcall(json.parse, str) then
+        return "table", json.parse
+    end
+
+    return "string", tostring
+end
+
+---Удаляет кавычки из строки
+---@param str string
+---@return string
+function string.trim_quotes(str)
+    if str:sub(1, 1) == "'" or str:sub(1, 1) == '"' then
+        str = str:sub(2)
+    end
+
+    if str:sub(-1) == "'" or str:sub(-1) == '"' then
+        str = str:sub(1, -2)
+    end
+
+    return str
+end
+
+---Разделяет строку по пробелам, обращая внимание на ккавычки и скобки
+---@param str string
+---@return table
+function string.soft_space_split(str)
+    local result = {}
+    local current = {}
+    local in_quotes = false
+    local bracket_level = 0
+    local brace_level = 0
+
+    for i = 1, #str do
+        local char = str:sub(i, i)
+
+        if char == '"' and bracket_level == 0 and brace_level == 0 then
+            in_quotes = not in_quotes
+            table.insert(current, char)
+        elseif not in_quotes then
+            if char == '[' then
+                bracket_level = bracket_level + 1
+            elseif char == ']' then
+                bracket_level = bracket_level - 1
+            elseif char == '{' then
+                brace_level = brace_level + 1
+            elseif char == '}' then
+                brace_level = brace_level - 1
+            elseif char == ' ' and bracket_level == 0 and brace_level == 0 then
+                if #current > 0 then
+                    table.insert(result, table.concat(current))
+                    current = {}
+                end
+                goto continue
+            end
+            table.insert(current, char)
+        else
+            table.insert(current, char)
+        end
+
+        ::continue::
+    end
+
+    if #current > 0 then
+        table.insert(result, table.concat(current))
+    end
+
+    return result
+end
+
 vec4.equals = vec_equals;
 vec3.equals = vec_equals;
 vec2.equals = vec_equals;
