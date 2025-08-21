@@ -1,3 +1,6 @@
+-- ========================requires===========================
+local custom_console = require "multiplayer/chat/console"
+
 -- ========================module===========================
 
 local module = {}
@@ -56,7 +59,7 @@ local function get_client()
   return {
     active = true,
     account = get_account(),
-    player = get_player()
+    player = get_player(),
   }
 end
 
@@ -160,27 +163,14 @@ function module.load()
     bson = bson,
     inventory_data = inventory_data,
     console = {
-      set_command = function(scheme, permissions, handler, allow_not_authorized) end,
-      create_state = function(name) return {} end,
-      set_state = function(...) end,
-      set_state_handler = function(...) end,
-      tell = function(message, client)
-        console.log(message)
-      end,
-      echo = function(message)
-        console.log(message)
-      end,
-      execute = function(message, client)
-        console.execute(message)
-      end,
-      colors = {
-        red = "[#ff0000]",
-        yellow = "[#ffff00]",
-        blue = "[#0000FF]",
-        black = "[#000000]",
-        green = "[#00FF00]",
-        white = "[#FFFFFF]"
-      }
+      set_command = custom_console.set_command,
+      create_state = custom_console.create_state,
+      set_state = custom_console.set_state,
+      set_state_handler = custom_console.set_state_handler,
+      tell = custom_console.tell,
+      echo = custom_console.echo,
+      execute = custom_console.execute,
+      colors = custom_console.colors,
     },
     ---@diagnostic disable-next-line: assign-type-mismatch
     db = nil,
@@ -283,6 +273,9 @@ function module.load()
             player.set_flight(_player.pid, flight)
             player.set_noclip(_player.pid, noclip)
           end
+        end,
+        is_online = function (name)
+          return type(name) == "string" and true or false
         end
       },
       blocks = {
