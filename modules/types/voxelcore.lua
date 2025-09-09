@@ -751,9 +751,9 @@ mat4 = mat4
 
 ---Библиотека для работы с сетью.
 ---@class voxelcore.libnetwork Библиотека для работы с сетью.
----@field get fun(url: str, callback: fun(data:str), onfailure?: fun(response:int)) Выполняет GET запрос к указанному URL. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
----@field get_binary fun(url: str, callback: fun(data: table|bytearray), onfailure?: fun(response:int)) Выполняет GET запрос к указанному URL. После получения ответа, передаёт данные в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
----@field post fun(url: str, data: table, callback: fun(data:str), onfailure?: fun(response:int)) Выполняет POST запрос к указанному URL. На данный момент реализована поддержка только `Content-Type: application/json`. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field get fun(url: str, callback: fun(data:str), onfailure?: fun(response:int), headers?: string[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field get_binary fun(url: str, callback: fun(data: table|bytearray), onfailure?: fun(response:int), headers?: string[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт данные в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field post fun(url: str, data: table, callback: fun(data:str), onfailure?: fun(response:int), headers?: string[]) Выполняет POST запрос к указанному URL с указанными заголовками. На данный момент реализована поддержка только `Content-Type: application/json`. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
 ---@field tcp_connect fun(address: str, port: int, callback: fun(socket: voxelcore.class.socket)): voxelcore.class.socket Инициирует TCP подключение.
 ---@field tcp_open fun(port: int, callback: fun(socket: voxelcore.class.socket)): voxelcore.class.serversocket Открывает TCP-сервер.
 ---@field get_total_upload fun(): int Возвращает приблизительный объем отправленных данных (включая соединения с localhost) в байтах.
