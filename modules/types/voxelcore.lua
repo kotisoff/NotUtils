@@ -1118,15 +1118,16 @@ entity = entity
 ---@class voxelcore.class.pathfinding
 ---@field set_target fun(target: vec3) Установка цели для агента
 ---@field get_target fun(): target: vec3 | nil Получение текущей цели агента
----@field get_route fun(): route: vec3[] | nil
+---@field get_route fun(): route: vec3[] | nil Получение текущего маршрута агента
 ---@field create_agent fun(): agent: int Создаёт нового агента и возвращает его идентификатор
----@field remove_agent fun(agent: int): removed: bool Удаление агента по идентификатору, если он существует. Возвращает булевое значение того существовал он или нет.
+---@field remove_agent fun(agent: int): bool Удаление агента по идентификатору, если он существует. Возвращает булевое значение того существовал он или нет.
 ---@field set_enabled fun(agent: int, enabled: bool) Установка состояния агента
 ---@field is_enabled fun(agent: int): enabled: bool Возвращает состояние агента
----@field make_route fun(start: vec3, target: vec3): route: vec3[] Создание маршрута на основе заданных точек
+---@field make_route fun(start: vec3, target: vec3): vec3[] Создание маршрута на основе заданных точек
 ---@field make_route_async fun(agent: int, start: vec3, target: vec3) Асинхронное создание маршрута на основе заданных точек (получение маршрута происходит в pull_route)
 ---@field pull_route fun(agent: int): route: vec3[] | nil Получение маршрута, который агент уже нашел. Используется для получения маршрута после асинхронного поиска. Если поиск ещё не завершён, возвращает nil. Если маршрут не найден, возвращает пустую таблицу.
 ---@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
+---@field avoid_tag fun(agent: int, tag?: string, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
 
 ---Доступен при получении из компонента сущности
 ---@type voxelcore.class.pathfinding
