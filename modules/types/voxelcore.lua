@@ -780,7 +780,7 @@ mat4 = mat4
 ---@field tcp_connect fun(address: str, port: int, callback: fun(socket: voxelcore.class.tcp_socket)): voxelcore.class.tcp_socket Инициирует TCP подключение.
 ---@field tcp_open fun(port: int, callback: fun(socket: voxelcore.class.tcp_socket)): voxelcore.class.tcp_serversocket Открывает TCP-сервер.
 ---@field udp_connect fun(address: str, port: int, datagram_handler: fun(data: bytearray), callback?: fun(socket: voxelcore.class.udp_socket)): voxelcore.class.udp_socket Открывает UDP-сокет с привязкой к удалённому адресу и порту
----@field udp_open fun(port: int, datagram_handler: fun(address: str, port: int, data: bytearray, socket: voxelcore.class.udp_socket)): voxelcore.class.udp_serversocket Открывает UDP-сервер на указанном порту
+---@field udp_open fun(port: int, datagram_handler: fun(address: str, port: int, data: bytearray, server: voxelcore.class.udp_serversocket)): voxelcore.class.udp_serversocket Открывает UDP-сервер на указанном порту
 ---@field get_total_upload fun(): int Возвращает приблизительный объем отправленных данных (включая соединения с localhost) в байтах.
 ---@field get_total_download fun(): int Возвращает приблизительный объем полученных данных (включая соединения с localhost) в байтах.
 network = network
