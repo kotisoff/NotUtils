@@ -7,7 +7,7 @@
 ```lua
 local tags = require "not_utils:main".tags;
 
-local blocks = tags.get_blocks_by_tags("lamps");
+local blocks = tags.get_blocks_by_tags("base:lamps");
   
 for _, blockid in ipairs(blocks) do
   print(string.format("Привет, %s!", block.name(blockid))); -- Привет всем лампам!
@@ -38,7 +38,7 @@ function api.get_tags_by_itemid(itemid: integer): string[]
 -- Получает идентификаторы предметов, у которых есть все перечисленные теги.
 function api.get_items_have_tags(...: string): integer[]
 
--- Добавляет теги предмету по указанному идентификатору.
+-- Добавляет теги предмету по указанному идентификатору. (В рантайме, не модифицирует файлы)
 function api.add_tags_to_item(itemid: integer, ...: string)
 ```
 
@@ -54,7 +54,7 @@ function api.get_tags_by_blockid(blockid: integer): string[]
 -- Получает идентификаторы блоков, у которых есть все перечисленные теги.
 function api.get_blocks_have_tags(...: string): integer[]
 
--- Добавляет теги блоку и его предмету по указанному идентификатору.
+-- Добавляет теги блоку и его предмету по указанному идентификатору. (В рантайме, не модифицирует файлы)
 function api.add_tags_to_block(blockid: integer, ...: string)
 ```
 
@@ -64,7 +64,7 @@ function api.add_tags_to_block(blockid: integer, ...: string)
 
 ```json
 {
-  "not_utils:tags@append": [ "Уже здесь указывайте новые теги" ]
+  "tags@append": [ "Уже здесь указывайте новые теги" ]
 }
 ```
 

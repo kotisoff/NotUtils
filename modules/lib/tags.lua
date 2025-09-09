@@ -27,7 +27,7 @@ local function use_or_create(table, key, default)
   table[key] = table[key] or default;
 end
 
-local tags_prop = "not_utils:tags";
+local tags_prop = "tags_set";
 
 events.on("not_utils:first_tick", function()
   local elements = registry.elements;
@@ -37,8 +37,11 @@ events.on("not_utils:first_tick", function()
     local itemid = block.get_picking_item(blockid);
 
     local prop = value[tags_prop]
+    
     if prop and type(prop) == "table" then
-      for _, tag in ipairs(prop) do
+      local tags = table.keys(prop);
+
+      for _, tag in ipairs(tags) do
         registry.tags[tag] = true;
         use_or_create(elements.blocks, tag, {});
         use_or_create(elements.items, tag, {});
@@ -55,6 +58,8 @@ events.on("not_utils:first_tick", function()
   for itemid, value in ipairs(item.properties) do
     local prop = value[tags_prop]
     if prop and type(prop) == "table" then
+      local tags = table.keys(prop);
+
       for _, tag in ipairs(prop) do
         registry.tags[tag] = true;
         use_or_create(elements.items, tag, {});
@@ -92,7 +97,9 @@ end
 ---@return str[]
 local function get_tags_by_elementid(list, id)
   local prop = list[id][tags_prop]
-  return prop or {};
+  local tags = table.keys(prop or {});
+
+  return tags;
 end
 
 ---@param list table<str, any>[]
