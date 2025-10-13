@@ -94,7 +94,7 @@ table = table
 
 ---@class voxelcore.string
 ---@field explode fun(separator: str, str: str, withpattern: bool): str[] Разбивает строку str на части по указанному разделителю/выражению separator и возвращает результат ввиде таблицы из строк. Если withpattern равен true, то параметр separator будет определяться как регулярное выражение.
----@field split fun(str: str, delimeter: str): str[] Разбивает строку str на части по указанному разделителю delimiter и возвращает результат ввиде таблицы из строк.
+---@field split fun(str: str, delimeter: str): table<str> Разбивает строку str на части по указанному разделителю delimiter и возвращает результат ввиде таблицы из строк.
 ---@field pattern_safe fun(str: str): str Экранирует специальные символы в строке, такие как ()[]+-.$%^?* в формате %символ. Символ NUL (\0) будет преобразован в %z.
 ---@field formatted_time fun(seconds: number, format: str): str | table Разбивает секунды на часы, минуты и миллисекунды и форматирует в format с следующим порядком параметров: минуты, секунды, миллисекунды и после возвращает результат. Если format не указан, то возвращает таблицу, где: h - hours, m - minutes, s - seconds, ms - milliseconds.
 ---@field replace fun(str: str, tofind: str, toreplace: str): str Заменяет все подстроки в str, равные tofind на toreplace и возвращает строку со всеми измененными подстроками.
@@ -767,10 +767,10 @@ network = network
 ---@field title str Название мода
 ---@field creator str Создатель(и) мода
 ---@field description str Описание
----@field verison str Версия
+---@field version str Версия
 ---@field path str Путь до мода
 ---@field icon? str Название текстуры иконки. Отсутствует в headless режиме
----@field dependencies str[] Строки в формате {lvl}{id}, где lvl: ! - required, ? - optional, ~ - weak.
+---@field dependencies str[] Строки в формате {lvl}{id}@{version}, где lvl: ! - required, ? - optional, ~ - weak, а version: '*' или любая другая строка.
 ---@field has_indices bool Есть ли у пака новые айди.
 
 ---Библиотека pack
