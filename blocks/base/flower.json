@@ -1,1 +1,1 @@
-{"not_utils:tags@append":["flowers"]}
+{ "tags@append": ["base:plants", "base:flowers"] }
