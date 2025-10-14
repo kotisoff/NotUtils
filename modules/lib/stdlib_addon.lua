@@ -1,6 +1,11 @@
 -- Здесь хоронятся разные функции, дополняющие основные библиотеки.
 -- Посему явного модуля здесь нет и не будет.
 
+-- =====================configuration=======================
+local max_world_height = 255;
+local ticks_per_second = 20;
+-- =========================================================
+
 local worldtime = 0;
 events.on("not_utils:world_tick", function()
   worldtime = worldtime + 1;
@@ -12,7 +17,7 @@ end)
 ---Количество прошедших секунд с открытия мира. Итерируется относительно проведённого времени в игре, при паузе не тикает.
 ---@return number
 function time.worldtime()
-  return worldtime / 20;
+  return worldtime / ticks_per_second;
 end
 
 ---Проверяет стоит ли игрок на земле
@@ -25,8 +30,6 @@ function player.is_on_ground(pid)
   return entity.rigidbody:is_grounded();
 end
 
-local max_world_height = 255;
-
 ---@param x number
 ---@param z number
 ---@param check_solid? bool
@@ -38,6 +41,16 @@ function block.get_highest_block_y(x, z, check_solid)
   end
 
   return y;
+end
+
+---Возвращает строковой идентификатор звука
+---@param blockid int Идентификатор блока
+---@param type voxelcore.libblock.material.sounds Тип звука
+function block.get_sound(blockid, type)
+  local m_name = block.material(blockid);
+  local material = block.materials[m_name];
+
+  return material[type];
 end
 
 ---Проверка на возможность добавления предмета в инвентарь.

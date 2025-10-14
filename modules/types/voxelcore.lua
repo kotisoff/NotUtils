@@ -235,6 +235,12 @@ Bytearray = Bytearray
 ---@field hitSound str Звук удара
 ---@field name str Название материала
 
+---@alias voxelcore.libblock.material.sounds
+---| '"breakSound"' Звук разрушения
+---| '"placeSound"' Звук установки
+---| '"stepsSound"' Звук шагов
+---| '"hitSound"' Звук удара
+
 ---Библиотека block.
 ---@class voxelcore.libblock Библиотека block.
 ---@field name fun(blockid: int): str Возвращает строковый id блока по его числовому id.
@@ -1291,9 +1297,15 @@ Heightmap = Heightmap
 ---@field get_default_generator fun(): str Возвращает генератор по умолчанию
 generation = generation
 
--- ===================modules/schedule======================
+-- =====================core:schedule=======================
 
----@class voxelcore.modules.schedule
+---@class voxelcore.modules.core.schedule
 ---@field set_interval fun(self: voxelcore.modules.schedule, ms: number, callback: function, repetions?: int): int Создаёт новый интервал. Работает repetions раз или бесконечно.
 ---@field tick fun(self: voxelcore.modules.schedule, dt: number) Тикает интервалы
 ---@field remove_interval fun(self: voxelcore.modules.schedule, id: int) Удаляет интервал
+
+-- =======================base:util=========================
+
+---@class voxelcore.modules.base.util
+---@field drop fun(pos: vec3, itemid: int, count: int, data?: any, pickup_delay?: number): voxelcore.class.entity
+---@field block_loot fun(blockid: int): { item: int, count: int }[]
