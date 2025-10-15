@@ -2,6 +2,9 @@
   "id": "not_utils",
   "title": "NotUtils",
   "version": "0.1.0",
-  "creator": "KotIsOff",
+  "creators": [
+    "KotIsOff",
+    "Xertis"
+  ],
   "description": "Сборник дополнительных функций, облегчающих процесс разработки модификаций."
 }

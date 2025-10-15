@@ -286,6 +286,7 @@ Bytearray = Bytearray
 ---@field get_variant fun(x: int, y: int, z: int): int Возвращает индекс варианта блока
 ---@field set_variant fun(x: int, y: int, z: int, index: int): int Устанавливает вариант блока по индексу
 ---@field has_tag fun(id: int, tag: str): bool Проверяет наличие тега у блока
+---@field __get_tags fun(itemid: int): table<str, bool> Возвращает таблицу из тегов этого блока.
 ---@field reload_script fun(name: str) Перезагружает скрипт блока
 block = block
 
@@ -715,6 +716,7 @@ inventory = inventory
 ---@field model_name fun(itemid: int): str Возвращает значение свойства `model-name`
 ---@field emission fun(itemid: int): str Возвращает emission параметр у предмета
 ---@field uses fun(itemid: int): int Возвращает значение свойства `uses`
+---@field __get_tags fun(itemid: int): table<str, bool> Возвращает таблицу из тегов этого предмета.
 ---@field has_tag fun(itemid: int, tag: str): bool Проверяет наличие тега у предмета
 ---@field reload_script fun(name: str) Перезагружает скрипт предмета
 item = item
@@ -1300,9 +1302,9 @@ generation = generation
 -- =====================core:schedule=======================
 
 ---@class voxelcore.modules.core.schedule
----@field set_interval fun(self: voxelcore.modules.schedule, ms: number, callback: function, repetions?: int): int Создаёт новый интервал. Работает repetions раз или бесконечно.
----@field tick fun(self: voxelcore.modules.schedule, dt: number) Тикает интервалы
----@field remove_interval fun(self: voxelcore.modules.schedule, id: int) Удаляет интервал
+---@field set_interval fun(self: voxelcore.modules.core.schedule, ms: number, callback: function, repetions?: int): int Создаёт новый интервал. Работает repetions раз или бесконечно.
+---@field tick fun(self: voxelcore.modules.core.schedule, dt: number) Тикает интервалы
+---@field remove_interval fun(self: voxelcore.modules.core.schedule, id: int) Удаляет интервал
 
 -- =======================base:util=========================
 

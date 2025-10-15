@@ -1,10 +1,11 @@
+local nu_events = require "nu_events"
 local coroutines = require "lib/coroutines";
 
 local title = {};
 title.utils = {};
 title.document = {};
 
-events.on("not_utils:hud_open", function()
+nu_events.on("hud_open", function()
   title.document = Document.new("not_utils:title");
   hud.open_permanent("not_utils:title");
 end)

@@ -1,3 +1,4 @@
+local nu_events = require "nu_events"
 -- Здесь хоронятся разные функции, дополняющие основные библиотеки.
 -- Посему явного модуля здесь нет и не будет.
 
@@ -7,10 +8,10 @@ local ticks_per_second = 20;
 -- =========================================================
 
 local worldtime = 0;
-events.on("not_utils:world_tick", function()
+nu_events.on("world_tick", function()
   worldtime = worldtime + 1;
 end)
-events.on("not_utils:world_open", function()
+nu_events.on("world_open", function()
   worldtime = 0;
 end)
 
