@@ -6,8 +6,8 @@
 
 --[[
     VoxelCore Lua Types
-    Engine version: pre-0.29
-    Version: v0.0.5
+    Engine version: 0.29-pre0.30
+    Version: v0.0.6
     ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -860,6 +860,9 @@ pack = pack
 ---@field get_selected_block fun(playerid?: int): number, number, number Возвращает координаты выделенного блока, либо nil
 ---@field get_selected_entity fun(playerid?: int): int Возвращает уникальный идентификатор сущности, на которую нацелен игрок
 ---@field get_entity fun(playerid?: int): int Возвращает уникальный идентификатор сущности игрока
+---@field get_all_in_radius fun(center: vec3, radius: number): int[] Возвращает массив id игроков в пределах сферы с центром `center` и радиусом `radius`.
+---@field get_all fun(): int[] Возвращает массив id всех активных игроков.
+---@field get_nearest fun(position: vec3): int | nil Возвращает id ближайшего к указанной позиции игрока, либо nil если игроков нет.
 player = player
 
 -- ======================quaternion=========================
