@@ -29,25 +29,20 @@ end
 
 local tags_prop = "tags_set";
 
-events.on("not_utils:first_tick", function()
+events.on("not_utils:hud_open", function()
   local elements = registry.elements;
 
   log("I", "Reading block tags...")
   for blockid, value in ipairs(block.properties) do
-    local itemid = block.get_picking_item(blockid);
-
     local prop = value[tags_prop]
-    
+
     if prop and type(prop) == "table" then
       local tags = table.keys(prop);
 
       for _, tag in ipairs(tags) do
         registry.tags[tag] = true;
         use_or_create(elements.blocks, tag, {});
-        use_or_create(elements.items, tag, {});
-
         table.insert(elements.blocks[tag], blockid);
-        table.insert(elements.items[tag], itemid);
       end
     elseif prop then
       log("E", string.format("Unable to read tags of block: %s", block.name(blockid)));
@@ -58,12 +53,9 @@ events.on("not_utils:first_tick", function()
   for itemid, value in ipairs(item.properties) do
     local prop = value[tags_prop]
     if prop and type(prop) == "table" then
-      local tags = table.keys(prop);
-
-      for _, tag in ipairs(prop) do
+      for tag, _ in pairs(prop) do
         registry.tags[tag] = true;
         use_or_create(elements.items, tag, {});
-
         table.insert(elements.items[tag], itemid);
       end
     elseif prop then
