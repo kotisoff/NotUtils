@@ -2,7 +2,6 @@
 
 ## 0.1.1
 
-- Package.json: Xertis был добавлен в соавторы. (За перенос нейтроновской консоли, предоставление функций для stdlib_addon)
 - stdlib_addon: block.get_sound(blockid, type) Функция для удобного получения звука по идентификатору и типу звука.
 - Обновления типов для voxelcore и neutron: base:util, block/item.__get_tags, алиас для указания типа звука voxelcore.libblock.material.sounds
 - Рефакторинг кода, куда же без него

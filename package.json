@@ -3,8 +3,7 @@
   "title": "NotUtils",
   "version": "0.1.1-pre",
   "creators": [
-    "KotIsOff",
-    "Xertis"
+    "KotIsOff"
   ],
   "description": "Сборник дополнительных функций, облегчающих процесс разработки модификаций."
 }
