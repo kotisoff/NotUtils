@@ -84,24 +84,25 @@ local function get_elements_by_tags(list, ...)
   return elements;
 end
 
----@param list table<str, any>[]
+---@param lib voxelcore.libblock | voxelcore.libitem
 ---@param id int
 ---@return str[]
-local function get_tags_by_elementid(list, id)
-  local prop = list[id][tags_prop]
-  local tags = table.keys(prop or {});
+local function get_tags(lib, id)
+  local prop = lib.properties[id][tags_prop] or {};
+  local tags = table.keys(prop);
 
   return tags;
 end
 
----@param list table<str, any>[]
+---@param lib voxelcore.libblock | voxelcore.libitem
 ---@param ... str
 ---@return int[]
-local function get_elements_have_tags(list, ...)
+local function get_elements_have_tags(lib, ...)
+  local props = lib.properties;
   local elements = {};
   local tags = { ... };
 
-  for id, value in ipairs(list) do
+  for id, value in ipairs(props) do
     local prop = value[tags_prop];
     if prop then
       local flag = true;
@@ -149,22 +150,22 @@ end
 
 ---@param blockid int
 function module.get_tags_by_blockid(blockid)
-  return get_tags_by_elementid(block.properties, blockid);
+  return get_tags(block, blockid);
 end
 
 ---@param itemid int
 function module.get_tags_by_itemid(itemid)
-  return get_tags_by_elementid(item.properties, itemid);
+  return get_tags(item, itemid);
 end
 
 ---@param ... str
 function module.get_blocks_have_tags(...)
-  return get_elements_have_tags(block.properties, ...);
+  return get_elements_have_tags(block, ...);
 end
 
 ---@param ... str
 function module.get_items_have_tags(...)
-  return get_elements_have_tags(item.properties, ...);
+  return get_elements_have_tags(item, ...);
 end
 
 ---@return str[]
