@@ -848,6 +848,8 @@ pack = pack
 ---@field set_instant_destruction fun(playerid?: int, flag: bool) Сеттер мгновенного разрушения блоков при активации привязки player.destroy.
 ---@field is_loading_chunks fun(playerid?: int): bool Геттер свойства, определяющего, прогружает ли игрок чанки вокруг.
 ---@field set_loading_chunks fun(playerid?: int, flag: bool) Сеттер свойства, определяющего, прогружает ли игрок чанки вокруг.
+---@field get_interaction_distance fun(playerid?: int): number Геттер свойства, определяющего максимальную дистанцию взаимодействия.
+---@field set_interaction_distance fun(playerid?: int, distance: number) Сеттер свойства, определяющего максимальную дистанцию взаимодействия.
 ---@field get_spawnpoint fun(playerid?: int): number, number, number Геттер точки спавна игрока
 ---@field set_spawnpoint fun(playerid?: int, x: number, y: number, z: number) Сеттер точки спавна игрока
 ---@field is_suspended fun(playerid?: int): bool Геттер статуса "заморозки" игрока
