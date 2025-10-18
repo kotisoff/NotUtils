@@ -130,8 +130,8 @@ coroutine = coroutine
 ---@field count_frames fun(): int Выводит количество неких кадров
 ---@field get_traceback fun(start: int): debuginfo[] Возвращает трейсбек в виде массива debuginfo
 ---@field pause fun(reason: str, message: str)
----@field __pull_events nil | fun(): table Внутренний метод. Осторожно, пошлёт вас лесом
----@field __sendvalue nil | fun(value: any, frame: int, local_index: int, keys: (str | nil)[]) Внутренний метод. Осторожно, пошлёт вас лесом
+---@field __pull_events nil | fun(): table Внутренняя функция. Осторожно, пошлёт вас лесом
+---@field __sendvalue nil | fun(value: any, frame: int, local_index: int, keys: (str | nil)[]) Внутренняя функция. Осторожно, пошлёт вас лесом
 ---@field is_debugging fun(): bool
 ---@field set_breakpoint fun(source: int, line: int)
 ---@field remove_breakpoint fun(source: int, line: int)
