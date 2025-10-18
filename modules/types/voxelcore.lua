@@ -129,6 +129,12 @@ coroutine = coroutine
 ---@field log fun(message: str) Выводит в консоль сообщение
 ---@field count_frames fun(): int Выводит количество неких кадров
 ---@field get_traceback fun(start: int): debuginfo[] Возвращает трейсбек в виде массива debuginfo
+---@field pause fun(reason: str, message: str)
+---@field __pull_events nil | fun(): table Внутренний метод. Осторожно, пошлёт вас лесом
+---@field __sendvalue nil | fun(value: any, frame: int, local_index: int, keys: (str | nil)[]) Внутренний метод. Осторожно, пошлёт вас лесом
+---@field is_debugging fun(): bool
+---@field set_breakpoint fun(source: int, line: int)
+---@field remove_breakpoint fun(source: int, line: int)
 debug = debug
 
 -- ========================stdcomp==========================
@@ -163,6 +169,7 @@ stdcomp = stdcomp
 ---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
 ---@field open_folder fun(path: str) Открывает движком папку по указанного пути
+---@field open_url fun(url: str) Открывает URL в браузере
 ---@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
@@ -218,6 +225,22 @@ base64 = base64
 
 ---@type voxelcore.Bytearray | (fun(...): bytearray)
 Bytearray = Bytearray
+
+-- ========================random===========================
+
+---@class voxelcore.librandom.Random
+---@field random fun(self: voxelcore.librandom.Random): number Генерирует случайное число в диапазоне [0..1)
+---@field random fun(self: voxelcore.librandom.Random, n: number): number Генерирует случайное целое число в диапазоне [0..n]
+---@field random fun(self: voxelcore.librandom.Random, a: number, b: number): number Генерирует случайное целое число в диапазоне [a..b]
+---@field seed fun(self: voxelcore.librandom.Random, seed: number) Устанавливает сид генератора
+
+---@class voxelcore.librandom
+---@field random fun(): number Генерирует случайное число в диапазоне [0..1)
+---@field random fun(n: number): number Генерирует случайное целое число в диапазоне [0..n]
+---@field random fun(a: number, b: number) Генерирует случайное целое число в диапазоне [a..b]
+---@field bytes fun(n: number): bytearray Генерирует случайный массив байт длиной n
+---@field uuid fun(): str Генерирует UUID версии 4
+---@field Random fun(seed?: number): voxelcore.librandom.Random Создаёт изолированный генератор с использованием сида.
 
 -- =========================block===========================
 
@@ -382,8 +405,6 @@ entities = entities
 ---@field parent fun(path: str): str Возвращает путь на уровень выше. Пример: world:data/base/config.toml -> world:data/base
 ---@field path fun(path: str): str Убирает точку входа (префикс) из пути. Пример: world:data/base/config.toml -> data/base/config.toml
 ---@field join fun(dir: str, path: str): str Соединяет путь. Пример: file.join("world:data", "base/config.toml) -> world:data/base/config.toml. Следует использовать данную функцию вместо конкатенации с /, так как префикс:/путь не является валидным.
----@field gzip_compress fun(bytearray: bytearray): bytearray Возвращает сжатую таблицу байт.
----@field gzip_decompress fun(bytearray: bytearray): bytearray Возвращает разжатую таблицу байт.
 ---@field open fun(path: str, mode: str): voxelcore.class.io_stream Открывает поток для записи/чтения в файл по указанному пути. Режим может быть составлен из "r", "w", "b", а также "+" (для "w")
 ---@field open_named_pipe fun(path: str, mode: str): voxelcore.class.io_stream Открывает поток для записи/чтения в Named Pipe по указанному пути. Режим может быть составлен только из "r", "w", "b". `/tmp/` или `\\\\.\\pipe\\` добавлять не нужно - движок делает это автоматически.
 ---@field __open_descriptor fun(path: str, mode: str): int Создаёт поток
@@ -394,6 +415,12 @@ entities = entities
 ---@field __close_descriptor fun(descriptor: int): bool Закрывает поток
 ---@field __close_all_descriptors fun() Закрывает все потоки
 file = file
+
+-- ======================compression========================
+
+---@class voxelcore.class.libcompression
+---@field encode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray
+---@field decode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray
 
 -- =======================io_stream=========================
 
@@ -761,6 +788,8 @@ mat4 = mat4
 ---@field is_alive fun(self: voxelcore.class.tcp_socket): bool Проверяет, что сокет существует и не закрыт.
 ---@field is_connected fun(self: voxelcore.class.tcp_socket): bool Проверяет наличие соединения (доступно использование socket:send(...)).
 ---@field get_address fun(self: voxelcore.class.tcp_socket): address: str, port: int Возвращает адрес и порт соединения.
+---@field is_nodelay fun(): bool Возвращает состояние NoDelay
+---@field set_nodelay fun(state: bool) Устанавливает состояние NoDelay
 
 ---@class voxelcore.class.tcp_serversocket
 ---@field close fun(self: voxelcore.class.tcp_serversocket) Закрывает сервер, разрывая соединения с клиентами.
