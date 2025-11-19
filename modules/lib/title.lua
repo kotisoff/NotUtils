@@ -10,59 +10,69 @@ nu_events.on("hud_open", function()
   hud.open_permanent("not_utils:title");
 end)
 
-function title.utils.set_opacity(name, opacity)
+local function set_opacity(name, opacity)
   local el = title.document[name];
   local r, g, b, _ = unpack(el.color);
   el.color = { r, g, b, opacity };
 end
 
 local function new_title_component(name)
-  return setmetatable(
-    { name = name, is_shown = false, break_show = false },
-    {
-      __index = {
-        ---@param text string
-        ---@param show_time number | nil
-        ---@param breakfunc (fun(tempdata:any): boolean) | nil True stops function.
-        show = function(self, text, show_time, breakfunc)
-          show_time = show_time or 5;
-          breakfunc = breakfunc or function(temp) return false end;
+  local component = {
+    name = name
+  }
 
-          if self.is_shown then self.break_show = true end;
-          coroutines.create(function()
-            self.is_shown = true;
+  local internal_state = {
+    _shown = false,
+    _break = false
+  };
 
-            title.document[self.name .. "-root"].visible = true;
-            title.document[self.name].text = text;
-            title.utils.set_opacity(self.name, 255);
+  ---@param text string
+  ---@param show_time number | nil
+  ---@param breakfunc (fun(tempdata:any): boolean) | nil True stops function.
+  component.show = function(text, show_time, breakfunc)
+    show_time = show_time or 5;
+    breakfunc = breakfunc or function(temp) return false end;
 
-            coroutines.sleep(
-              show_time,
-              {
-                break_function = function(data) return self.break_show or breakfunc(data); end,
-                cycle_task = function(data, time)
-                  if time > (show_time - 1) then
-                    local step = 255 / 20;
-                    local opacity = data.opacity or 255;
-                    opacity = opacity - step;
-                    title.utils.set_opacity(name, math.floor(opacity));
-                    data.opacity = opacity;
-                  end
-                end,
-                time_function = time.worldtime
-              }
-            )
+    local state = internal_state;
 
-            title.utils.set_opacity(self.name, 0);
+    if state._shown then state._break = true end;
 
-            self.is_shown = false;
-            self.break_show = false;
+    coroutines.create(function()
+      state._shown = true;
 
-            title.document[self.name .. "-root"].visible = false;
-          end)
-        end
-      }
-    })
+      title.document[name .. "-root"].visible = true;
+      title.document[name].text = text;
+      set_opacity(name, 255);
+
+      coroutines.sleep(
+        show_time,
+        {
+          break_function = function(data) return component.break_show or breakfunc(data); end,
+          cycle_task = function(data, time)
+            if time > (show_time - 1) then
+              local step = 255 / 20;
+
+              local opacity = data.opacity or 255;
+              opacity = opacity - step;
+
+              set_opacity(name, math.floor(opacity));
+              data.opacity = opacity;
+            end
+          end,
+          time_function = time.worldtime
+        }
+      )
+
+      set_opacity(name, 0);
+
+      component.is_shown = false;
+      component.break_show = false;
+
+      title.document[name .. "-root"].visible = false;
+    end)
+  end
+
+  return component
 end
 
 title.types = {
