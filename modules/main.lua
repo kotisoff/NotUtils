@@ -8,6 +8,7 @@ require "commands"
 not_utils.Logger = require "lib/logger";
 not_utils.FileReader = require "lib/fileReader"
 not_utils.EventProvider = require "lib/events_provider";
+not_utils.BitBuffer = require "lib/bit_buffer"
 
 -- Модули с функами
 not_utils.coroutines = require "lib/coroutines";
