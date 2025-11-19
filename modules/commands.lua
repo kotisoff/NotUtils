@@ -41,7 +41,7 @@ if _mp.mode ~= "client" then
       mp.console.tell("Сообщение выведено.", client)
     end)
 end
-  if _mp.mode ~= "server" then
+if _mp.mode ~= "server" then
     cl.events.on(pack_id, packets.title, function(bytes)
       ---@type ["title"|"actionbar"|"subtitle", str]
       local args = cl.bson.deserialize(bytes)

@@ -22,7 +22,10 @@ function module.command(message, client)
     local state = states.get_state(client)
 
     if message[1] ~= COMMAND_PREFIX and not state then
-        module.echo("[you] " .. message)
+        local name = player.get_name(hud.get_player())
+        if name == '' then name = "you" end
+
+        module.echo(string.format("[%s] %s", name, message))
         return false
     end
 

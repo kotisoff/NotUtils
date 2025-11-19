@@ -66,14 +66,7 @@ end
 -- ====================shared=objects=======================
 
 ---@type neutron.shared.bson
-local bson = {
-  serialize = function(tbl)
-    return tbl
-  end,
-  deserialize = function(buf)
-    return buf
-  end
-}
+local bson = require "lib/bson"
 
 ---@type neutron.shared.inventory_data
 local inventory_data = {
