@@ -1,9 +1,9 @@
 local Logger = require "lib/logger";
 local logger = Logger.new("not_utils");
 
----@param log_level not_utils.logger.levels
+---@param log_level not_utils.Logger.levels
 local function log(log_level, ...)
-  logger.println(log_level, Logger.format_name("item_tags"), ...);
+  logger:println(log_level, Logger.format_name("item_tags"), ...);
 end
 
 local module = {};

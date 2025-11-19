@@ -27,10 +27,11 @@ local function on(packid, event, func)
   return events.on(format_event(packid, event), func);
 end
 
+---@param packid str
 ---@return nu.libs.event_provider
 function module.new(packid)
   if not pack.is_installed(packid) then
-    error("Pack with that name not found");
+    error(string.format('Pack "%s" not found', packid));
   end;
 
   if event_providers[packid] then

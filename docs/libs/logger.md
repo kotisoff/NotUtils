@@ -42,16 +42,16 @@ logger.levels
 
 ```lua
 -- Добавляет данные в таблицу history.
-function logger.log(LogLevel: "I" | "W" | "E" | "S", ...: any)
+function logger:log(LogLevel: "I" | "W" | "E" | "S", ...: any)
 
 -- Выводит всю историю логов в консоль разом, не последовательно, а одним многострочным сообщением.
-function logger.print()
+function logger:print()
 
 -- Очищает историю логов
-function logger.clear_history()
+function logger:clear_history()
 
 -- Выводит данные напрямую в консоль.
-function logger.println(...: any)
+function logger:println(...: any)
 ```
 
 [Вернуться на главную](../index.md)

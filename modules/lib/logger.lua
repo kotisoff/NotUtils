@@ -1,6 +1,6 @@
 local module = {}
 
----@enum not_utils.logger.levels
+---@enum not_utils.Logger.levels
 local logLevels = {
   ---Silent
   S = "S",
@@ -12,65 +12,52 @@ local logLevels = {
   E = "E"
 }
 
----@param logLevel not_utils.logger.levels
----@param logger Logger
-local function prefix(logLevel, logger)
+local Logger = {};
+
+---@param logLevel not_utils.Logger.levels
+local function prefix(name, logLevel)
   local date = os.date("%Y/%m/%d %H:%M:%S%z    ");
-  local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(logger.name));
+  local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(name));
   return log_prefix
 end
 
----@param logLevel not_utils.logger.levels
----@param logger Logger
-local function log(logLevel, logger, ...)
-  table.insert(logger.history, prefix(logLevel, logger) .. table.concat({ ... }, " "));
+---@param logLevel not_utils.Logger.levels
+function Logger:log(logLevel, ...)
+  table.insert(self.history, prefix(logLevel, self.name) .. table.concat({ ... }, " "));
 end
 
----@param logger Logger
-local function print_history(logger)
-  if #logger.history == 0 then return end;
-  print(table.concat(logger.history, "\n"));
-  logger.history = {};
+function Logger:print()
+  if #self.history == 0 then return end;
+  print(table.concat(self.history, "\n"));
+  self.history = {};
 end
 
----@param logLevel not_utils.logger.levels
----@param logger Logger
-local function println(logLevel, logger, ...)
-  print(prefix(logLevel, logger) .. table.concat({ ... }, " "))
+---@param logLevel not_utils.Logger.levels
+function Logger:println(logLevel, ...)
+  print(prefix(logLevel, self.name) .. table.concat({ ... }, " "))
+end
+
+function Logger:clear_history()
+  self.history = {};
 end
 
 local loggers = {};
-
 
 ---@param name string
 function module.new(name)
   if loggers[name] then
     return loggers[name]
   else
-    ---@class Logger
-    local logger = {
-      name = name,
-      history = {},
-      levels = logLevels
-    }
-
-    ---@param logLevel not_utils.logger.levels
-    logger.log = function(logLevel, ...)
-      log(logLevel, logger, ...);
-    end
-
-    logger.clear_history = function()
-      logger.history = {};
-    end
-
-    logger.print = function()
-      print_history(logger);
-    end
-
-    ---@param logLevel not_utils.logger.levels
-    logger.println = function(logLevel, ...)
-      println(logLevel, logger, ...);
-    end
+    ---@class not_utils.Logger
+    ---@field log fun(self: not_utils.Logger, logLevel: not_utils.Logger.levels, ...)
+    ---@field print fun(self: not_utils.Logger)
+    ---@field println fun(self: not_utils.Logger, ...)
+    ---@field clear_history fun(self: not_utils.Logger)
+    local logger = setmetatable({
+        name = name, history = {}, levels = logLevels
+      },
+      Logger
+    )
 
     loggers[name] = logger;
     return logger;

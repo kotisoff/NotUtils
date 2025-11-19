@@ -20,22 +20,22 @@ end
 function module.sleep(time_seconds, options)
   options = options or {};
 
-  local get_time = options.time_function or time.uptime;
+  local _time = options.time_function or time.uptime;
   local _break = options.break_function;
+  local _task = options.cycle_task;
 
-  -- Locals
+  local start = _time()
+  local _elapsed = function() return _time() - start end;
+
   local temp_data = {};
-  local start = get_time()
-  local get_elapsed = function() return get_time() - start end;
-
-  -- Coroutine sleeping
-  while get_time() - start < time_seconds do
-    local elapsed = get_elapsed();
+  while _time() - start < time_seconds do
+    local elapsed = _elapsed();
 
     if _break and _break(temp_data, elapsed) then
       return false
     end
-    options.cycle_task(temp_data, elapsed);
+
+    if _task then _task(temp_data, elapsed) end;
 
     coroutine.yield();
   end
