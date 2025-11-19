@@ -11,6 +11,9 @@ function time.worldtime(): number
 -- Проверяет стоит ли игрок на земле
 function player.is_on_ground(pid: int): boolean
 
+-- Находит и возвращает самую высокую Y координату.
+function block.get_highest_block_y(x: number, z: number, check_solid?: bool): number
+
 -- Проверка на возможность добавления предмета в инвентарь.
 function inventory.can_add_item(itemid: int, count: int, invid: int, data?: { invsize?: int, stacksize?: int }): boolean
 
@@ -25,6 +28,15 @@ function table.reverse(tbl: table): table
 
 -- Возвращает массив ключей таблицы
 function table.keys(tbl: table): string[]
+
+-- Возвращает тип значения, лежащего в строке и функцию для его парсинга
+function string.type(str: string): string, func
+
+-- Удаляет кавычки из строки
+function string.trim_quotes(str: string): string
+
+-- Разделяет строку по пробелам, обращая внимание на ккавычки и скобки
+function string.soft_space_split(str: string): table
 
 -- Превращает число в hex значение
 function tohex(n: number): string

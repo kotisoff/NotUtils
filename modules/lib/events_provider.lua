@@ -1,5 +1,7 @@
 local module = {};
 
+---@alias eventlist "first_tick" | "world_tick" | "hud_open" | str
+
 ---@class nu.libs.event_provider
 ---@field pack_id str PACK ID
 ---@field on fun(event: eventlist, func: fun(...): any)
@@ -11,8 +13,6 @@ local event_providers = {};
 local function format_event(packid, event)
   return string.format("%s:%s", packid, event);
 end
-
----@alias eventlist "first_tick" | "world_tick" | "hud_open" | str
 
 ---@param packid str
 ---@param event eventlist

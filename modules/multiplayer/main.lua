@@ -30,6 +30,14 @@ function module.as_client(cb)
   end
 end
 
+---@param vec vec3
+---@return { x: number, y: number, z: number }
+function module.convert_vector(vec)
+  local pos = { x = vec[1], y = vec[2], z = vec[3] };
+
+  return pos;
+end
+
 function module.get_shared_field(name)
   local api = module.api;
   return (api.server and api.server[name]) or (api.client and module.api.client[name])

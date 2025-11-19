@@ -59,7 +59,7 @@
 ---@field get_account_by_name fun(username: string): neutron.class.account Возвращает класс типа Account игрока с ником username
 ---@field get_client fun(account: neutron.class.account): neutron.class.client Возвращает класс типа Client игрока с аккаунтом account.
 ---@field get_client_by_name fun(username: string): neutron.class.client Возвращает класс типа Client игрока с ником username
----@field kick fun(account: neutron.class.account, reason?: string) Кикает аккаунт account с сервера с причиной reason
+---@field kick fun(account: neutron.class.account, reason?: string, soft?: boolean) Кикает аккаунт account с сервера с причиной reason. Если **soft** равен **true**, то кик произойдёт не сразу, а после обработки пакетов, что обеспечит гарантированную отправку сообщения с причиной ошибки.
 ---@field roles neutron.server.accounts.roles
 
 -- Server.console
@@ -187,6 +187,10 @@
 
 ---@class neutron.server.rpc
 ---@field emitter neutron.server.rpc.emitter
+
+-- Server.tasks
+---@class neutron.server.tasks
+---@field add_task fun(task: function) Создаёт задачу, которая будет удалена после первого выполнения.
 
 -- Server.sandbox
 
@@ -435,6 +439,7 @@
 ---@field middlewares neutron.server.middlewares
 ---@field protocol neutron.server.protocol
 ---@field rpc neutron.server.rpc
+---@field tasks neutron.server.tasks
 ---@field sandbox neutron.server.sandbox
 ---@field audio neutron.server.audio
 ---@field particles neutron.server.particles

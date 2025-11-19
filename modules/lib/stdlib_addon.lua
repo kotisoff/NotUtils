@@ -1,18 +1,24 @@
+local nu_events = require "nu_events"
 -- Здесь хоронятся разные функции, дополняющие основные библиотеки.
 -- Посему явного модуля здесь нет и не будет.
 
+-- =====================configuration=======================
+local max_world_height = 255;
+local ticks_per_second = 20;
+-- =========================================================
+
 local worldtime = 0;
-events.on("not_utils:world_tick", function()
+nu_events.on("world_tick", function()
   worldtime = worldtime + 1;
 end)
-events.on("not_utils:world_open", function()
+nu_events.on("world_open", function()
   worldtime = 0;
 end)
 
 ---Количество прошедших секунд с открытия мира. Итерируется относительно проведённого времени в игре, при паузе не тикает.
 ---@return number
 function time.worldtime()
-  return worldtime / 20;
+  return worldtime / ticks_per_second;
 end
 
 ---Проверяет стоит ли игрок на земле
@@ -23,6 +29,29 @@ function player.is_on_ground(pid)
   local entity = entities.get(entid);
   if not entity then return true end
   return entity.rigidbody:is_grounded();
+end
+
+---@param x number
+---@param z number
+---@param check_solid? bool
+function block.get_highest_block_y(x, z, check_solid)
+  local y = max_world_height;
+
+  while check_solid and (not block.is_solid_at(x, y, z)) or (block.get(x, y, z) == 0) do
+    y = y - 1;
+  end
+
+  return y;
+end
+
+---Возвращает строковой идентификатор звука
+---@param blockid int Идентификатор блока
+---@param type voxelcore.libblock.material.sounds Тип звука
+function block.get_sound(blockid, type)
+  local m_name = block.material(blockid);
+  local material = block.materials[m_name];
+
+  return material[type];
 end
 
 ---Проверка на возможность добавления предмета в инвентарь.
@@ -93,7 +122,7 @@ function table.keys(tbl)
 end
 
 ---@param n number
-function tohex(n)
+function _G.tohex(n)
   return string.format("%x", n)
 end
 
@@ -129,87 +158,87 @@ end
 ---@param str string
 ---@return string, function
 function string.type(str)
-    if not str then
-        return "nil", function (s)
-            if s then
-                return s
-            end
-        end
+  if not str then
+    return "nil", function(s)
+      if s then
+        return s
+      end
     end
+  end
 
-    str = str:lower()
+  str = str:lower()
 
-    if tonumber(str) then
-        return "number", tonumber
-    elseif str == "true" or str == "false" then
-        return "boolean", function(s) return s:lower() == "true" end
-    elseif pcall(json.parse, str) then
-        return "table", json.parse
-    end
+  if tonumber(str) then
+    return "number", tonumber
+  elseif str == "true" or str == "false" then
+    return "boolean", function(s) return s:lower() == "true" end
+  elseif pcall(json.parse, str) then
+    return "table", json.parse
+  end
 
-    return "string", tostring
+  return "string", tostring
 end
 
 ---Удаляет кавычки из строки
 ---@param str string
 ---@return string
 function string.trim_quotes(str)
-    if str:sub(1, 1) == "'" or str:sub(1, 1) == '"' then
-        str = str:sub(2)
-    end
+  if str:sub(1, 1) == "'" or str:sub(1, 1) == '"' then
+    str = str:sub(2)
+  end
 
-    if str:sub(-1) == "'" or str:sub(-1) == '"' then
-        str = str:sub(1, -2)
-    end
+  if str:sub(-1) == "'" or str:sub(-1) == '"' then
+    str = str:sub(1, -2)
+  end
 
-    return str
+  return str
 end
 
 ---Разделяет строку по пробелам, обращая внимание на ккавычки и скобки
 ---@param str string
 ---@return table
 function string.soft_space_split(str)
-    local result = {}
-    local current = {}
-    local in_quotes = false
-    local bracket_level = 0
-    local brace_level = 0
+  local result = {}
+  local current = {}
+  local in_quotes = false
+  local bracket_level = 0
+  local brace_level = 0
 
-    for i = 1, #str do
-        local char = str:sub(i, i)
+  for i = 1, #str do
+    local char = str:sub(i, i)
 
-        if char == '"' and bracket_level == 0 and brace_level == 0 then
-            in_quotes = not in_quotes
-            table.insert(current, char)
-        elseif not in_quotes then
-            if char == '[' then
-                bracket_level = bracket_level + 1
-            elseif char == ']' then
-                bracket_level = bracket_level - 1
-            elseif char == '{' then
-                brace_level = brace_level + 1
-            elseif char == '}' then
-                brace_level = brace_level - 1
-            elseif char == ' ' and bracket_level == 0 and brace_level == 0 then
-                if #current > 0 then
-                    table.insert(result, table.concat(current))
-                    current = {}
-                end
-                goto continue
-            end
-            table.insert(current, char)
-        else
-            table.insert(current, char)
+    if char == '"' and bracket_level == 0 and brace_level == 0 then
+      in_quotes = not in_quotes
+      table.insert(current, char)
+    elseif not in_quotes then
+      if char == '[' then
+        bracket_level = bracket_level + 1
+      elseif char == ']' then
+        bracket_level = bracket_level - 1
+      elseif char == '{' then
+        brace_level = brace_level + 1
+      elseif char == '}' then
+        brace_level = brace_level - 1
+      elseif char == ' ' and bracket_level == 0 and brace_level == 0 then
+        if #current > 0 then
+          table.insert(result, table.concat(current))
+          current = {}
         end
-
-        ::continue::
+        goto continue
+      end
+      table.insert(current, char)
+    else
+      table.insert(current, char)
     end
 
-    if #current > 0 then
-        table.insert(result, table.concat(current))
-    end
+    ::continue::
+  end
 
-    return result
+  if #current > 0 then
+    table.insert(result, table.concat(current))
+  end
+
+  return result
 end
 
 vec4.equals = vec_equals;

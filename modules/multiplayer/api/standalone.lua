@@ -216,6 +216,11 @@ function module.load()
         end
       }
     },
+    tasks = {
+      add_task = function(task)
+        task();
+      end
+    },
     env = {
       private = {
         create = function()
@@ -267,7 +272,7 @@ function module.load()
             player.set_noclip(_player.pid, noclip)
           end
         end,
-        is_online = function (name)
+        is_online = function(name)
           return type(name) == "string" and true or false
         end
       },

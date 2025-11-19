@@ -27,24 +27,22 @@ local function use_or_create(table, key, default)
   table[key] = table[key] or default;
 end
 
-local tags_prop = "not_utils:tags";
+local tags_prop = "tags_set";
 
-events.on("not_utils:first_tick", function()
+events.on("not_utils:hud_open", function()
   local elements = registry.elements;
 
   log("I", "Reading block tags...")
   for blockid, value in ipairs(block.properties) do
-    local itemid = block.get_picking_item(blockid);
-
     local prop = value[tags_prop]
+
     if prop and type(prop) == "table" then
-      for _, tag in ipairs(prop) do
+      local tags = table.keys(prop);
+
+      for _, tag in ipairs(tags) do
         registry.tags[tag] = true;
         use_or_create(elements.blocks, tag, {});
-        use_or_create(elements.items, tag, {});
-
         table.insert(elements.blocks[tag], blockid);
-        table.insert(elements.items[tag], itemid);
       end
     elseif prop then
       log("E", string.format("Unable to read tags of block: %s", block.name(blockid)));
@@ -55,10 +53,9 @@ events.on("not_utils:first_tick", function()
   for itemid, value in ipairs(item.properties) do
     local prop = value[tags_prop]
     if prop and type(prop) == "table" then
-      for _, tag in ipairs(prop) do
+      for tag, _ in pairs(prop) do
         registry.tags[tag] = true;
         use_or_create(elements.items, tag, {});
-
         table.insert(elements.items[tag], itemid);
       end
     elseif prop then
@@ -87,22 +84,25 @@ local function get_elements_by_tags(list, ...)
   return elements;
 end
 
----@param list table<str, any>[]
+---@param lib voxelcore.libblock | voxelcore.libitem
 ---@param id int
 ---@return str[]
-local function get_tags_by_elementid(list, id)
-  local prop = list[id][tags_prop]
-  return prop or {};
+local function get_tags(lib, id)
+  local prop = lib.properties[id][tags_prop] or {};
+  local tags = table.keys(prop);
+
+  return tags;
 end
 
----@param list table<str, any>[]
+---@param lib voxelcore.libblock | voxelcore.libitem
 ---@param ... str
 ---@return int[]
-local function get_elements_have_tags(list, ...)
+local function get_elements_have_tags(lib, ...)
+  local props = lib.properties;
   local elements = {};
   local tags = { ... };
 
-  for id, value in ipairs(list) do
+  for id, value in ipairs(props) do
     local prop = value[tags_prop];
     if prop then
       local flag = true;
@@ -150,22 +150,22 @@ end
 
 ---@param blockid int
 function module.get_tags_by_blockid(blockid)
-  return get_tags_by_elementid(block.properties, blockid);
+  return get_tags(block, blockid);
 end
 
 ---@param itemid int
 function module.get_tags_by_itemid(itemid)
-  return get_tags_by_elementid(item.properties, itemid);
+  return get_tags(item, itemid);
 end
 
 ---@param ... str
 function module.get_blocks_have_tags(...)
-  return get_elements_have_tags(block.properties, ...);
+  return get_elements_have_tags(block, ...);
 end
 
 ---@param ... str
 function module.get_items_have_tags(...)
-  return get_elements_have_tags(item.properties, ...);
+  return get_elements_have_tags(item, ...);
 end
 
 ---@return str[]

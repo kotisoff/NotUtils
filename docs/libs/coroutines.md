@@ -37,9 +37,6 @@ function cor.sleep(seconds: number,
     cycle_task: fun(temp: table, passed_time: number) -- Задача, которая будет выполняться всё время до конца или обрывания
   }
 ): boolean
-
--- Создаёт интервал и по идее возвращает функцию для её остановки, но я не особо уверен в ней.
-function cor.set_interval(func: function, seconds: number, time_function?: fun(): number): fun()
 ```
 
 [Вернуться на главную](../index.md)

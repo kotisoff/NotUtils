@@ -1,7 +1,9 @@
 {
   "id": "not_utils",
   "title": "NotUtils",
-  "version": "0.1.0-rc.4",
-  "creator": "KotIsOff",
-  "description": "Сборник дополнительных функций, облегчающих процесс разработки."
+  "version": "0.1.1-pre",
+  "creators": [
+    "KotIsOff"
+  ],
+  "description": "Сборник дополнительных функций, облегчающих процесс разработки модификаций."
 }
