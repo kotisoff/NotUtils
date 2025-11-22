@@ -32,7 +32,6 @@ function utils.parse_function_string(prop)
   local func = function(...) end;
 
   -- Callback as string function
-  ---@diagnostic disable-next-line: undefined-field
   if string.starts_with(prop, "function(") then
     local fn, error = loadstring("(" .. prop .. ")(...)");
     if error then
