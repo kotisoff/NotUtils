@@ -3,8 +3,11 @@
 ## 0.1.1
 
 - stdlib_addon: block.get_sound(blockid, type) Функция для удобного получения звука по идентификатору и типу звука.
-- Обновления типов для voxelcore и neutron: base:util, block/item.__get_tags, алиас для указания типа звука voxelcore.libblock.material.sounds
-- Рефакторинг кода, куда же без него
+- Обновления типов для voxelcore и neutron: base:util, block/item.__get_tags, алиас для указания типа звука voxelcore.libblock.material.sounds (до v0.29.2)
+- Рефактор logger (теперь метатаблицы)
+- Рефактор title
+- Рефактор tags
+- BSON + BitBuffer (by @Xertis in e1bfa66)
 
 ## 0.1.0
 
