@@ -56,7 +56,7 @@ function module.new(name)
     local logger = setmetatable({
         name = name, history = {}, levels = logLevels
       },
-      Logger
+      { __index = Logger }
     )
 
     loggers[name] = logger;
