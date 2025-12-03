@@ -23,7 +23,7 @@ end
 
 ---@param logLevel not_utils.Logger.levels
 function Logger:log(logLevel, ...)
-  table.insert(self.history, prefix(logLevel, self.name) .. table.concat({ ... }, " "));
+  table.insert(self.history, prefix(self.name, logLevel) .. table.concat({ ... }, " "));
 end
 
 function Logger:print()
@@ -34,7 +34,7 @@ end
 
 ---@param logLevel not_utils.Logger.levels
 function Logger:println(logLevel, ...)
-  print(prefix(logLevel, self.name) .. table.concat({ ... }, " "))
+  print(prefix(self.name, logLevel) .. table.concat({ ... }, " "))
 end
 
 function Logger:clear_history()
