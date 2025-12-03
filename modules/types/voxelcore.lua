@@ -6,8 +6,8 @@
 
 --[[
     VoxelCore Lua Types
-    Engine version: 0.29-pre0.30
-    Version: v0.0.6
+    Engine version: 0.30
+    Version: v0.0.7
     ]]
 
 ---@diagnostic disable: duplicate-doc-alias
