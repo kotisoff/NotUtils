@@ -5,8 +5,8 @@
   ]]
 
 --[[
-    VoxelCore Lua Types
-    Engine version: 0.30
+    VoxelCore Lua Types (WIP)
+    Engine version: 0.30.x
     Version: v0.0.7
     ]]
 
@@ -62,8 +62,8 @@ crc32 = crc32;
 ---@class voxelcore.math
 ---@field clamp fun(_in: number, low: number, high: number): number Ограничивает число _in по лимитам low и high. Т.е.: Если _in больше чем high - вернётся high, если _in меньше чем low - вернётся low. В противном случае вернётся само число.
 ---@field rand fun(min: number, max: number): number Возвращает случайное дробное число в диапазоне от low до high.
----@field normalize fun(num: number, places?: number): number Возвращает нормализованное значение num относительно conf.
----@field round fun(num: number, places?: number): number Возвращает округлённое значение num до указанного количества знаков после запятой places.
+---@field normalize fun(number: number, places?: number): number Возвращает нормализованное значение number относительно conf.
+---@field round fun(number: number, places?: number): number Возвращает округлённое значение number до указанного количества знаков после запятой places.
 ---@field sum fun(...): number Возвращает сумму всех принимаемых аргументов.
 ---@field sum fun(x: number, t: number[]): number Возвращает сумму всех принимаемых аргументов.
 ---@field normal_random fun(): number Рандом из генератора в C++
@@ -88,6 +88,8 @@ math = math
 ---@field deep_flat fun(t: table): table Возвращает глубокую "плоскую" версию исходной таблицы.
 ---@field sub fun(arr: table, start?: number, stop?: number): table Возвращает обрезанную версию таблицы с индекса start до индекса stop включительно, при этом пары ключ-значение не сохраняются в новой таблице. При значениях nil начинает с 1 и заканчивает #arr соответственно.
 ---@field tostring fun(t: table): str Конвертирует переданную таблицу в строку.
+---@field insert_unique fun(t: table, value: any) Добавляет значение в таблицу, только если его там не было.
+---@field insert_unique fun(t: table, pos: int, value: any) Добавляет значение в таблицу, только если его там не было.
 table = table
 
 -- ========================string===========================
@@ -107,6 +109,7 @@ table = table
 ---@field pad fun(str: str, size: number, char?: str): str Добавляет char слева и справа от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 ---@field left_pad fun(str: str, size: number, char?: str): str Добавляет char слева от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 ---@field right_pad fun(str: str, size: number, char?: str): str Добавляет char справа от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
+---@field escape_xml fun(text: str): str Экранирует спец-символы XML. (utf8.escape_xml)
 string = string
 
 -- =======================coroutine=========================
@@ -183,7 +186,7 @@ core = core
 ---@class voxelcore.libapp Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
 ---@field tick fun() Выполняет один такт основного цикла движка.
 ---@field sleep fun(time: number) Ожидает указанное время в секундах, выполняя основной цикл движка.
----@field sleep_until fun(predicate: (fun():bool), max_ticks?: number) Ожидает истинности утверждения (условия), проверяемого функцией, выполнячя основной цикл движка.
+---@field sleep_until fun(predicate: (fun():bool), max_ticks?: number, timeout?: number) Ожидает истинности утверждения (условия), проверяемого функцией, выполнячя основной цикл движка.
 ---@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
 ---@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
@@ -198,6 +201,11 @@ core = core
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
+---@field create_memory_device fun(name: str) Создаёт файловую систему в памяти с указанной точкой входа. (name:)
+---@field get_content_sources fun(): str[] Возвращает список источников контента (путей), в порядке убывания приоритета.
+---@field set_content_sources fun(sources: str[]) Устанавливает список источников контента (путей). Указывается в порядке убывания приоритета.
+---@field reset_content_sources fun() Сбрасывает список источников контента.
+---@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
 ---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
 ---@field script str
@@ -209,6 +217,9 @@ app = app
 ---@class voxelcore.libbase64
 ---@field encode fun(bytes: table | bytearray): str Кодирует массив байт в base64 строку
 ---@field decode fun(base64string: str, usetable?: bool): table | bytearray Декодирует base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
+---@field encode_urlsafe fun(bytes: table | bytearray): str Кодирует массив байт в urlsafe-base64 строку ('-', '_' вместо '+', '/')
+---@field decode_urlsafe fun(base64string: str, usetable?: bool): table | bytearray Декодирует urlsafe-base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
+
 base64 = base64
 
 -- =======================Bytearray=========================
@@ -356,7 +367,7 @@ cameras = cameras
 ---Библиотека предназначена для работы с реестром сущностей.
 ---@class voxelcore.libentities Библиотека предназначена для работы с реестром сущностей.
 ---@field get fun(uid: int): voxelcore.class.entity Возвращает сущность по уникальному идентификатору.
----@field spawn fun(name: str, pos: vec3, args?: table<string, any>): voxelcore.class.entity Создает указанную сущность
+---@field spawn fun(name: str, pos: vec3, args?: table<str, any>): voxelcore.class.entity Создает указанную сущность
 ---@field exists fun(uid: int): bool Проверяет наличие сущности по уникальному идентификатору
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по UID
 ---@field def_name fun(uid: int): str Возвращает имя определения сущности по индексу (строковый ID)
@@ -398,6 +409,7 @@ entities = entities
 ---@field mount fun(path: str): str Монтирует ZIP-архив как файловой системе. Возвращает имя точки входа.
 ---@field unmount fun(mount_path: str): str Размонтирует точку входа.
 ---@field create_zip fun(dir: str, dest_file: str): str Создаёт ZIP-архив из содержимого указанной директории.
+---@field create_memory_device fun(): name: str Создаёт файловую систему в памяти, возвращает имя точки входа (name:). Удаляется при выгрузке контента.
 ---@field name fun(path: str): str Извлекает имя файла из пути. Пример: world:data/base/config.toml -> config.toml.
 ---@field stem fun(path: str): str Извлекает имя файла из пути, удаляя расширение. Пример: world:data/base/config.toml -> config.
 ---@field ext fun(path: str): str Извлекает расширение из пути. Пример: world:data/base/config.toml -> toml.
@@ -419,8 +431,8 @@ file = file
 -- ======================compression========================
 
 ---@class voxelcore.class.libcompression
----@field encode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray
----@field decode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray
+---@field encode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray Сжимает массив байт.
+---@field decode fun(data: bytearray, algorithm?: "gzip", usetable?: bool): bytearray Разжимает массив байт.
 
 -- =======================io_stream=========================
 
@@ -643,6 +655,7 @@ gui = gui
 ---@field close_inventory fun() Закрывает инвентарь.
 ---@field open fun(layoutid: str, disablePlayerInventory?: bool, invid?: int): int Открывает инвентарь и UI. Если макет UI не существует - бросается исключение. Если invid не указан, создаётся виртуальный (временный) инвентарь. Возвращает invid или id виртуального инвентаря.
 ---@field open_block fun(x: int, y: int, z: int): int, str Открывает инвентарь и UI блока. Если блок не имеет макета UI - бросается исключение. Возвращает id инвентаря блока  (при *"inventory-size"=0* создаётся виртуальный инвентарь, который удаляется после закрытия), и id макета UI.
+---@field is_open fun(layoutid: str): bool Возвращает true если указаный макет UI открыт.
 ---@field show_overlay fun(layoutid: str, playerinv: bool, args?: table) Показывает элемент в режиме оверлея. Также показывает инвентарь игрока, если playerinv - **true**.  Через args можно указать массив значений параметров, что будут переданы в on_open показываемого оверлея.
 ---@field open_permanent fun(layout: str) Добавляет постоянный элемент на экран. Элемент не удаляется при закрытии инвентаря. Чтобы не перекрывать затенение в режиме инвентаря нужно установить z-index элемента меньшим чем -1. В случае тега inventory, произойдет привязка слотов к инвентарю игрока.
 ---@field close fun(layoutid: str) Удаляет элемент с экрана.
@@ -687,8 +700,9 @@ hud = hud
 ---@class voxelcore.libinput Библиотека input
 ---@field keycode fun(keyname: str): int Возвращает код клавиши по имени, либо -1
 ---@field mousecode fun(mousename: str): int Возвращает код кнопки мыши по имени, либо -1
----@field add_callback fun(bindname: voxelcore.libinput.bindings, callback: function, document?: table) Назначает функцию, которая будет вызываться при активации привязки. Можно привязать время жизни функции к UI контейнеру, вместо HUD. В таком случае, input.add_callback можно использовать до вызова on_hud_open.
+---@field add_callback fun(bindname: voxelcore.libinput.bindings, callback: function, owner_document?: voxelcore.ui.document.any, is_top_level?: bool) Назначает функцию, которая будет вызываться при активации привязки. Можно привязать время жизни функции к UI контейнеру, вместо HUD. В таком случае, input.add_callback можно использовать до вызова on_hud_open. Если is_top_level = true, тогда захват ввода ui элементами будет игнорироваться.
 ---@field get_mouse_pos fun(): [int, int] Возвращает позицию курсора на экране.
+---@field get_mouse_delta fun(): [int, int] Возращает дельту позиции курсора.
 ---@field get_bindings fun(): str[] Возвращает названия всех доступных привязок.
 ---@field get_binding_text fun(bindname: str): str Возвращает текстовое представление кнопки по имени привязки.
 ---@field is_active fun(bindname: voxelcore.libinput.bindings): bool Проверяет активность привязки.
@@ -783,6 +797,7 @@ mat4 = mat4
 ---@class voxelcore.class.tcp_socket
 ---@field send fun(self: voxelcore.class.tcp_socket, data: table|bytearray|str) Отправляет массив байт
 ---@field recv fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Читает полученные данные. В случае ошибки возвращает nil (сокет закрыт или несуществует). Если данных пока нет, возвращает пустой массив байт.
+---@field recv_async fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Асинхронный вариант для использования в корутинах. Ожидает получение всего указанного числа байт. При закрытии сокета работает как socket:recv.
 ---@field close fun(self: voxelcore.class.tcp_socket) Закрывает соединение
 ---@field available fun(self: voxelcore.class.tcp_socket): int Возвращает количество доступных для чтения байт данных
 ---@field is_alive fun(self: voxelcore.class.tcp_socket): bool Проверяет, что сокет существует и не закрыт.
@@ -811,15 +826,16 @@ mat4 = mat4
 
 ---Библиотека для работы с сетью.
 ---@class voxelcore.libnetwork Библиотека для работы с сетью.
----@field get fun(url: str, callback: fun(data:str), onfailure?: fun(response:int), headers?: string[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
----@field get_binary fun(url: str, callback: fun(data: table|bytearray), onfailure?: fun(response:int), headers?: string[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт данные в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
----@field post fun(url: str, data: table, callback: fun(data:str), onfailure?: fun(response:int), headers?: string[]) Выполняет POST запрос к указанному URL с указанными заголовками. На данный момент реализована поддержка только `Content-Type: application/json`. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
----@field tcp_connect fun(address: str, port: int, callback: fun(socket: voxelcore.class.tcp_socket)): voxelcore.class.tcp_socket Инициирует TCP подключение.
+---@field get fun(url: str, callback: fun(data:str), onfailure?: fun(response:int), headers?: str[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field get_binary fun(url: str, callback: fun(data: table|bytearray), onfailure?: fun(response:int), headers?: str[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт данные в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field post fun(url: str, data: table, callback: fun(data:str), onfailure?: fun(response:int), headers?: str[]) Выполняет POST запрос к указанному URL с указанными заголовками. На данный момент реализована поддержка только `Content-Type: application/json`. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
+---@field tcp_connect fun(address: str, port: int, callback: fun(socket: voxelcore.class.tcp_socket), error_callback?: fun(socket: voxelcore.class.tcp_socket, error: str)): voxelcore.class.tcp_socket Инициирует TCP подключение.
 ---@field tcp_open fun(port: int, callback: fun(socket: voxelcore.class.tcp_socket)): voxelcore.class.tcp_serversocket Открывает TCP-сервер.
 ---@field udp_connect fun(address: str, port: int, datagram_handler: fun(data: bytearray), callback?: fun(socket: voxelcore.class.udp_socket)): voxelcore.class.udp_socket Открывает UDP-сокет с привязкой к удалённому адресу и порту
 ---@field udp_open fun(port: int, datagram_handler: fun(address: str, port: int, data: bytearray, server: voxelcore.class.udp_serversocket)): voxelcore.class.udp_serversocket Открывает UDP-сервер на указанном порту
 ---@field get_total_upload fun(): int Возвращает приблизительный объем отправленных данных (включая соединения с localhost) в байтах.
 ---@field get_total_download fun(): int Возвращает приблизительный объем полученных данных (включая соединения с localhost) в байтах.
+---@field find_free_port fun(): int | nil Ищет свободный для использования порт.
 network = network
 
 -- =========================pack============================
@@ -846,8 +862,8 @@ network = network
 ---@field get_available fun(): str[] Возвращает id всех доступных, но не установленных в мире контент-паков.
 ---@field get_base_packs fun(): str[] Возвращает id всех базовых паков (неудаляемых)
 ---@field get_info fun(packid: str): voxelcore.class.packinfo Возвращает информацию о паке (не обязательно установленном).
----@field get_info fun(packsid: str[]): table<string, voxelcore.class.packinfo> Возвращает информацию о нескольких паках (не обязательно установленных).
----@field assemble fun(packs: table<string, voxelcore.class.packinfo>): table<string, voxelcore.class.packinfo> Проверяет корректность конфигурации и добавляет зависимости, возвращая полную.
+---@field get_info fun(packsid: str[]): table<str, voxelcore.class.packinfo> Возвращает информацию о нескольких паках (не обязательно установленных).
+---@field assemble fun(packs: table<str, voxelcore.class.packinfo>): table<str, voxelcore.class.packinfo> Проверяет корректность конфигурации и добавляет зависимости, возвращая полную.
 ---@field request_writeable fun(packid: str, callback: fun(str)) Запрашивает у пользователя право на модификацию пака. При подтвержении новая точка входа будет передана в callback.
 ---@field assemble fun(packdata: table): str[] Собирает пак и возвращает массив идентификаторов которые он добавляет
 ---@field unload fun(packid: str) Выгружает пак (а точнее просто удаляет все его ивенты)
@@ -863,9 +879,9 @@ pack = pack
 ---@field set_pos fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z координаты игрока
 ---@field get_vel fun(playerid?: int): number, number, number Возвращает x, y, z линейной скорости игрока
 ---@field set_vel fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z линейной скорости игрока
----@field get_rot fun(playerid?: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в радианах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
----@field set_rot fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в радианах)
----@field get_dir fun(playerid?: int): vec3 Позволяет получить вектор направления камеры игрока. Параметр playerid работает только если переназначить функцию, гарантированно с Quartz.
+---@field get_rot fun(playerid?: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в градусах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
+---@field set_rot fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в градусах)
+---@field get_dir fun(playerid?: int): vec3 Возвращает вектор направления взгляда игрока
 ---@field get_inventory fun(playerid?: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
 ---@field is_flight fun(playerid?: int): bool Геттер режима полета
 ---@field set_flight fun(playerid?: int, flag: bool) Сеттер режима полета
@@ -949,11 +965,12 @@ time = time
 ---@field upper fun(text: str): str Переводит строку в вверхний регистр
 ---@field lower fun(text: str): str Переводит строку в нижний регистр
 ---@field escape fun(text: str): str Экранирует строку
+---@field escape_xml fun(text: str): str Экранирует спец-символы XML
 utf8 = utf8
 
 -- ========================session==========================
 
----@class voxelcore.session
+---@class voxelcore.libsession
 ---@field get_entry fun(name: "commands_history" | "new_world" | str): any Возвращает некий энтри
 ---@field reset_entry fun(name: "commands_history" | "new_world" | str) Удаляет некий энтри
 ---@field entries table<str, any> Таблица этих самых энтри
@@ -1035,12 +1052,23 @@ events = events
 
 -- =========================audio===========================
 
+---@class voxelcore.class.PCMStream
+---@field feed fun(self: voxelcore.class.PCMStream, data: bytearray) Подача PCM данных в поток
+---@field share fun(self: voxelcore.class.PCMStream, alias: str) Публикация источника PCM данных для использования системами движка
+---@field create_sound fun(self: voxelcore.class.PCMStream, name: str) Создание звука из имеющихся в потоке PCM данных
+
+---@class voxelcore.libaudio.input
+---@field request_open fun(callback: fun(access_token: str)) Запрашивает доступ к записи звука. При подтверждении, в callback передаётся токен для использовании в audio.input.fetch
+---@field fetch fun(access_token: str, max_read_size?: int): bytearray Читает новые PCM данные аудио ввода
+
 ---Библиотека для управления звуками
 ---@class voxelcore.libaudio
+---@field input voxelcore.libaudio.input
+---@field PCMStream fun(sample_rate: int, channels: int, bits_per_sample: int): voxelcore.class.PCMStream Создать источник (или stream) PCM данных
 ---@field play_stream fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит потоковое аудио из указанного файла, на указанной позиции в мире. Возвращает id спикера.
----@field play_sound fun(name: string, x: number, y: number, z: number, volume: number, pitch: number, channel?: string, loop?: boolean): int Воспроизводит потоковое аудио из указанного файла. Возвращает id спикера.
----@field play_stream_2d fun(name: string, volume: number, pitch: number, channel?: string, loop?: boolean): int Воспроизводит звук на указанной позиции в мире. Возвращает id спикера.
----@field play_sound_2d fun(name: string, volume: number, pitch: number, channel?: string, loop?: boolean): int Воспроизводит звук. Возвращает id спикера.
+---@field play_sound fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит потоковое аудио из указанного файла. Возвращает id спикера.
+---@field play_stream_2d fun(name: str, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит звук на указанной позиции в мире. Возвращает id спикера.
+---@field play_sound_2d fun(name: str, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит звук. Возвращает id спикера.
 ---@field stop fun(speakerid: int) Остановить воспроизведение спикера
 ---@field pause fun(speakerid: int) Поставить спикер на паузу
 ---@field resume fun(speakerid: int) Снять спикер с паузы
@@ -1075,9 +1103,11 @@ audio = audio
 ---@field chat fun(message: str) Выводит сообщение в чат
 ---@field get_commands_list fun(): str[] Возвращает список команд
 ---@field get_command_info fun(name: str): voxelcore.libconsole.command_info Возвращает данные команды
----@field get fun(name: str): any Получает команду. (Правда странно как-то, я так и не понял как им оперировать).
+---@field get fun(name: str): any Возращает команду. (Правда странно как-то, я так и не понял как им оперировать).
 ---@field set fun(name: str, value: any) Устанавливает команду. (Не уверен как оно работает).
 ---@field execute fun(command: str) Выполняет команду
+---@field is_cheat fun(name: str): state: bool Возвращает "cheat" статус команды
+---@field set_cheat fun(name: str, state: bool): changed: bool Устанавливает "cheat" статус команды
 ---@field cheats str[] Список чит команд
 ---@field submit? fun(message: str) Служебная функция
 console = console
@@ -1085,8 +1115,9 @@ console = console
 -- ========================assets===========================
 
 ---@class voxelcore.libassets
----@field load_texture fun(bytes: str|bytearray, texture: str) Загружает тектуру по пути из path_or_bytes если это строка или использует массив байт из path_or_bytes и загружает на место texture.
----@field parse_model fun(format: "xml"|"vcm", path: str, modelname: str) Загружает модель по пути path, парсит относительно format и заменяет/добавляет modelname в регистре.
+---@field load_texture fun(data: table|bytearray, name: str, format?: "png" | str) Загружает текстуру из таблицы или массива байт на место текстуры name
+---@field parse_model fun(format: "xml"|"vcm", path: str, name: str) Парсит и загружает 3D модель
+---@field to_canvas fun(name: str): voxelcore.class.canvas Создаёт холст (Canvas) из загруженной текстуры. Поддерживается как отдельные ("имя_текстуры"), так и находящиеся в атласе ("атлас:имя_текстуры").
 assets = assets
 
 -- ================entity=component=system==================
@@ -1109,7 +1140,7 @@ assets = assets
 ---@field get_size fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает размер хитбокса
 ---@field set_size fun(self: voxelcore.class.entity.rigidbody, size: vec3) Устанавливает размер хитбокса
 ---@field get_gravity_scale fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает множитель гравитации
----@field set_gravity_scale fun(self: voxelcore.class.entity.rigidbody, scale: vec3) Устанавливает множитель гравитации
+---@field set_gravity_scale fun(self: voxelcore.class.entity.rigidbody, scale: number) Устанавливает множитель гравитации
 ---@field get_linear_damping fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель затухания линейной скорости (используется для имитации сопротивления воздуха и трения)
 ---@field set_linear_damping fun(self: voxelcore.class.entity.rigidbody, value: number) Устанавливает множитель затухания линейной скорости
 ---@field is_vdamping fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включено ли вертикальное затухание скорости
@@ -1149,7 +1180,7 @@ assets = assets
 ---@field transform voxelcore.class.entity.transform Компонент отвечает за позицию, масштаб и вращение сущности.
 ---@field rigidbody voxelcore.class.entity.rigidbody Компонент отвечает за физическое тело сущности.
 ---@field skeleton voxelcore.class.entity.skeleton Компонент отвечает за скелет сущности. См. риггинг. (git)
----@field components table<string, table> Таблица компонентов.
+---@field components table<str, table> Таблица компонентов.
 
 ---Доступен при получении или в компоненте сущности
 ---@type voxelcore.class.entity
@@ -1169,7 +1200,7 @@ entity = entity
 ---@field make_route_async fun(agent: int, start: vec3, target: vec3) Асинхронное создание маршрута на основе заданных точек (получение маршрута происходит в pull_route)
 ---@field pull_route fun(agent: int): route: vec3[] | nil Получение маршрута, который агент уже нашел. Используется для получения маршрута после асинхронного поиска. Если поиск ещё не завершён, возвращает nil. Если маршрут не найден, возвращает пустую таблицу.
 ---@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
----@field avoid_tag fun(agent: int, tag?: string, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
+---@field avoid_tag fun(agent: int, tag?: str, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
 
 ---Доступен при получении из компонента сущности
 ---@type voxelcore.class.pathfinding
@@ -1192,86 +1223,92 @@ Document = Document
 Element = Element
 
 ---@class voxelcore.ui.document.base_element
----@field id str идентификатор элемента. запись: нет
----@field pos vec2 позиция элемента внутри контейнера
----@field wpos vec2 позиция элемента в окне
----@field size vec2 размер элемента
----@field interactive bool возможность взаимодействия с элементом
----@field enabled bool визуально обозначаемая версия interactive
----@field visible bool видимость элемента
----@field focused bool фокус на элементе
----@field color vec4 цвет элемента
----@field hoverColor vec4 цвет при наведении
----@field pressedColor vec4 цвет при нажатии
----@field tooltip str текст всплывающей подсказки
----@field tooltipDelay number задержка всплывающей подсказки
----@field contentOffset vec2 смещение содержимого. запись: нет
----@field cursor str курсор, отображаемый при наведении
----@field parent voxelcore.ui.document.base_element | table родительский элемент или nil. запись: нет
----@field moveInto fun(self: voxelcore.ui.document.any, container: voxelcore.ui.document.any) перемещает элемент в указанный контейнер (указывается элемент, а не id)
----@field destruct fun(self: voxelcore.ui.document.any) удаляет элемент
----@field reposition fun(self: voxelcore.ui.document.any) обновляет позицию элемента на основе функции позиционирования
+---@field id str Идентификатор элемента. запись: нет
+---@field exists bool Проверяет, существует ли элемент
+---@field pos vec2 Позиция элемента внутри контейнера
+---@field wpos vec2 Позиция элемента в окне
+---@field size vec2 Размер элемента
+---@field interactive bool Возможность взаимодействия с элементом
+---@field enabled bool Визуально обозначаемая версия interactive
+---@field visible bool Видимость элемента
+---@field focused bool Фокус на элементе
+---@field color vec4 Цвет элемента
+---@field hoverColor vec4 Цвет при наведении
+---@field pressedColor vec4 Цвет при нажатии
+---@field tooltip str Текст всплывающей подсказки
+---@field tooltipDelay number Задержка всплывающей подсказки
+---@field contentOffset vec2 Смещение содержимого. запись: нет
+---@field cursor str Курсор, отображаемый при наведении
+---@field parent voxelcore.ui.document.base_element | table Родительский элемент или nil. запись: нет
+---@field moveInto fun(self: voxelcore.ui.document.any, container: voxelcore.ui.document.any) Перемещает элемент в указанный контейнер (указывается элемент, а не id)
+---@field destruct fun(self: voxelcore.ui.document.any) Удаляет элемент
+---@field reposition fun(self: voxelcore.ui.document.any) Обновляет позицию элемента на основе функции позиционирования
 
 ---@class voxelcore.ui.document.container: voxelcore.ui.document.base_element
----@field scroll number прокрутка содержимого
----@field clear fun(self: voxelcore.ui.document.any) очищает контент
----@field add fun(self: voxelcore.ui.document.any, xml: str) добавляет элемент, создавая его по xml коду. Пример: container:add("<image src='test'/>")
----@field setInterval fun(self: voxelcore.ui.document.any, interval: integer, callback: function) назначает функцию на повторяющееся выполнение с заданным в миллисекундах интервалом
+---@field scroll number Прокрутка содержимого
+---@field clear fun(self: voxelcore.ui.document.any) Очищает контент
+---@field add fun(self: voxelcore.ui.document.any, xml: str) Добавляет элемент, создавая его по xml коду. Пример: container:add("<image src='test'/>")
+---@field add fun(self: voxelcore.ui.document.any, xml: str, data?: table) Перегрузка с передачей таблицы, которая в событиях, объявленных в xml будет доступна как DATA.
+---@field setInterval fun(self: voxelcore.ui.document.any, interval: int, callback: function) Назначает функцию на повторяющееся выполнение с заданным в миллисекундах интервалом
 ---@field refresh fun() Обновляет элемент
 
 ---@class voxelcore.ui.document.textbox: voxelcore.ui.document.base_element
----@field text str введенный текст или заполнитель
----@field placeholder str заполнитель (используется если ничего не было введено)
----@field hint str текст, отображаемый, когда ничего не введено
----@field caret int позиция каретки. textbox.caret = -1 установит позицию в конец текста
----@field editable bool изменяемость текста
----@field edited bool был ли изменён текст с последней установки/сброса свойства. запись: только false
----@field multiline bool поддержка многострочности
----@field lineNumbers bool отображение номеров строк
----@field textWrap bool автоматический перенос текста (только при multiline: "true")
----@field valid bool является ли введенный текст корректным
----@field textColor vec4 цвет текста
----@field syntax str подсветка синтаксиса ("lua" - Lua)
----@field markup str язык разметки текста ("md" - Markdown)
----@field paste fun(self: voxelcore.ui.document.any, text: str) вставляет указанный текст на позицию каретки
----@field lineAt fun(self: voxelcore.ui.document.any, pos: int): int определяет номер строки по позиции в тексте
----@field linePos fun(self: voxelcore.ui.document.any, line: int): int определяет позицию начала строки в тексте
+---@field text str Введенный текст или заполнитель
+---@field placeholder str Заполнитель (используется если ничего не было введено)
+---@field hint str Текст, отображаемый, когда ничего не введено
+---@field caret int Позиция каретки. textbox.caret = -1 установит позицию в конец текста
+---@field editable bool Изменяемость текста
+---@field edited bool Был ли изменён текст с последней установки/сброса свойства. запись: только false
+---@field multiline bool Поддержка многострочности
+---@field lineNumbers bool Отображение номеров строк
+---@field textWrap bool Автоматический перенос текста (только при multiline: "true")
+---@field valid bool Является ли введенный текст корректным
+---@field textColor vec4 Цвет текста
+---@field syntax str Подсветка синтаксиса ("lua" - Lua)
+---@field markup str Язык разметки текста ("md" - Markdown)
+---@field paste fun(self: voxelcore.ui.document.any, text: str) Вставляет указанный текст на позицию каретки
+---@field lineAt fun(self: voxelcore.ui.document.any, pos: int): int Определяет номер строки по позиции в тексте
+---@field linePos fun(self: voxelcore.ui.document.any, line: int): int Определяет позицию начала строки в тексте
 
 ---@class voxelcore.ui.document.trackbar: voxelcore.ui.document.base_element
----@field value number выбранное значение
----@field min number минимальное значение
----@field max number максимальное значение
----@field step number шаг деления
----@field trackWidth number ширина управляющего элемента
----@field trackColor vec4 цвет управляющего элемента
+---@field value number Выбранное значение
+---@field min number Минимальное значение
+---@field max number Максимальное значение
+---@field step number Шаг деления
+---@field trackWidth number Ширина управляющего элемента
+---@field trackColor vec4 Цвет управляющего элемента
 
 ---@class voxelcore.ui.document.pagebox: voxelcore.ui.document.container
----@field page str текущая страница
----@field back fun(self: voxelcore.ui.document.any) переключает на прошлую страницу
----@field reset fun(self: voxelcore.ui.document.any) сбрасывает страницу и историю переключений
+---@field page str Текущая страница
+---@field back fun(self: voxelcore.ui.document.any) Переключает на прошлую страницу
+---@field reset fun(self: voxelcore.ui.document.any) Сбрасывает страницу и историю переключений
 
 ---@class voxelcore.ui.document.checkbox: voxelcore.ui.document.base_element
----@field checked bool состояние отметки
+---@field checked bool Состояние отметки
 
 ---@class voxelcore.ui.document.button: voxelcore.ui.document.container
----@field text str текст кнопки
+---@field text str Текст кнопки
 
 ---@class voxelcore.ui.document.label: voxelcore.ui.document.base_element
----@field text str текст метки
----@field markup str язык разметки текста ("md" - Markdown)
+---@field text str Текст метки
+---@field markup str Язык разметки текста ("md" - Markdown)
 
 ---@class voxelcore.ui.document.image: voxelcore.ui.document.base_element
----@field src str отображаемая текстура
----@field region vec4 под-регион изображения
+---@field src str Отображаемая текстура
+---@field region vec4 Под-регион изображения
 
 ---@class voxelcore.ui.document.canvas: voxelcore.ui.document.base_element
----@field data voxelcore.ui.canvas пиксели холста
+---@field data voxelcore.class.canvas Пиксели холста
 
 ---@class voxelcore.ui.document.iframe: voxelcore.ui.document.base_element
----@field src str id встраиваемого документа
+---@field src str Id встраиваемого документа
+
+---@class voxelcore.ui.document.select: voxelcore.ui.document.base_element
+---@field value str Выбранное значение
+---@field options str[] Список опций (таблиц {value=..., text=...})
 
 ---@class voxelcore.ui.document.inventory: voxelcore.ui.document.base_element
----@field inventory int id инвентаря, к которому привязан элемент
+---@field inventory int Id инвентаря, к которому привязан элемент
 
 -- ======================RadioGroup=========================
 
@@ -1283,18 +1320,35 @@ RadioGroup = RadioGroup
 
 -- ========================canvas===========================
 
----@class voxelcore.ui.canvas
----@field at fun(self: voxelcore.ui.canvas, x: int, y: int): vec4 возвращает RGBA пиксель по указанным координатам
----@field set fun(self: voxelcore.ui.canvas, x: int, y: int, rgba: int) изменяет RGBA пиксель по указанным координатам
----@field set fun(self: voxelcore.ui.canvas, x: int, y: int, r: int, g: int, b: int, a?: int) изменяет RGBA пиксель по указанным координатам
----@field line fun(self: voxelcore.ui.canvas, x1: int, y1: int, x2: int, y2: int, rgba: int) рисует линию с указанным RGBA цветом
----@field line fun(self: voxelcore.ui.canvas, x1: int, y1: int, x2: int, y2: int, r: int, g: int, b: int, a?: int) рисует линию с указанным RGBA цветом
----@field blit fun(self: voxelcore.ui.canvas, src: voxelcore.ui.canvas, dst_x: int, dst_y: int) рисует src-холст на указанных координатах
----@field clear fun(self: voxelcore.ui.canvas, rgba?: int) очищает холст
----@field clear fun(self: voxelcore.ui.canvas, r: int, g: int, b: int, a?: int) заполняет холст указанным RGBA цветом
----@field update fun(self: voxelcore.ui.canvas) применяет изменения и загружает холст в видеопамять
----@field set_data fun(self: voxelcore.ui.canvas, data: table) заменяет данные пикселей (ширина * высота * 4 чисел)
----@field create_texture fun(self: voxelcore.ui.canvas, name: str) создаёт и делится текстурой с рендерером
+---@class voxelcore.class.canvas
+---@field at fun(self: voxelcore.class.canvas, x: int, y: int): vec4 Возвращает RGBA пиксель по указанным координатам
+---@field set fun(self: voxelcore.class.canvas, x: int, y: int, rgba: int) Изменяет RGBA пиксель по указанным координатам
+---@field set fun(self: voxelcore.class.canvas, x: int, y: int, r: int, g: int, b: int, a?: int) Изменяет RGBA пиксель по указанным координатам
+---@field line fun(self: voxelcore.class.canvas, x1: int, y1: int, x2: int, y2: int, rgba: int) Рисует линию с указанным RGBA цветом
+---@field line fun(self: voxelcore.class.canvas, x1: int, y1: int, x2: int, y2: int, r: int, g: int, b: int, a?: int) Рисует линию с указанным RGBA цветом
+---@field blit fun(self: voxelcore.class.canvas, src: voxelcore.class.canvas, dst_x: int, dst_y: int) Рисует src-холст на указанных координатах
+---@field clear fun(self: voxelcore.class.canvas, rgba?: int) Заполняет холст указанным RGBA цветом
+---@field clear fun(self: voxelcore.class.canvas, r: int, g: int, b: int, a?: int) Заполняет холст указанным RGBA цветом
+---@field rect fun(x: int, y: int, w: int, h: int, rgba: int) Заполняет прямоугольник указанным RGBA цветом
+---@field rect fun(x: int, y: int, w: int, h: int, r: int, g: int, b: int, a?: int) Заполняет прямоугольник указанным RGBA цветом
+---@field update fun(self: voxelcore.class.canvas) Применяет изменения и загружает холст в видеопамять
+---@field set_data fun(self: voxelcore.class.canvas, data: bytearray | table) Заменяет данные пикселей (ширина * высота * 4 чисел)
+---@field create_texture fun(self: voxelcore.class.canvas, name: str) Создаёт и делится текстурой с рендерером
+---@field unbind_texture fun(self: voxelcore.class.canvas) Отвязывает текстуру от холста
+---@field mul fun(self: voxelcore.class.canvas, rgba: int)
+---@field mul fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field mul fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
+---@field add fun(self: voxelcore.class.canvas, rgba: int)
+---@field add fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field add fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
+---@field sub fun(self: voxelcore.class.canvas, rgba: int)
+---@field sub fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field sub fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
+---@field encode fun(self: voxelcore.class.canvas, format: str): bytearray Кодирует изображение в указанный формат и возращает массив байт
+
+---@class voxelcore.libcanvas
+---@field decode fun(data: bytearray, format: str): voxelcore.class.canvas
+Canvas = Canvas
 
 -- ====================world=generator======================
 
@@ -1310,9 +1364,9 @@ RadioGroup = RadioGroup
 ---@field min fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Минимум
 ---@field max fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Максимум
 ---@field mixin fun(value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap): voxelcore.class.HeightMap Перемешивание
----@field dump fun(path: string) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
----@field noise fun(offset: vec2, scale: number, octaves?: integer, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
----@field cellnoise fun(offset: vec2, scale: number, octaves?: integer, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Аналог heightmap:noise генерирующий клеточный шум.
+---@field dump fun(path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
+---@field noise fun(offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
+---@field cellnoise fun(offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Аналог heightmap:noise генерирующий клеточный шум.
 ---@field resize fun(width: number, height: number, lerp: "nearest"|"linear"|"cubic"): voxelcore.class.HeightMap Изменяет размер карты высот.
 ---@field crop fun(x: number, y: number, width: number, height: number): voxelcore.class.HeightMap Обрезает карту высот до заданной области.
 ---@field at fun(x:number,y:number): number Возвращает значение высота на заданной позиции.
