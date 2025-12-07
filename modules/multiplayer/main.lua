@@ -38,9 +38,38 @@ function module.convert_vector(vec)
   return pos;
 end
 
+---@alias not_utils.mp.handle_event.available_params "client"
+
+---@param mp_event str
+---@param replace_event str
+---@param handler function
+---@param provide_params not_utils.mp.handle_event.available_params[]
+function module.handle_event(mp_event, replace_event, handler, provide_params)
+  if module.mode == "standalone" then
+    local params = {};
+
+    for _, value in ipairs(provide_params) do
+      if value == "client" then
+        table.insert(params, module.api.server.accounts.get_client_by_name(""));
+      end
+    end
+
+    events.on(replace_event, function(...)
+      for _, value in ipairs({ ... }) do
+        table.insert(params, value);
+      end
+
+      handler(unpack(params));
+    end)
+  else
+    events.on(mp_event, handler);
+  end
+end
+
+---@deprecated todo: вырезать этот ужас
 function module.get_shared_field(name)
   local api = module.api;
-  return (api.server and api.server[name]) or (api.client and module.api.client[name])
+  return (api.server and api.server[name]) or (api.client and api.client[name])
 end
 
 ---@class not_utils.mp.api_template

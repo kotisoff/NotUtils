@@ -1,9 +1,10 @@
 -- ========================requires===========================
 local custom_console = require "multiplayer/chat/console"
+local nu_events      = require "nu_events"
 
 -- ========================module===========================
 
-local module = {}
+local module         = {}
 
 ---@return boolean
 function module.check()
@@ -42,9 +43,16 @@ end
 
 ---@return neutron.class.player
 local function get_player()
-  local pid = hud.get_player()
-  local x, _, z = player.get_pos(pid)
-  local region_pos = { x = math.floor(x / 16), z = math.floor(z / 16) }
+  local pid = 0;
+  local name = "Player"
+  local region_pos = { 0, 0 };
+
+  if hud then
+    pid = hud.get_player();
+    name = player.get_name(pid) or name;
+    local x, _, z = player.get_pos(pid)
+    region_pos = { x = math.floor(x / 16), z = math.floor(z / 16) }
+  end
 
   return {
     username = "Player",
