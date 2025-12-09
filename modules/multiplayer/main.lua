@@ -14,6 +14,7 @@ local module = {
   api = nil
 }
 
+---Выполняет код внутри функции с стороны сервера
 ---@param cb fun(server: neutron.server, mode: not_utils.mp.mode): any
 ---@return any
 function module.as_server(cb)
@@ -22,11 +23,25 @@ function module.as_server(cb)
   end
 end
 
+---Выполняет код внутри функции с стороны клиента
 ---@param cb fun(client: neutron.client, mode: not_utils.mp.mode): any
 ---@return any
 function module.as_client(cb)
   if module.api.client then
     return cb(module.api.client, module.mode);
+  end
+end
+
+---Выполняет код внутри функции с любой доступной стороны, обеспечивая общие параметры апи, но не более.
+---@param cb fun(side: neutron.client | neutron.server, mode: not_utils.mp.mode): any
+---@return any
+function module.as_any(cb)
+  local api = module.api;
+  ---@type neutron.server | neutron.client
+  local side = api.server and api.server or api.client; -- Ну по моим рассчётам одна из сторон должна гарантированно быть.
+
+  if side then
+    return cb(side, module.mode);
   end
 end
 
@@ -36,12 +51,6 @@ function module.convert_vector(vec)
   local pos = { x = vec[1], y = vec[2], z = vec[3] };
 
   return pos;
-end
-
----@deprecated todo: вырезать этот ужас
-function module.get_shared_field(name)
-  local api = module.api;
-  return (api.server and api.server[name]) or (api.client and api.client[name])
 end
 
 ---@class not_utils.mp.api_template
