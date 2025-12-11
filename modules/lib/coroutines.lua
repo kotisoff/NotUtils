@@ -9,13 +9,13 @@ function module.create(func)
   return co
 end
 
----@class sleep_options
+---@class nu.coroutine.sleep_options
 ---@field time_function? fun(): number Seconds. Default: time.uptime.
 ---@field break_function? fun(temp_data: table, elapsed_seconds: number): boolean Breaks sleep if true.
 ---@field cycle_task? fun(temp_data: table, elapsed_seconds: number) Task to run every tick of sleep.
 
 ---@param time_seconds number Time in seconds.
----@param options? sleep_options
+---@param options? nu.coroutine.sleep_options
 ---@return boolean status Status of sleep. true if success, false if broken.
 function module.sleep(time_seconds, options)
   options = options or {};

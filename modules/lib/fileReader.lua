@@ -1,4 +1,4 @@
----@class not_utils.libs.FileReader_instance
+---@class nu.file_reader
 ---@field files str[]
 ---@field buffer table<str, any>
 local reader = {}

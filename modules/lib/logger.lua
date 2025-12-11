@@ -1,6 +1,6 @@
 local module = {}
 
----@enum not_utils.Logger.levels
+---@enum nu.Logger.levels
 local logLevels = {
   ---Silent
   S = "S",
@@ -14,14 +14,14 @@ local logLevels = {
 
 local Logger = {};
 
----@param logLevel not_utils.Logger.levels
+---@param logLevel nu.Logger.levels
 local function prefix(name, logLevel)
   local date = os.date("%Y/%m/%d %H:%M:%S%z    ");
   local log_prefix = string.format("[%s] %s %s ", logLevel, date, module.format_name(name));
   return log_prefix
 end
 
----@param logLevel not_utils.Logger.levels
+---@param logLevel nu.Logger.levels
 function Logger:log(logLevel, ...)
   table.insert(self.history, prefix(self.name, logLevel) .. table.concat({ ... }, " "));
 end
@@ -32,7 +32,7 @@ function Logger:print()
   self.history = {};
 end
 
----@param logLevel not_utils.Logger.levels
+---@param logLevel nu.Logger.levels
 function Logger:println(logLevel, ...)
   print(prefix(self.name, logLevel) .. table.concat({ ... }, " "))
 end
@@ -48,11 +48,11 @@ function module.new(name)
   if loggers[name] then
     return loggers[name]
   else
-    ---@class not_utils.Logger
-    ---@field log fun(self: not_utils.Logger, logLevel: not_utils.Logger.levels, ...)
-    ---@field print fun(self: not_utils.Logger)
-    ---@field println fun(self: not_utils.Logger, ...)
-    ---@field clear_history fun(self: not_utils.Logger)
+    ---@class nu.Logger
+    ---@field log fun(self: nu.Logger, logLevel: nu.Logger.levels, ...)
+    ---@field print fun(self: nu.Logger)
+    ---@field println fun(self: nu.Logger, logLevel: nu.Logger.levels, ...)
+    ---@field clear_history fun(self: nu.Logger)
     local logger = setmetatable({
         name = name, history = {}, levels = logLevels
       },

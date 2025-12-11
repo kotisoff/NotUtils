@@ -81,7 +81,7 @@ math = math
 ---@field remove_value fun(t: table, x: any) Удаляет элемент x из t.
 ---@field shuffle fun(t: table): table Перемешивает значения в таблице.
 ---@field merge fun(t1: table, t2: table): table Добавляет в таблицу t1 значения из таблицы t2. Если в таблице t2 присутствует ключ из t1, то значение ключа не будет изменено.
----@field map fun(t: table, func: (fun(index: str | number, value: any): any)): table Проходится по таблице и применяет ко всем её элементам func, которая возвращает новое значение элемента.
+---@field map fun(t: table, func: (fun(index: str | number, value: any): any)): table Проходится по таблице и применяет ко всем её элементам указанную функцию. Меняет исходную таблицу.
 ---@field filter fun(t: table, func: (fun(index: str | number, value: any): bool)): table Проходится по таблице с помощью func, которая возвращает true если элемент надо сохранить и false, если его надо удалить.
 ---@field set_default fun(t: table, key: number | str, default: any): any Позволяет безопасно получать значение по указанному ключу. Если ключ существует в таблице, метод вернет его значение. Если ключ отсутствует, метод установит его со значением default и вернет его.
 ---@field flat fun(t: table): table Возвращает "плоскую" версию исходной таблицы.
@@ -122,6 +122,13 @@ coroutine = coroutine
 
 ---@class voxelcore.os
 ---@field pid int Идентификатор процесса движка
+os = os
+
+-- ==========================bit============================
+
+---@class voxelcore.bit
+---@field compile fun(string: str): function
+bit = bit
 
 -- =========================debug===========================
 
@@ -1175,6 +1182,7 @@ assets = assets
 ---@field get_uid fun(self: voxelcore.class.entity): int Возращает уникальный идентификатор сущности
 ---@field get_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): component: table | nil Возвращает компонент по имени
 ---@field has_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): has_component: bool Проверяет наличие компонента по имени
+---@field require_component fun(self: voxelcore.class.entity, name: str): component: table
 ---@field set_enabled fun(self: voxelcore.class.entity, name: str, flag: bool) Включает/выключает компонент по имени
 ---@field get_player fun(self: voxelcore.class.entity): pid: int | nil Возвращает id игрока, к которому привязана сущность
 ---@field transform voxelcore.class.entity.transform Компонент отвечает за позицию, масштаб и вращение сущности.

@@ -2,12 +2,12 @@ local module = {};
 
 ---@alias eventlist "first_tick" | "world_tick" | "hud_open" | str
 
----@class nu.libs.event_provider
+---@class nu.event_provider
 ---@field pack_id str PACK ID
 ---@field on fun(event: eventlist, func: fun(...): any)
 ---@field emit fun(event: eventlist, ...: any): any
 
----@type nu.libs.event_provider[]
+---@type nu.event_provider[]
 local event_providers = {};
 
 local function format_event(packid, event)
@@ -28,7 +28,7 @@ local function on(packid, event, func)
 end
 
 ---@param packid str
----@return nu.libs.event_provider
+---@return nu.event_provider
 function module.new(packid)
   if not pack.is_installed(packid) then
     error(string.format('Pack "%s" not found', packid));

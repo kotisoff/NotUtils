@@ -1,17 +1,17 @@
 local Logger = require "lib/logger";
 local logger = Logger.new("not_utils");
 
----@param log_level not_utils.Logger.levels
+---@param log_level nu.Logger.levels
 local function log(log_level, ...)
   logger:println(log_level, Logger.format_name("item_tags"), ...);
 end
 
 local module = {};
 
----@alias not_utils.tags.registry.elements { items: table<str, int[]>, blocks: table<str, int[]> }
+---@alias nu.tags.registry.elements { items: table<str, int[]>, blocks: table<str, int[]> }
 
 local registry = {
-  ---@type not_utils.tags.registry.elements
+  ---@type nu.tags.registry.elements
   elements = {
     blocks = {},
     items = {},
@@ -178,7 +178,7 @@ function module.get_all_tags()
   return keys;
 end
 
----@return not_utils.tags.registry.elements
+---@return nu.tags.registry.elements
 function module.get_registry()
   return table.deep_copy(registry.elements);
 end

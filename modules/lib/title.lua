@@ -16,61 +16,60 @@ local function set_opacity(name, opacity)
   el.color = { r, g, b, opacity };
 end
 
+---@class nu.TitleComponent
+---@field name str
+---@field _shown bool
+---@field _break bool
+local TitleComponent = {}
+TitleComponent.__index = TitleComponent;
+
+---@param text string
+---@param duration number | nil
+---@param stop_function (fun(tempdata:any): boolean | nil) | nil
+function TitleComponent:show(text, duration, stop_function)
+  duration = duration or 5;
+  local stop = stop_function or function() return false end;
+
+  if self._shown then self._break = true end;
+
+  coroutines.create(function()
+    self._shown = true;
+
+    title.document[self.name .. "-root"].visible = true;
+    title.document[self.name].text = text;
+
+    set_opacity(self.name, 255);
+
+    coroutines.sleep(duration
+      {
+        break_function = function(data) return self._break or stop(data); end,
+        cycle_task = function(data, time)
+          if time > (duration - 1) then
+            local step = 255 / 20;
+
+            local opacity = data.opacity or 255;
+            opacity = opacity - step;
+
+            set_opacity(self.name, math.floor(opacity));
+            data.opacity = opacity;
+          end
+        end,
+        time_function = time.worldtime
+      }
+    )
+
+    set_opacity(self.name, 0);
+
+    self._shown = false;
+    self._break = false;
+
+    title.document[self.name .. "-root"].visible = false;
+  end)
+end
+
+---@return nu.TitleComponent
 local function new_title_component(name)
-  local component = {
-    name = name
-  }
-
-  local internal_state = {
-    _shown = false,
-    _break = false
-  };
-
-  ---@param text string
-  ---@param show_time number | nil
-  ---@param breakfunc (fun(tempdata:any): boolean) | nil True stops function.
-  component.show = function(text, show_time, breakfunc)
-    show_time = show_time or 5;
-    breakfunc = breakfunc or function(temp) return false end;
-
-    local state = internal_state;
-
-    if state._shown then state._break = true end;
-
-    coroutines.create(function()
-      state._shown = true;
-
-      title.document[name .. "-root"].visible = true;
-      title.document[name].text = text;
-      set_opacity(name, 255);
-
-      coroutines.sleep(
-        show_time,
-        {
-          break_function = function(data) return component.break_show or breakfunc(data); end,
-          cycle_task = function(data, time)
-            if time > (show_time - 1) then
-              local step = 255 / 20;
-
-              local opacity = data.opacity or 255;
-              opacity = opacity - step;
-
-              set_opacity(name, math.floor(opacity));
-              data.opacity = opacity;
-            end
-          end,
-          time_function = time.worldtime
-        }
-      )
-
-      set_opacity(name, 0);
-
-      component.is_shown = false;
-      component.break_show = false;
-
-      title.document[name .. "-root"].visible = false;
-    end)
-  end
+  local component = setmetatable({ name = name, _shown = false, _break = false }, TitleComponent);
 
   return component
 end
