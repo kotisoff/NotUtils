@@ -1,4 +1,5 @@
 {
+  "Lua.runtime.version": "LuaJIT",
   "Lua.diagnostics.globals": [
     "events",
     "document",
@@ -28,10 +29,9 @@
     "time",
     "generation",
     "Document",
-    "gui"
+    "gui",
+    "toml"
   ],
-  "Lua.diagnostics.disable": [
-    "lowercase-global"
-  ],
+  "Lua.diagnostics.disable": ["lowercase-global"],
   "Lua.runtime.unicodeName": true
 }
