@@ -52,7 +52,7 @@
 
 ---@class neutron.server.accounts.roles
 ---@field get fun(account: neutron.class.account): table Возвращает конфиг роли по аккаунту
----@field get_rules fun(account: neutron.class.account, category: boolean): table Возвращает таблицу правил роли по аккаунту. Category - категория тех правил, которые надо вернуть (false -> game_rules / true -> server_rules)
+---@field get_rules fun(account: neutron.class.account, category: boolean | string): table Возвращает таблицу правил роли по аккаунту. Category - категория тех правил, которые надо вернуть (false -> game_rules / true -> server_rules). Или можно строчкой прописать нужную category
 ---@field is_higher fun(role1: table, role2: table): boolean Возвращает true если первая роль имеет больший приоритет, чем вторая
 ---@field exists fun(role: table): boolean Возвращает true если роль существует
 
