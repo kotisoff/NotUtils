@@ -144,10 +144,10 @@
 -- Server.env
 
 ---@class neutron.server.env.public
----@field create fun(pack: str, name: str): neutron.utils.proxy_table Создаёт прокси-таблицу, доступ к которой имеют все клиенты. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
+---@field create fun(pack: str, env_name: str): neutron.utils.proxy_table Создаёт прокси-таблицу, доступ к которой имеют все клиенты. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
 
 ---@class neutron.server.env.private
----@field create fun(pack: str, name: str, client: neutron.class.client): neutron.utils.proxy_table Создаёт прокси таблицу, доступ к которой есть только у одного клиента. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
+---@field create fun(pack: str, env_name: str, client: neutron.class.client): neutron.utils.proxy_table Создаёт прокси таблицу, доступ к которой есть только у одного клиента. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
 
 ---@class neutron.server.env
 ---@field public neutron.server.env.public
