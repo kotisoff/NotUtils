@@ -160,6 +160,28 @@
 ---@field echo fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack всем подключённым клиентам.
 ---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
 
+-- Server.interceptors
+
+---@alias neutron.alias.interceptor_fun fun(client: neutron.class.client, original_packet: table, edited_packet: table): boolean|nil
+
+---@class neutron.server.interceptors.packets
+---@field ServerMsg table Пакеты, отправляемые сервером
+---@field ClientMsg table Пакеты, отправляемые клиентом
+
+---@class neutron.server.interceptors.receive
+---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
+---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
+
+---@class neutron.server.interceptors.send
+---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
+---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
+
+---@class neutron.server.middlewares
+---@field packets neutron.server.interceptors.packets
+---@field receive neutron.server.interceptors.receive
+---@field send neutron.server.interceptors.send
+
+
 -- Server.protocol
 
 ---@class neutron.server.protocol
