@@ -4,7 +4,7 @@ local mp = _mp.api.server
 local cl = _mp.api.client
 
 
-local pack_id = "not_utils"
+local pack_id = require "constants".pack_id;
 local packets = {
   title = tohex(1)
 }
@@ -42,12 +42,12 @@ if _mp.mode ~= "client" then
     end)
 end
 if _mp.mode ~= "server" then
-    cl.events.on(pack_id, packets.title, function(bytes)
-      ---@type ["title"|"actionbar"|"subtitle", str]
-      local args = cl.bson.deserialize(bytes)
-      local mode, text = unpack(args)
+  cl.events.on(pack_id, packets.title, function(bytes)
+    ---@type ["title"|"actionbar"|"subtitle", str]
+    local args = cl.bson.deserialize(bytes)
+    local mode, text = unpack(args)
 
-      local module = title[mode]
-      module:show(text)
-    end)
+    local module = title[mode]
+    module:show(text)
+  end)
 end

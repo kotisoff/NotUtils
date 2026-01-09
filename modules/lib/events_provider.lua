@@ -42,13 +42,13 @@ function module.new(packid)
 
       ---@param event eventlist
       emit = function(event, ...)
-        emit(packid, event, ...);
+        return emit(packid, event, ...);
       end,
 
       ---@param event eventlist
       ---@param func fun(...): any
       on = function(event, func)
-        on(packid, event, func)
+        return on(packid, event, func)
       end
     }
 
