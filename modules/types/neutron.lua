@@ -194,6 +194,9 @@
 ---@field create_tell fun(pack: string, event: string): fun(client: neutron.class.client, ...) Возвращает функцию, которая принимает клиент, которому надо отправить ивент и неограниченное кол-во аргументов. Полученные аргументы сериализуются с помощью проприетарного bson и отправляются клиенту
 ---@field create_echo fun(pack: string, event: string): fun(...) Идентичен rpc.create_tell, за исключением того, что возвращаемая функция не принимает client и отправляет ивент всем клиентам
 
+---@class neutron.server.rpc.handler
+---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bson: neutron.shared.bson))
+
 ---@class neutron.server.rpc
 ---@field emitter neutron.server.rpc.emitter
 
