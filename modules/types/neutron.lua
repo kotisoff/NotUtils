@@ -16,13 +16,13 @@
 
 ---@class neutron.class.account
 ---@field identity string Идентити аккаунта
----@field username string Имя аккаунта
 ---@field active boolean Статус активности аккаунта (false - вне сети)
 ---@field is_logged boolean Статус авторизации аккаунта
 ---@field role string Название роли аккаунта
 
 ---@class neutron.class.player
----@field username string Имя игрока (идентично имени аккаунта)
+---@field username string Имя игрока
+---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
 ---@field pid number PlayerID игрока
 ---@field region_pos { x: number, z: number } Позиция региона 2x2 чанка, в котором находится игрок
