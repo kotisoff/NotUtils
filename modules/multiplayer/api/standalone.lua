@@ -1,6 +1,5 @@
 -- ========================requires===========================
 local custom_console = require "multiplayer/chat/console"
-local nu_events      = require "nu_events"
 
 -- ========================module===========================
 
@@ -33,8 +32,15 @@ end
 
 ---@return neutron.class.account
 local function get_account()
+  local name = "Player";
+
+  if hud then
+    local pid = hud.get_player();
+    name = player.get_name(pid) or name;
+  end
+
   return {
-    username = "Player",
+    username = name,
     active = true,
     is_logged = true,
     role = "member"
@@ -55,7 +61,7 @@ local function get_player()
   end
 
   return {
-    username = "Player",
+    username = name,
     active = true,
     pid = pid,
     region_pos = region_pos
@@ -206,8 +212,14 @@ function module.load()
         end)
       end
     },
-    ---@diagnostic disable-next-line: assign-type-mismatch
-    middlewares = nil,
+    interceptors = {
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      receive = nil,
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      send = nil,
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      packets = nil
+    },
     ---@diagnostic disable-next-line: assign-type-mismatch
     protocol = nil,
     rpc = {
@@ -221,6 +233,14 @@ function module.load()
           return function(client, ...)
             events.emit(pack .. ':s:' .. event, ...)
           end
+        end
+      },
+
+      handler = {
+        on = function(pack, event, handler)
+          events.on(pack .. ':s:' .. event, function(...)
+            handler(get_client(), ...)
+          end)
         end
       }
     },
@@ -248,7 +268,7 @@ function module.load()
           return { [player.username] = player }
         end,
         get_in_radius = function(pos, radius)
-          local len = vec3.length({ pos.x, pos.y, pos.z })
+          local len = vec3.length(pos)
           if len <= radius then
             local player = get_player()
             return { [player.username] = player }
@@ -265,14 +285,14 @@ function module.load()
         end,
         sync_states = function(_player, states)
           if states.pos then
-            local pos = states.pos
+            local pos = states.pos --[[@as vec3]]
             ---@diagnostic disable-next-line: need-check-nil
-            player.set_pos(_player.pid, pos.x, pos.y, pos.z)
+            player.set_pos(_player.pid, unpack(pos))
           end
           if states.rot then
-            local rot = states.rot
+            local rot = states.rot --[[@as vec3]]
             ---@diagnostic disable-next-line: need-check-nil
-            player.set_rot(_player.pid, rot.yaw, rot.pitch, 0)
+            player.set_rot(_player.pid, unpack(rot))
           end
           if states.cheats then
             local noclip, flight = states.cheats.noclip, states.cheats.flight
@@ -409,6 +429,13 @@ function module.load()
           return function(...)
             events.emit(pack .. ':c:' .. event, ...)
           end
+        end
+      },
+      handler = {
+        on = function(pack, event, handler)
+          events.on(pack .. ':c:' .. event, function(...)
+            handler(...)
+          end)
         end
       }
     },

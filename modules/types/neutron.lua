@@ -170,7 +170,7 @@
 ---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean | nil Добавляет interceptor. packet_type (string) — тип пакета (ServerMsg или ClientMsg). interceptor (function) — функция-обработчик.
 ---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil Добавляет interceptor. interceptor (function) — функция-обработчик.
 
----@class neutron.server.middlewares
+---@class neutron.server.interceptors
 ---@field packets neutron.server.interceptors.packets
 ---@field receive neutron.server.interceptors.universal
 ---@field send neutron.server.interceptors.universal
@@ -447,7 +447,7 @@
 ---@field entities neutron.server.entities
 ---@field env neutron.server.env
 ---@field events neutron.server.events
----@field middlewares neutron.server.middlewares
+---@field interceptors neutron.server.interceptors
 ---@field protocol neutron.server.protocol
 ---@field rpc neutron.server.rpc
 ---@field tasks neutron.server.tasks
