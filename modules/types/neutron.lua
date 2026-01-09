@@ -198,11 +198,11 @@
 -- Server.sandbox
 
 ---@class neutron.server.sandbox.players
----@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - ники игроков, а значения - их объект Player
+---@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - идентити игроков, а значения - их объект Player
 ---@field get_in_radius fun(pos: {x:number, y:number,z:number}, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
----@field get_by_pid fun(pid): neutron.class.player | nil Возвращает объект игрока по pid
----@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { yaw: number, pitch: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
+---@field get_by_pid fun(pid: number): neutron.class.player | nil Возвращает объект игрока по pid
+---@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { x: number, y: number, z: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
 ---@class neutron.server.sandbox.blocks
 ---@field sync_inventory fun(pos: neutron.util.pos, client: neutron.class.client) Синхронизирует инвентарь.
