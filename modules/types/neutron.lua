@@ -25,7 +25,7 @@
 ---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
 ---@field pid number PlayerID игрока
----@field region_pos vec2 Позиция региона 2x2 чанка, в котором находится игрок
+---@field region_pos { x: int, z: int } Позиция региона 2x2 чанка, в котором находится игрок
 
 ---@class neutron.class.client
 ---@field active boolean Статус активности клиента (false - вне сети)
