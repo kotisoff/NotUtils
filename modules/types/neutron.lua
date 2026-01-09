@@ -25,7 +25,7 @@
 ---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
 ---@field pid number PlayerID игрока
----@field region_pos { x: number, z: number } Позиция региона 2x2 чанка, в котором находится игрок
+---@field region_pos vec2 Позиция региона 2x2 чанка, в котором находится игрок
 
 ---@class neutron.class.client
 ---@field active boolean Статус активности клиента (false - вне сети)
@@ -43,8 +43,6 @@
 ---@class neutron.shared.inventory_data
 ---@field serialize fun(inv: neutron.class.inventory): bytearray Возвращает inv в виде байт
 ---@field deserialize fun(bytes: bytearray): neutron.class.inventory Читает инвентарь из массива байт
-
----@alias neutron.util.pos { x: int, y: int, z: int }
 
 -- ========================server===========================
 
@@ -208,14 +206,14 @@
 
 ---@class neutron.server.sandbox.players
 ---@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - идентити игроков, а значения - их объект Player
----@field get_in_radius fun(pos: {x:number, y:number,z:number}, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
+---@field get_in_radius fun(pos: vec3, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
----@field get_by_pid fun(pid: number): neutron.class.player | nil Возвращает объект игрока по pid
----@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { x: number, y: number, z: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
+---@field get_by_pid fun(pid: int): neutron.class.player | nil Возвращает объект игрока по pid
+---@field sync_states fun(player: neutron.class.player, states: {pos?: vec3, rot?: vec3, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
 ---@class neutron.server.sandbox.blocks
----@field sync_inventory fun(pos: neutron.util.pos, client: neutron.class.client) Синхронизирует инвентарь.
----@field sync_slot fun(pos: neutron.util.pos, slot: neutron.sandbox.blocks.slot, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
+---@field sync_inventory fun(pos: vec3, client: neutron.class.client) Синхронизирует инвентарь.
+---@field sync_slot fun(pos: vec3, slot: neutron.sandbox.blocks.slot, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
 
 ---@class neutron.server.sandbox
 ---@field players neutron.server.sandbox.players
@@ -426,8 +424,8 @@
 -- Client.sandbox
 
 ---@class neutron.client.sandbox.blocks
----@field sync_inventory fun(pos: neutron.util.pos) Синхронизирует инвентарь.
----@field sync_slot fun(pos: neutron.util.pos, slot: neutron.sandbox.blocks.slot) Синхронизирует определённый слот инвентаря.
+---@field sync_inventory fun(pos: vec3) Синхронизирует инвентарь.
+---@field sync_slot fun(pos: vec3, slot: neutron.sandbox.blocks.slot) Синхронизирует определённый слот инвентаря.
 
 ---@class neutron.client.sandbox
 ---@field blocks neutron.client.sandbox.blocks
