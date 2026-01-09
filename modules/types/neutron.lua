@@ -160,22 +160,6 @@
 ---@field echo fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack всем подключённым клиентам.
 ---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
 
--- Server.middlewares
-
----@alias neutron.alias.middleware_fun fun(packet: table, client: neutron.class.client): boolean|nil
-
----@class neutron.server.middlewares.packets
----@field ServerMsg table Пакеты, отправляемые сервером
----@field ClientMsg table Пакеты, отправляемые клиентом
-
----@class neutron.server.middlewars.receive
----@field add_middleware fun(packet_type: string, middleware: neutron.alias.middleware_fun): boolean | nil Добавление middleware
----@field add_general_middleware fun(middleware: neutron.alias.middleware_fun): boolean | nil Добавление общего обработчика для всех пакетов
-
----@class neutron.server.middlewares
----@field packets neutron.server.middlewares.packets
----@field receive neutron.server.middlewars.receive
-
 -- Server.protocol
 
 ---@class neutron.server.protocol
