@@ -158,7 +158,7 @@
 ---@class neutron.server.events
 ---@field tell fun(pack: string, event: string, client: neutron.class.client, bytes: bytearray) Отправляет событие event с данными bytes моду pack на сторону указанного клиента client.
 ---@field echo fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack всем подключённым клиентам.
----@field on fun(pack: string, event: string, func: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
+---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
 
 -- Server.middlewares
 
