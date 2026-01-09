@@ -416,8 +416,12 @@
 ---@class neutron.client.rpc.emitter
 ---@field create_send fun(pack: string, event: string): fun(...) Возвращает функцию, которая принимает неограниченное кол-во аргументов. Полученные аргументы сериализуются с помощью проприетарного bson и отправляются серверному моду pack в ивент event
 
+---@class neutron.client.rpc.handler
+---@field on fun(pack: string, event: string, handler: fun(bson: neutron.shared.bson))
+
 ---@class neutron.client.rpc
 ---@field emitter neutron.client.rpc.emitter
+---@field handler neutron.client.rpc.handler
 
 -- Client.sandbox
 
