@@ -1,6 +1,6 @@
 --[[
   Neutron/Quartz Lua Types
-  Neutron version: v1.0.0 / Quartz version: v0.1.5
+  Neutron version: v1.2.0 / Quartz version: v0.1.5
   Version: v0.0.4
   ]]
 
