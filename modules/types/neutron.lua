@@ -15,6 +15,7 @@
 -- ========================classes==========================
 
 ---@class neutron.class.account
+---@field identity string Идентити аккаунта
 ---@field username string Имя аккаунта
 ---@field active boolean Статус активности аккаунта (false - вне сети)
 ---@field is_logged boolean Статус авторизации аккаунта
