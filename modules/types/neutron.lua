@@ -1,6 +1,6 @@
 --[[
   Neutron/Quartz Lua Types
-  Neutron version: v1.0.0 / Quartz version: v0.1.5
+  Neutron version: v1.2.0 / Quartz version: v0.1.5
   Version: v0.0.4
   ]]
 
@@ -15,13 +15,14 @@
 -- ========================classes==========================
 
 ---@class neutron.class.account
----@field username string Имя аккаунта
+---@field identity string Идентити аккаунта
 ---@field active boolean Статус активности аккаунта (false - вне сети)
 ---@field is_logged boolean Статус авторизации аккаунта
 ---@field role string Название роли аккаунта
 
 ---@class neutron.class.player
----@field username string Имя игрока (идентично имени аккаунта)
+---@field username string Имя игрока
+---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
 ---@field pid number PlayerID игрока
 ---@field region_pos { x: number, z: number } Позиция региона 2x2 чанка, в котором находится игрок
@@ -51,14 +52,16 @@
 
 ---@class neutron.server.accounts.roles
 ---@field get fun(account: neutron.class.account): table Возвращает конфиг роли по аккаунту
----@field get_rules fun(account: neutron.class.account, category: boolean): table Возвращает таблицу правил роли по аккаунту. Category - категория тех правил, которые надо вернуть (false -> game_rules / true -> server_rules)
+---@field get_rules fun(account: neutron.class.account, category: boolean | string): table Возвращает таблицу правил роли по аккаунту. Category - категория тех правил, которые надо вернуть (false -> game_rules / true -> server_rules). Или можно строчкой прописать нужную category
 ---@field is_higher fun(role1: table, role2: table): boolean Возвращает true если первая роль имеет больший приоритет, чем вторая
 ---@field exists fun(role: table): boolean Возвращает true если роль существует
 
+---@class neutron.server.accounts.by_identity
+---@field get_account fun(identity: string): neutron.class.account Возвращает account игрока по identity
+---@field get_client fun(identity: string): neutron.class.client Возвращает client игрока по identity
+
 ---@class neutron.server.accounts
----@field get_account_by_name fun(username: string): neutron.class.account Возвращает класс типа Account игрока с ником username
 ---@field get_client fun(account: neutron.class.account): neutron.class.client Возвращает класс типа Client игрока с аккаунтом account.
----@field get_client_by_name fun(username: string): neutron.class.client Возвращает класс типа Client игрока с ником username
 ---@field kick fun(account: neutron.class.account, reason?: string, soft?: boolean) Кикает аккаунт account с сервера с причиной reason. Если **soft** равен **true**, то кик произойдёт не сразу, а после обработки пакетов, что обеспечит гарантированную отправку сообщения с причиной ошибки.
 ---@field roles neutron.server.accounts.roles
 
@@ -141,10 +144,10 @@
 -- Server.env
 
 ---@class neutron.server.env.public
----@field create fun(pack: str, name: str): neutron.utils.proxy_table Создаёт прокси-таблицу, доступ к которой имеют все клиенты. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
+---@field create fun(pack: str, env_name: str): neutron.utils.proxy_table Создаёт прокси-таблицу, доступ к которой имеют все клиенты. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
 
 ---@class neutron.server.env.private
----@field create fun(pack: str, name: str, client: neutron.class.client): neutron.utils.proxy_table Создаёт прокси таблицу, доступ к которой есть только у одного клиента. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
+---@field create fun(pack: str, env_name: str, client: neutron.class.client): neutron.utils.proxy_table Создаёт прокси таблицу, доступ к которой есть только у одного клиента. Может хранить только пары ключ-значение. Значение может быть только типами string, number, nil или bool
 
 ---@class neutron.server.env
 ---@field public neutron.server.env.public
@@ -155,23 +158,29 @@
 ---@class neutron.server.events
 ---@field tell fun(pack: string, event: string, client: neutron.class.client, bytes: bytearray) Отправляет событие event с данными bytes моду pack на сторону указанного клиента client.
 ---@field echo fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack всем подключённым клиентам.
----@field on fun(pack: string, event: string, func: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
+---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
 
--- Server.middlewares
+-- Server.interceptors
 
----@alias neutron.alias.middleware_fun fun(packet: table, client: neutron.class.client): boolean|nil
+---@alias neutron.alias.interceptor_fun fun(client: neutron.class.client, original_packet: table, edited_packet: table): boolean|nil
 
----@class neutron.server.middlewares.packets
+---@class neutron.server.interceptors.packets
 ---@field ServerMsg table Пакеты, отправляемые сервером
 ---@field ClientMsg table Пакеты, отправляемые клиентом
 
----@class neutron.server.middlewars.receive
----@field add_middleware fun(packet_type: string, middleware: neutron.alias.middleware_fun): boolean | nil Добавление middleware
----@field add_general_middleware fun(middleware: neutron.alias.middleware_fun): boolean | nil Добавление общего обработчика для всех пакетов
+---@class neutron.server.interceptors.receive
+---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
+---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
+
+---@class neutron.server.interceptors.send
+---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
+---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
 
 ---@class neutron.server.middlewares
----@field packets neutron.server.middlewares.packets
----@field receive neutron.server.middlewars.receive
+---@field packets neutron.server.interceptors.packets
+---@field receive neutron.server.interceptors.receive
+---@field send neutron.server.interceptors.send
+
 
 -- Server.protocol
 
@@ -185,6 +194,9 @@
 ---@field create_tell fun(pack: string, event: string): fun(client: neutron.class.client, ...) Возвращает функцию, которая принимает клиент, которому надо отправить ивент и неограниченное кол-во аргументов. Полученные аргументы сериализуются с помощью проприетарного bson и отправляются клиенту
 ---@field create_echo fun(pack: string, event: string): fun(...) Идентичен rpc.create_tell, за исключением того, что возвращаемая функция не принимает client и отправляет ивент всем клиентам
 
+---@class neutron.server.rpc.handler
+---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bson: neutron.shared.bson))
+
 ---@class neutron.server.rpc
 ---@field emitter neutron.server.rpc.emitter
 
@@ -195,11 +207,11 @@
 -- Server.sandbox
 
 ---@class neutron.server.sandbox.players
----@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - ники игроков, а значения - их объект Player
+---@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - идентити игроков, а значения - их объект Player
 ---@field get_in_radius fun(pos: {x:number, y:number,z:number}, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
----@field get_by_pid fun(pid): neutron.class.player | nil Возвращает объект игрока по pid
----@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { yaw: number, pitch: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
+---@field get_by_pid fun(pid: number): neutron.class.player | nil Возвращает объект игрока по pid
+---@field sync_states fun(player: neutron.class.player, states: {pos?: {x:number, y: number, z: number}, rot?: { x: number, y: number, z: number }, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
 ---@class neutron.server.sandbox.blocks
 ---@field sync_inventory fun(pos: neutron.util.pos, client: neutron.class.client) Синхронизирует инвентарь.
@@ -404,8 +416,12 @@
 ---@class neutron.client.rpc.emitter
 ---@field create_send fun(pack: string, event: string): fun(...) Возвращает функцию, которая принимает неограниченное кол-во аргументов. Полученные аргументы сериализуются с помощью проприетарного bson и отправляются серверному моду pack в ивент event
 
+---@class neutron.client.rpc.handler
+---@field on fun(pack: string, event: string, handler: fun(bson: neutron.shared.bson))
+
 ---@class neutron.client.rpc
 ---@field emitter neutron.client.rpc.emitter
+---@field handler neutron.client.rpc.handler
 
 -- Client.sandbox
 
