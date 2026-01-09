@@ -160,24 +160,20 @@
 
 -- Server.interceptors
 
----@alias neutron.alias.interceptor_fun fun(client: neutron.class.client, original_packet: table, edited_packet: table): boolean|nil
+---@alias neutron.alias.interceptor_fun fun(client: neutron.class.client, original_packet: table, edited_packet: table): boolean|nil client — Client, источник/получатель пакета; original_packet — оригинальные данные пакета; edited_packet — данные, изменённые предыдущими обработчиками; именно они будут переданы дальше при успешном прохождении всех interceptor
 
 ---@class neutron.server.interceptors.packets
 ---@field ServerMsg table Пакеты, отправляемые сервером
 ---@field ClientMsg table Пакеты, отправляемые клиентом
 
----@class neutron.server.interceptors.receive
----@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
----@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
-
----@class neutron.server.interceptors.send
----@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean |nil
----@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil
+---@class neutron.server.interceptors.universal
+---@field add_interceptor fun(packet_type: string, inrerceptor: neutron.alias.interceptor_fun): boolean | nil Добавляет interceptor. packet_type (string) — тип пакета (ServerMsg или ClientMsg). interceptor (function) — функция-обработчик.
+---@field add_generic_interceptor fun(inrerceptor: neutron.alias.interceptor_fun): boolean | nil Добавляет interceptor. interceptor (function) — функция-обработчик.
 
 ---@class neutron.server.middlewares
 ---@field packets neutron.server.interceptors.packets
----@field receive neutron.server.interceptors.receive
----@field send neutron.server.interceptors.send
+---@field receive neutron.server.interceptors.universal
+---@field send neutron.server.interceptors.universal
 
 
 -- Server.protocol
@@ -193,10 +189,11 @@
 ---@field create_echo fun(pack: string, event: string): fun(...) Идентичен rpc.create_tell, за исключением того, что возвращаемая функция не принимает client и отправляет ивент всем клиентам
 
 ---@class neutron.server.rpc.handler
----@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bson: neutron.shared.bson))
+---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, ...)) Регистрирует обработчик на ивент пака, в отличии от events.on, в обработчик поступает десериализованный bson из полученных байт
 
 ---@class neutron.server.rpc
 ---@field emitter neutron.server.rpc.emitter
+---@field handler neutron.server.rpc.handler
 
 -- Server.tasks
 ---@class neutron.server.tasks
@@ -415,7 +412,7 @@
 ---@field create_send fun(pack: string, event: string): fun(...) Возвращает функцию, которая принимает неограниченное кол-во аргументов. Полученные аргументы сериализуются с помощью проприетарного bson и отправляются серверному моду pack в ивент event
 
 ---@class neutron.client.rpc.handler
----@field on fun(pack: string, event: string, handler: fun(bson: neutron.shared.bson))
+---@field on fun(pack: string, event: string, handler: fun(...)) Регистрирует обработчик на ивент пака, в отличии от events.on, в обработчик поступает десериализованный bson из полученных байт
 
 ---@class neutron.client.rpc
 ---@field emitter neutron.client.rpc.emitter
