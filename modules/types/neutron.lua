@@ -56,10 +56,12 @@
 ---@field is_higher fun(role1: table, role2: table): boolean Возвращает true если первая роль имеет больший приоритет, чем вторая
 ---@field exists fun(role: table): boolean Возвращает true если роль существует
 
+---@class neutron.server.accounts.by_identity
+---@field get_account fun(identity: string): neutron.class.account Возвращает account игрока по identity
+---@field get_client fun(identity: string): neutron.class.client Возвращает client игрока по identity
+
 ---@class neutron.server.accounts
----@field get_account_by_name fun(username: string): neutron.class.account Возвращает класс типа Account игрока с ником username
 ---@field get_client fun(account: neutron.class.account): neutron.class.client Возвращает класс типа Client игрока с аккаунтом account.
----@field get_client_by_name fun(username: string): neutron.class.client Возвращает класс типа Client игрока с ником username
 ---@field kick fun(account: neutron.class.account, reason?: string, soft?: boolean) Кикает аккаунт account с сервера с причиной reason. Если **soft** равен **true**, то кик произойдёт не сразу, а после обработки пакетов, что обеспечит гарантированную отправку сообщения с причиной ошибки.
 ---@field roles neutron.server.accounts.roles
 
