@@ -1059,6 +1059,13 @@ events = events
 
 -- =========================audio===========================
 
+---@alias voxelcore.libaudio.channel
+---| 'master' Канал звуков всего движка. Управляет громкостью всех остальных каналов.
+---| 'ui' Канал звуков интерфейса.
+---| 'regular' Канал звуков мира. (блоки, игрок и т.п.)
+---| 'ambient' Канал фоновых звуков мира. (погода и т.п.)
+---| 'music' Канал музыки.
+
 ---@class voxelcore.class.PCMStream
 ---@field feed fun(self: voxelcore.class.PCMStream, data: bytearray) Подача PCM данных в поток
 ---@field share fun(self: voxelcore.class.PCMStream, alias: str) Публикация источника PCM данных для использования системами движка
@@ -1072,10 +1079,10 @@ events = events
 ---@class voxelcore.libaudio
 ---@field input voxelcore.libaudio.input
 ---@field PCMStream fun(sample_rate: int, channels: int, bits_per_sample: int): voxelcore.class.PCMStream Создать источник (или stream) PCM данных
----@field play_stream fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит потоковое аудио из указанного файла, на указанной позиции в мире. Возвращает id спикера.
----@field play_sound fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит потоковое аудио из указанного файла. Возвращает id спикера.
----@field play_stream_2d fun(name: str, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит звук на указанной позиции в мире. Возвращает id спикера.
----@field play_sound_2d fun(name: str, volume: number, pitch: number, channel?: str, loop?: bool): int Воспроизводит звук. Возвращает id спикера.
+---@field play_stream fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: voxelcore.libaudio.channel, loop?: bool): int Воспроизводит потоковое аудио из указанного файла, на указанной позиции в мире. Возвращает id спикера.
+---@field play_sound fun(name: str, x: number, y: number, z: number, volume: number, pitch: number, channel?: voxelcore.libaudio.channel, loop?: bool): int Воспроизводит потоковое аудио из указанного файла. Возвращает id спикера.
+---@field play_stream_2d fun(name: str, volume: number, pitch: number, channel?: voxelcore.libaudio.channel, loop?: bool): int Воспроизводит звук на указанной позиции в мире. Возвращает id спикера.
+---@field play_sound_2d fun(name: str, volume: number, pitch: number, channel?: voxelcore.libaudio.channel, loop?: bool): int Воспроизводит звук. Возвращает id спикера.
 ---@field stop fun(speakerid: int) Остановить воспроизведение спикера
 ---@field pause fun(speakerid: int) Поставить спикер на паузу
 ---@field resume fun(speakerid: int) Снять спикер с паузы
