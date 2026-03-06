@@ -8,16 +8,17 @@ local chat_controller = require "multiplayer/chat/chat"
 console.add_command(
     "chat message:str",
     "Send message",
-    function (args)
+    function(args)
         chat_controller.command(args[1], mp.accounts.get_client_by_name(""))
-    end
+    end,
+    false
 )
-console.submit = function (command)
+console.submit = function(command)
     local name, _ = command:match("^(%S+)%s*(.*)$")
 
     if name == "chat" then
         console.execute(command)
     else
-        console.execute("chat '/"..command.."'")
+        console.execute("chat '/" .. command .. "'")
     end
 end
