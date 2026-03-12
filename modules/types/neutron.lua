@@ -59,6 +59,7 @@
 ---@field get_client fun(identity: string): neutron.class.client Возвращает client игрока по identity
 
 ---@class neutron.server.accounts
+---@field by_identity neutron.server.accounts.by_identity Получаем игрока по identity
 ---@field get_client fun(account: neutron.class.account): neutron.class.client Возвращает класс типа Client игрока с аккаунтом account.
 ---@field kick fun(account: neutron.class.account, reason?: string, soft?: boolean) Кикает аккаунт account с сервера с причиной reason. Если **soft** равен **true**, то кик произойдёт не сразу, а после обработки пакетов, что обеспечит гарантированную отправку сообщения с причиной ошибки.
 ---@field roles neutron.server.accounts.roles

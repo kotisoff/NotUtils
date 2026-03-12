@@ -139,6 +139,14 @@ function module.load()
   ---@type neutron.server
   api.server = {
     accounts = {
+      by_identity = {
+        get_account = function (identity)
+          return get_account()
+        end,
+        get_client = function (identity)
+          return get_client()
+        end
+      },
       get_account_by_name = function(name)
         return get_account()
       end,
