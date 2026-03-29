@@ -6,8 +6,8 @@
 
 --[[
     VoxelCore Lua Types (WIP)
-    Engine version: 0.30.x
-    Version: v0.0.7
+    Engine version: 0.31.x
+    Version: v0.0.8
     ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -215,6 +215,7 @@ core = core
 ---@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
 ---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
+---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
 ---@field script str
 app = app
 
@@ -302,7 +303,7 @@ Bytearray = Bytearray
 ---@field is_replaceable_at fun(x: int, y: int, z: int): bool Проверяет, можно ли на заданных координатах поставить блок (примеры: воздух, трава, цветы, вода)
 ---@field defs_count fun(): int Возвращает количество id доступных в загруженном контенте блоков
 ---@field get_picking_item fun(id: int): int Возвращает числовой id предмета, указанного в свойстве *picking-item*.
----@field raycast fun(start: vec3, dir: vec3, max_distance: number, dest?: str[], filter?: str[]): voxelcore.libblock.raycast_result | nil Бросает луч из точки start в направлении dir. Max_distance указывает максимальную длину луча. Аргумент filter позволяет указать какие блоки являются "прозрачными" для луча, прим.: {"base:glass","base:water"}. Для использования агрумент dest нужно чем-то заполнить (можно nil), это сделано для обратной совместимости. Функция возвращает таблицу с результатами или nil, если луч не касается блока. Для результата будет использоваться целевая (dest) таблица вместо создания новой, если указан опциональный аргумент.
+---@field raycast fun(start: vec3, dir: vec3, max_distance: number, dest?: str[], filter?: str[], include_non_selectable?: bool): voxelcore.libblock.raycast_result | nil Бросает луч из точки start в направлении dir. Max_distance указывает максимальную длину луча. Аргумент filter позволяет указать какие блоки являются "прозрачными" для луча, прим.: {"base:glass","base:water"}. Для использования агрумент dest нужно чем-то заполнить (можно nil), это сделано для обратной совместимости. Функция возвращает таблицу с результатами или nil, если луч не касается блока. Аргумент `include_non_selectable` определяет, будут ли учтены блоки, которые нельзя выбрать курсором. Для результата будет использоваться целевая (dest) таблица вместо создания новой, если указан опциональный аргумент.
 ---@field get_X fun(x: int, y: int, z: int): int, int, int Возвращает целочисленный единичный вектор X блока на указанных координатах с учётом его вращения (три целых числа). Если поворот отсутствует, возвращает 1, 0, 0
 ---@field get_X fun(id: int, rotation: int): int, int, int Возвращает целочисленный единичный вектор X блока на указанных координатах с учётом его вращения (три целых числа). Если поворот отсутствует, возвращает 1, 0, 0
 ---@field get_Y fun(x: int, y: int, z: int): int, int, int Возвращает целочисленный единичный вектор Y блока на указанных координатах с учётом его вращения (три целых числа). Если поворот отсутствует, возвращает 0, 1, 0
@@ -319,9 +320,9 @@ Bytearray = Bytearray
 ---@field get_user_bits fun(x: int, y: int, z: int, offset: int, bits: int): int Возвращает выбранное число бит с указанного смещения в виде целого беззнакового числа
 ---@field set_user_bits fun(x: int, y: int, z: int, offset: int, bits: int, value: int) Записывает указанное число бит значения value в user bits по выбранному смещению
 ---@field get_hitbox fun(id: int, rotation_index: int): [vec3, vec3] Возвращает массив из двух векторов (массивов из 3 чисел): 1. Минимальная точка хитбокса 2. Размер хитбокса 3. Индекс поворота блока
----@field get_model fun(id: int): str Возвращает тип модели блока (block/aabb/custom/...)
----@field model_name fun(id: int): str Возвращает имя модели блока
----@field get_textures fun(id: int): [str, str, str, str, str, str] Возвращает массив из 6 текстур, назначенных на стороны блока
+---@field get_model fun(id: int, variant_index?: int): str Возвращает тип модели блока (block/aabb/custom/...)
+---@field model_name fun(id: int, variant_index?: int): str Возвращает имя модели блока
+---@field get_textures fun(id: int, variant_index?: int): [str, str, str, str, str, str] Возвращает массив из 6 текстур, назначенных на стороны блока
 ---@field set_field fun(x: int, y: int, z: int, name: str, value: bool|int|number|str, index?: int) Записывает значение в указанное поле блока. Бросает исключение при несовместимости типов, выходе за границы массива. Ничего не делает при отсутствии поля у блока
 ---@field get_field fun(x: int, y: int, z: int, name: str, index?: int): bool|int|number|str|nil Возвращает значение записанное в поле блока. Возвращает nil если поле не существует или ни в одно поле блока не было произведено записи. Бросает исключение при выходе за границы массива.
 ---@field get_variant fun(x: int, y: int, z: int): int Возвращает индекс варианта блока
@@ -509,10 +510,12 @@ bjson = bjson
 
 ---Библиотека для работы с обертками блоков.
 ---@class voxelcore.libgfx.blockwraps Библиотека для работы с обертками блоков.
----@field wrap fun(position: vec3, texture: str): int Создаёт обертку на указанной позиции, с указанной текстурой. Возвращает id обёртки.
+---@field wrap fun(position: vec3, texture: str, emission?: int): int Создаёт обертку на указанной позиции, с указанной текстурой. emission [0.0, 1.0]. Возвращает id обёртки.
 ---@field unwrap fun(id: int) Удаляет обертку, если она существует.
 ---@field set_pos fun(id: int, position: vec3) Меняет позицию обёртки, если она существует.
 ---@field set_texture fun(id: int, texture: str) Меняет текстуру обёртки, если она существует.
+---@field set_faces fun(id: int, face_nx?: str, face_px?: str, face_ny?: str, face_py?: str, face_nz?: str, face_pz?: str) Устанавливает текстуры сторон (-X, +X, -Y, +Y, -Z, +Z). nil - отключает отображение стороны. "" - монотонная текстура.
+---@field set_tints fun(id: int, face_nx?: vec3, face_px?: vec3, face_ny?: vec3, face_py?: vec3, face_nz?: vec3, face_pz?: vec3) Устанавливает окраску сторон (-X, +X, -Y, +Y, -Z, +Z). RGB [0.0; 1.0]
 local blockwraps = {}
 
 -- =====================gfx.particles=======================
@@ -536,6 +539,7 @@ local blockwraps = {}
 ---@field max_angular_vel? number Максимальная угловая скорость (радианы в сек.). Неотрицательное.	
 ---@field spawn_shape? "ball"|"sphere"|"box" Форма области спавна частиц. (ball/sphere/box)	
 ---@field spawn_spread? vec3 Размер области спавна частиц.	
+---@field spawn_offset? vec3 Смещение области спавна частиц.
 ---@field random_sub_uv? number Размер случайного подрегиона текстуры (1 - будет использована вся текстура).	
 
 ---Библиотека для упрпавления частицами.
@@ -643,11 +647,17 @@ gfx = gfx or {
 ---@field escape_markup fun(language: str, text: str): str Экранирует разметку в тексте.
 ---@field alert fun(message: str, on_ok?: function) Выводит окно с сообщением. Не останавливает выполнение кода.
 ---@field confirm fun(message: str, on_confirm: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает у пользователя подтверждение действия. Не останавливает выполнение кода.
+---@field ask fun(message: str, on_confirm?: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает подтверждение действия. Не останавливает выполнение кода.
+---@field show_message fun(message: str, on_ok?: function) Выводит окно с сообщением. Не останавливает выполнение кода.
 ---@field load_document fun(path: str, name: str, args: table): str Загружает UI документ с его скриптом, возвращает имя документа, если успешно загружен.
 ---@field getattr fun(docname: str, elementname: str, key: str): any Возвращает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field setattr fun(docname: str, elementname: str, key: str, value: any) Устанавливает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field template fun(name: str, params: table<str, any>): str Возвращает темплейт как строку xml элемента. (Параметры в xml'ке темплейта можно использовать с помощью "%{param_name}")
 ---@field str fun(text: str, context?: str): str Возвращает перевод строки.
+---@field close_menu fun() Замена для menu:reset() для закрытия меню паузы, деактивирующая основной фрейм UI.
+---@field create_frame fun(id: str, output_texture: str, size: vec2): Element: voxelcore.ui.document.any, Document: voxelcore.ui.document.any
+---@field get_active_frame fun(): str Возвращает id активного фрейма (не id элемента).
+---@field set_active_frame fun(id: str, cursorLocationProvider: (fun(): number, number)) Устанавливает активный фрейм, получающий пользовательский ввод. Пустая строка указывает null-фрейм, при котором захватывается курсор.
 ---@field root voxelcore.ui.document.any Корневой UI документ
 gui = gui
 
@@ -675,6 +685,8 @@ gui = gui
 ---@field set_allow_pause fun(flag: bool) Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
 ---@field hand_controller function Функция, управляющая именованным скелетом 'hand' (см. gfx.skeletons).
 ---@field reload_script fun(layout: str) Перезагружает скрипт лейаута
+---@field get_second_inventory fun(): int Дает ID второго открытого инвентаря (блок, виртуальный инвентарь...) или 0.
+---@field is_player_inventory_open fun(): bool Возвращает true если открыт инвентарь игрока.
 hud = hud
 
 -- =========================input===========================
@@ -797,6 +809,7 @@ item = item
 ---@field look_at fun(eye: vec3, center: vec3, up: vec3): mat4 Создает матрицу вида с точки 'eye' на точку 'center', где вектор 'up' определяет верх.
 ---@field look_at fun(eye: vec3, center: vec3, up: vec3, dst: mat4) Записывает матрицу вида в dst
 ---@field tostring fun(m: mat4, multiline?: bool): str Возвращает строку представляющую содержимое матрицы, многострочную, если multiline = true
+---@field perspective fun(fov: number, ratio: number, near: number, far: number): mat4 Параметр far задаёт расстояние от камеры до плоскости Far.
 mat4 = mat4
 
 -- ========================network==========================
@@ -925,6 +938,7 @@ player = player
 ---@class voxelcore.libquat Библиотека для работы с кватернионами.
 ---@field from_mat4 fun(m: mat4): quat Создает кватернион на основе матрицы вращения
 ---@field from_mat4 fun(m: mat4, dst: quat) Создает кватернион на основе матрицы вращения
+---@field from_euler fun(euler: vec3): quat Создает кватернион на основе углов Эйлера (значения углов строго в градусах)
 ---@field slerp fun(a: quat, b: quat, t: number): quat создает кватернион как интерполяцию между a и b, где t - фактор интерполяции
 ---@field slerp fun(a: quat, b: quat, t: number, dst: quat) создает кватернион как интерполяцию между a и b, где t - фактор интерполяции
 ---@field tostring fun(q: quat): str возвращает строку представляющую содержимое кватерниона
@@ -981,6 +995,9 @@ utf8 = utf8
 ---@field get_entry fun(name: "commands_history" | "new_world" | str): any Возвращает некий энтри
 ---@field reset_entry fun(name: "commands_history" | "new_world" | str) Удаляет некий энтри
 ---@field entries table<str, any> Таблица этих самых энтри
+---@field get fun(name: str): table Возвращает таблицу по имени. Создаёт пустую таблицу при отсутствии.
+---@field reset fun(name: str) Удаляет таблицу по имени.
+---@field has fun(name: str): bool Возвращает true если таблица уже была создана вызовом session.get
 session = session
 
 -- ========================vector===========================
@@ -1074,6 +1091,7 @@ events = events
 ---@class voxelcore.libaudio.input
 ---@field request_open fun(callback: fun(access_token: str)) Запрашивает доступ к записи звука. При подтверждении, в callback передаётся токен для использовании в audio.input.fetch
 ---@field fetch fun(access_token: str, max_read_size?: int): bytearray Читает новые PCM данные аудио ввода
+---@field get_input_info fun(): any
 
 ---Библиотека для управления звуками
 ---@class voxelcore.libaudio
@@ -1129,8 +1147,9 @@ console = console
 -- ========================assets===========================
 
 ---@class voxelcore.libassets
+---@field request_texture fun(filename: str, name: str) Запрашивает фоновую загрузку текстуры
 ---@field load_texture fun(data: table|bytearray, name: str, format?: "png" | str) Загружает текстуру из таблицы или массива байт на место текстуры name
----@field parse_model fun(format: "xml"|"vcm", path: str, name: str) Парсит и загружает 3D модель
+---@field parse_model fun(format: "xml"|"vcm"|"obj", content: str, name: str, skeleton_name?: str) Парсит и загружает 3D модель
 ---@field to_canvas fun(name: str): voxelcore.class.canvas Создаёт холст (Canvas) из загруженной текстуры. Поддерживается как отдельные ("имя_текстуры"), так и находящиеся в атласе ("атлас:имя_текстуры").
 assets = assets
 
@@ -1164,6 +1183,13 @@ assets = assets
 ---@field set_crouching fun(self: voxelcore.class.entity.rigidbody, flag: bool) Включает/выключает "крадущееся" состояние
 ---@field get_body_type fun(self: voxelcore.class.entity.rigidbody): voxelcore.class.entity.body_types Возвращает тип физического тела (dynamic/kinematic)
 ---@field set_body_type fun(self: voxelcore.class.entity.rigidbody, type: voxelcore.class.entity.body_types) Устанавливает тип физического тела
+---@field get_elasticity fun(self: voxelcore.class.entity.rigidbody): number Возвращает упругость тела
+---@field set_elasticity fun(self: voxelcore.class.entity.rigidbody, elasticity: number) Устанавливает упругость тела
+---@field get_mass fun(self: voxelcore.class.entity.rigidbody): number Возвращает массу тела
+---@field set_mass fun(self: voxelcore.class.entity.rigidbody, mass: number) Устанавливает массу тела
+---@field get_material fun(self: voxelcore.class.entity.rigidbody): str Возвращает материал тела (то же, что и у блоков)
+---@field set_material fun(self: voxelcore.class.entity.rigidbody, material: str) Устанавливает материал тела
+---@field get_ground_vel fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает скорость поверхности, на которой находится тело, либо {0,0,0}
 
 ---@class voxelcore.class.entity.skeleton
 ---@field index fun(self: voxelcore.class.entity.skeleton, name: str): int Возвращает индекс кости по имени или nil
@@ -1234,7 +1260,7 @@ document = document
 Document = Document
 
 ---@class voxelcore.Element
----@field new fun(docname: str, name: str): element: table
+---@field new fun(docname: str, name: str): element: voxelcore.ui.document.any
 Element = Element
 
 ---@class voxelcore.ui.document.base_element
@@ -1255,6 +1281,7 @@ Element = Element
 ---@field contentOffset vec2 Смещение содержимого. запись: нет
 ---@field cursor str Курсор, отображаемый при наведении
 ---@field parent voxelcore.ui.document.base_element | table Родительский элемент или nil. запись: нет
+---@field zIndex int значение z-индекса. В panel определяет порядок
 ---@field moveInto fun(self: voxelcore.ui.document.any, container: voxelcore.ui.document.any) Перемещает элемент в указанный контейнер (указывается элемент, а не id)
 ---@field destruct fun(self: voxelcore.ui.document.any) Удаляет элемент
 ---@field reposition fun(self: voxelcore.ui.document.any) Обновляет позицию элемента на основе функции позиционирования
@@ -1309,8 +1336,9 @@ Element = Element
 ---@field markup str Язык разметки текста ("md" - Markdown)
 
 ---@class voxelcore.ui.document.image: voxelcore.ui.document.base_element
----@field src str Отображаемая текстура
----@field region vec4 Под-регион изображения
+---@field src str Имя изображения в папке textures без указания расширения. Тип: строка. Например `gui/error`
+---@field fallback str Резервная текстура, отображаемая при отсутствии / фоновой загрузке основной
+---@field region vec4 Под-регион изображения x1, y1, x2, y2 от 0.0, 0.0 (левый верхний угол), 1.0, 1.0 (правый нижний угол)
 
 ---@class voxelcore.ui.document.canvas: voxelcore.ui.document.base_element
 ---@field data voxelcore.class.canvas Пиксели холста
@@ -1324,6 +1352,10 @@ Element = Element
 
 ---@class voxelcore.ui.document.inventory: voxelcore.ui.document.base_element
 ---@field inventory int Id инвентаря, к которому привязан элемент
+
+---@class voxelcore.ui.document.slot: voxelcore.ui.document.base_element
+---@field inventory int Id инвентаря, к которому привязан элемент
+---@field slotIndex int Id слота, к которому примязан элемент
 
 -- ======================RadioGroup=========================
 
@@ -1348,6 +1380,7 @@ RadioGroup = RadioGroup
 ---@field rect fun(x: int, y: int, w: int, h: int, r: int, g: int, b: int, a?: int) Заполняет прямоугольник указанным RGBA цветом
 ---@field update fun(self: voxelcore.class.canvas) Применяет изменения и загружает холст в видеопамять
 ---@field set_data fun(self: voxelcore.class.canvas, data: bytearray | table) Заменяет данные пикселей (ширина * высота * 4 чисел)
+---@field get_data fun(self: voxelcore.class.canvas): bytearray Создаёт объект Bytearray с пиксельными данными изображения
 ---@field create_texture fun(self: voxelcore.class.canvas, name: str) Создаёт и делится текстурой с рендерером
 ---@field unbind_texture fun(self: voxelcore.class.canvas) Отвязывает текстуру от холста
 ---@field mul fun(self: voxelcore.class.canvas, rgba: int)
@@ -1362,7 +1395,7 @@ RadioGroup = RadioGroup
 ---@field encode fun(self: voxelcore.class.canvas, format: str): bytearray Кодирует изображение в указанный формат и возращает массив байт
 
 ---@class voxelcore.libcanvas
----@field decode fun(data: bytearray, format: str): voxelcore.class.canvas
+---@field decode fun(data: bytearray, format: str): voxelcore.class.canvas Декодирует массива байт в Canvas
 Canvas = Canvas
 
 -- ====================world=generator======================
