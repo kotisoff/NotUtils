@@ -9,7 +9,9 @@ console.add_command(
     "chat message:str",
     "Send message",
     function(args)
-        chat_controller.command(args[1], mp.accounts.get_client_by_name(""))
+        local identity = mp.sandbox.players.get_by_pid(hud.get_player()).identity;
+        local client = mp.accounts.by_identity.get_client(identity)
+        chat_controller.command(args[1], client)
     end,
     false
 )
