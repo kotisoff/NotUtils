@@ -28,7 +28,7 @@ function module.load()
   local data = _G["$Multiplayer"];
   local temp = {};
 
-  local api = require(string.format("%s:api/%s/api", data.pack_id, data.api_references.Neutron[1]))[data.side]
+  local api = require(string.format("%s:api/%s/api", data.pack_id, data.api_references.Neutron[2]))[data.side]
 
   temp[data.side] = api;
   return temp;

@@ -624,6 +624,24 @@ local text3d = {}
 ---@field set_effect fun(slot: int, name: str) Назначает эффект на слот
 local posteffects = {}
 
+-- =====================gfx.skeletons=======================
+
+---Библиотека для работы с именованными скелетами
+---@class voxelcore.libgfx.skeletons
+---@field get fun(name: str): voxelcore.class.entity.skeleton Возвращает объектную обёртку над скелетом
+---@field index fun(skeleton: str, name: str): int Возвращает индекс кости по имени или nil
+---@field get_model fun(skeleton: str, index: int): str Возвращает имя модели, назначенной на кость с указанным индексом
+---@field set_model fun(skeleton: str, index: int, name: str) Переназначает модель кости с указанным индексом. Сбрасывает до изначальной, если не указывать имя
+---@field get_matrix fun(skeleton: str, index: int): mat4 Возвращает матрицу трансформации кости с указанным индексом
+---@field set_matrix fun(skeleton: str, index: int, matrix: mat4) Устанавливает матрицу трансформации кости с указанным индексом
+---@field get_texture fun(skeleton: str, key: str): str Возвращает текстуру по ключу (динамически назначаемые текстуры - '$имя')
+---@field set_texture fun(skeleton: str, key: str, value: str) Назначает текстуру по ключу
+---@field is_visible fun(skeleton: str, index?: int): bool Проверяет статус видимости кости по индесу или всего скелета, если индекс не указан
+---@field set_visible fun(skeleton: str, index?: int, status: bool) Устанавливает статус видимости кости по индексу или всего скелета, если индекс не указан
+---@field get_color fun(skeleton: str): vec3 Возвращает цвет сущности
+---@field set_color fun(skeleton: str, color: vec3) Устанавливает цвет сущности
+local skeletons = {};
+
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
@@ -632,7 +650,8 @@ gfx = gfx or {
   blockwraps = blockwraps,
   weather = weather,
   particles = particles,
-  posteffects = posteffects
+  posteffects = posteffects,
+  skeletons = skeletons
 }
 
 -- ==========================gui============================
@@ -673,7 +692,7 @@ gui = gui
 ---@field open fun(layoutid: str, disablePlayerInventory?: bool, invid?: int): int Открывает инвентарь и UI. Если макет UI не существует - бросается исключение. Если invid не указан, создаётся виртуальный (временный) инвентарь. Возвращает invid или id виртуального инвентаря.
 ---@field open_block fun(x: int, y: int, z: int): int, str Открывает инвентарь и UI блока. Если блок не имеет макета UI - бросается исключение. Возвращает id инвентаря блока  (при *"inventory-size"=0* создаётся виртуальный инвентарь, который удаляется после закрытия), и id макета UI.
 ---@field is_open fun(layoutid: str): bool Возвращает true если указаный макет UI открыт.
----@field show_overlay fun(layoutid: str, playerinv: bool, args?: table) Показывает элемент в режиме оверлея. Также показывает инвентарь игрока, если playerinv - **true**.  Через args можно указать массив значений параметров, что будут переданы в on_open показываемого оверлея.
+---@field show_overlay fun(layoutid: str, playerinv?: bool, args?: table) Показывает элемент в режиме оверлея. Также показывает инвентарь игрока, если playerinv - **true**.  Через args можно указать массив значений параметров, что будут переданы в on_open показываемого оверлея.
 ---@field open_permanent fun(layout: str) Добавляет постоянный элемент на экран. Элемент не удаляется при закрытии инвентаря. Чтобы не перекрывать затенение в режиме инвентаря нужно установить z-index элемента меньшим чем -1. В случае тега inventory, произойдет привязка слотов к инвентарю игрока.
 ---@field close fun(layoutid: str) Удаляет элемент с экрана.
 ---@field get_block_inventory fun(): int Дает ID инвентаря открытого блока или 0.
@@ -687,6 +706,7 @@ gui = gui
 ---@field reload_script fun(layout: str) Перезагружает скрипт лейаута
 ---@field get_second_inventory fun(): int Дает ID второго открытого инвентаря (блок, виртуальный инвентарь...) или 0.
 ---@field is_player_inventory_open fun(): bool Возвращает true если открыт инвентарь игрока.
+---@field default_hand_controller function
 hud = hud
 
 -- =========================input===========================

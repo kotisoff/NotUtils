@@ -3,13 +3,13 @@ local states = require "multiplayer/chat/chat_states"
 local module = {}
 
 module.colors = {
-    red =    "[#ff0000]",
+    red = "[#ff0000]",
     yellow = "[#ffff00]",
-    blue =   "[#0000FF]",
-    black =  "[#000000]",
-    green =  "[#00FF00]",
-    white =  "[#FFFFFF]",
-    gray =   "[#4d4d4d]"
+    blue = "[#0000FF]",
+    black = "[#000000]",
+    green = "[#00FF00]",
+    white = "[#FFFFFF]",
+    gray = "[#4d4d4d]"
 }
 
 local function __parse_scheme(scheme)
@@ -41,7 +41,7 @@ local function __parse_scheme(scheme)
         end
     end
 
-    local result = {main_part}
+    local result = { main_part }
     for _, arg in ipairs(args) do
         table.insert(result, arg)
     end
@@ -51,7 +51,6 @@ local function __parse_scheme(scheme)
 end
 
 local function __parse_arg(arg)
-
     local key, bracket_open, value, bracket_close = arg:match("^([^=]+)=([%[<])([^%]>]+)([%]>])$")
     if not key or not bracket_open or not value or not bracket_close then
         error("Ошибка: строка должна быть в формате 'key=<value>' или 'key=[value]'")
@@ -59,7 +58,7 @@ local function __parse_arg(arg)
 
     local bracketType = (bracket_open == "<" and bracket_close == ">") and "!" or "~"
 
-    return {key, value, bracketType}
+    return { key, value, bracketType }
 end
 
 local function __parse_arg_name(arg)
@@ -72,7 +71,7 @@ local function __parse_arg_name(arg)
         key = ""
         value = arg
     end
-    return {key, value}
+    return { key, value }
 end
 
 function module.create_state(name)
@@ -169,12 +168,11 @@ function module.set_command(command, permissions, handler, is_no_logged)
     end, is_no_logged)
 end
 
-
 function module.execute(command, client)
     chat.command(command, client)
 end
 
-module.set_command("help: command=[string] -> Shows a list of available commands.", {}, function (args, client)
+module.set_command("help: command=[string] -> Shows a list of available commands.", {}, function(args, client)
     local command = args.command
     local handlers = chat.get_handlers()
     local message = string.format("\n%s----- Help (/help) -----\n", module.colors.yellow)
@@ -215,7 +213,7 @@ module.set_command("help: command=[string] -> Shows a list of available commands
             module.colors.yellow .. "Args:"
         }
 
-        for i=2, #command-1 do
+        for i = 2, #command - 1 do
             local arg = command[i]
             local parse_arg = __parse_arg(arg)
             table.insert(tbl_message, string.format(

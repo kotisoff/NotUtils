@@ -30,10 +30,18 @@ if _mp.mode ~= "client" then
           mp.events.tell(pack_id, packets.title, client, mp.bson.serialize({ mode, text }))
         end
       else
-        local target_client = mp.accounts.get_client_by_name(players)
-        if not target_client then
+        ---@type neutron.class.player
+        local target_player =
+            table.filter(mp.sandbox.players.get_all():copy(),
+              ---@param pl neutron.class.player
+              function(_, pl) return pl.username == players end
+            )[0]
+
+        if not target_player then
           return mp.console.tell("Не удалось вывести сообщение: игрок не найден.", client)
         end
+
+        local target_client = mp.accounts.by_identity.get_client(target_player.identity)
 
         mp.events.tell(pack_id, packets.title, target_client, mp.bson.serialize({ mode, text }))
       end

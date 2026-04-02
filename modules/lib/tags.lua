@@ -69,7 +69,7 @@ end)
 ---@param list "items" | "blocks"
 ---@param ... str
 ---@return int[]
-local function get_elements_by_tags(list, ...)
+local function get_elements_unstrict(list, ...)
   local elements = {};
 
   local tags = { ... };
@@ -85,19 +85,9 @@ local function get_elements_by_tags(list, ...)
 end
 
 ---@param lib voxelcore.libblock | voxelcore.libitem
----@param id int
----@return str[]
-local function get_tags(lib, id)
-  local prop = lib.properties[id][tags_prop] or {};
-  local tags = table.keys(prop);
-
-  return tags;
-end
-
----@param lib voxelcore.libblock | voxelcore.libitem
 ---@param ... str
 ---@return int[]
-local function get_elements_have_tags(lib, ...)
+local function get_elements_strict(lib, ...)
   local props = lib.properties;
   local elements = {};
   local tags = { ... };
@@ -121,6 +111,16 @@ local function get_elements_have_tags(lib, ...)
   return elements;
 end
 
+---@param lib voxelcore.libblock | voxelcore.libitem
+---@param id int
+---@return str[]
+local function get_tags(lib, id)
+  local prop = lib.properties[id][tags_prop] or {};
+  local tags = table.keys(prop);
+
+  return tags;
+end
+
 
 ---@param list "items" | "blocks"
 ---@param elid int
@@ -138,34 +138,47 @@ local function add_tags_to_element(list, elid, ...)
   end
 end
 
----@param ... str
-function module.get_blocks_by_tags(...)
-  return get_elements_by_tags("blocks", ...);
-end
+local _block = {};
 
+---@param strict bool
 ---@param ... str
-function module.get_items_by_tags(...)
-  return get_elements_by_tags("items", ...);
+function _block.get_by_tags(strict, ...)
+  if strict then
+    return get_elements_strict(block, ...);
+  else
+    return get_elements_unstrict("blocks", ...)
+  end
 end
 
 ---@param blockid int
-function module.get_tags_by_blockid(blockid)
+function _block.get_tags(blockid)
   return get_tags(block, blockid);
 end
 
+function _block.add_tags(blockid, ...)
+  add_tags_to_element("blocks", blockid, ...);
+  add_tags_to_element("items", block.get_picking_item(blockid), ...);
+end
+
+local _item = {};
+
+---@param strict bool
+---@param ... str
+function _item.get_by_tags(strict, ...)
+  if strict then
+    return get_elements_strict(item, ...);
+  else
+    return get_elements_unstrict("items", ...)
+  end
+end
+
 ---@param itemid int
-function module.get_tags_by_itemid(itemid)
+function _item.get_tags(itemid)
   return get_tags(item, itemid);
 end
 
----@param ... str
-function module.get_blocks_have_tags(...)
-  return get_elements_have_tags(block, ...);
-end
-
----@param ... str
-function module.get_items_have_tags(...)
-  return get_elements_have_tags(item, ...);
+function _item.add_tags(itemid, ...)
+  add_tags_to_element("items", itemid, ...);
 end
 
 ---@return str[]
@@ -183,13 +196,7 @@ function module.get_registry()
   return table.deep_copy(registry.elements);
 end
 
-function module.add_tags_to_item(itemid, ...)
-  add_tags_to_element("items", itemid, ...);
-end
-
-function module.add_tags_to_block(blockid, ...)
-  add_tags_to_element("blocks", blockid, ...);
-  add_tags_to_element("items", block.get_picking_item(blockid), ...);
-end
+module.block = _block;
+module.item = _item;
 
 return module;

@@ -31,19 +31,6 @@ function player.is_on_ground(pid)
   return entity.rigidbody:is_grounded();
 end
 
----@param x number
----@param z number
----@param check_solid? bool
-function block.get_highest_block_y(x, z, check_solid)
-  local y = max_world_height;
-
-  while check_solid and (not block.is_solid_at(x, y, z)) or (block.get(x, y, z) == 0) do
-    y = y - 1;
-  end
-
-  return y;
-end
-
 ---Возвращает строковой идентификатор звука
 ---@param blockid int Идентификатор блока
 ---@param type voxelcore.libblock.material.sounds Тип звука
@@ -145,7 +132,7 @@ end
 ---Округляет значения вектора до нижнего значения
 ---@param vec vector
 local function vec_floor(vec)
-  local t
+  local t = {}
 
   for index, value in ipairs(vec) do
     t[index] = math.floor(value);

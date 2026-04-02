@@ -1,1 +1,3 @@
-{ "tags@append": ["base:ore.coal"] }
+{
+  "tags@append": []
+}

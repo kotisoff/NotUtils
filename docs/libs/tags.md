@@ -29,43 +29,31 @@ function api.get_registry(): { items: table<string, integer[]>, blocks: table<st
 ### Предметы
 
 ```lua
--- Получает идентификаторы предметов, у которых есть один из тегов.
-function api.get_items_by_tags(...: string): integer[]
+-- Получает идентификаторы предметов, у которых есть все теги или один из них, при true/false параметра strict соответственно.
+function api.item.get_by_tags(strict: bool, ...: string): integer[]
 
 -- Получает теги по идентификатору предмета.
-function api.get_tags_by_itemid(itemid: integer): string[]
-
--- Получает идентификаторы предметов, у которых есть все перечисленные теги.
-function api.get_items_have_tags(...: string): integer[]
+function api.item.get_tags(itemid: integer): string[]
 
 -- Добавляет теги предмету по указанному идентификатору. (В рантайме, не модифицирует файлы)
-function api.add_tags_to_item(itemid: integer, ...: string)
+function api.item.add_tags(itemid: integer, ...: string)
 ```
 
 ### Блоки
 
 ```lua
--- Получает идентификаторы блоков, у которых есть один из тегов.
-function api.get_blocks_by_tags(...: string): integer[]
+-- Получает идентификаторы блоков, у которых есть все теги или один из них, при true/false параметра strict соответственно.
+function api.block.get_by_tags(strict: bool, ...: string): integer[]
 
 -- Получает теги по идентификатору блока.
-function api.get_tags_by_blockid(blockid: integer): string[]
-
--- Получает идентификаторы блоков, у которых есть все перечисленные теги.
-function api.get_blocks_have_tags(...: string): integer[]
+function api.block.get_tags(blockid: integer): string[]
 
 -- Добавляет теги блоку и его предмету по указанному идентификатору. (В рантайме, не модифицирует файлы)
-function api.add_tags_to_block(blockid: integer, ...: string)
+function api.block.add_tags(blockid: integer, ...: string)
 ```
 
 ## Добавление своих тегов
 
-Для задуманного создайте блок и впишите туда следующее
-
-```json
-{
-  "tags@append": [ "Уже здесь указывайте новые теги" ]
-}
-```
+[См. документацию движка](https://github.com/MihailRis/voxelcore/blob/main/doc/ru/block-properties.md#%D1%82%D0%B5%D0%B3%D0%B8---tags)
 
 [Вернуться на главную](../index.md)
