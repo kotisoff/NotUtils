@@ -207,7 +207,6 @@
 ---@field get_in_radius fun(pos: vec3, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
 ---@field get_by_pid fun(pid: int): neutron.class.player | nil Возвращает объект игрока по pid
----@field sync_states fun(player: neutron.class.player, states: {pos?: vec3, rot?: vec3, cheats?: { noclip: bool, flight: bool }}) Изменяет игрока в соответствии с таблицой **states** и принудительно отправляет эти данные на клиент.
 
 ---@class neutron.server.sandbox.blocks
 ---@field sync_inventory fun(pos: vec3, client: neutron.class.client) Синхронизирует инвентарь.
