@@ -31,6 +31,17 @@
 ---@alias str string
 ---@alias bool boolean
 
+-- =========================enum============================
+
+---@alias voxelcore.events.inventory_interact.action
+---| '0' Put item
+---| '1' Take item
+---| '2' Shift-click on item
+
+---@alias voxelcore.events.inventory_interact.mode
+---| '0' Left mouse button
+---| '1' Right mouse button
+
 -- =========================funcs===========================
 
 ---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.

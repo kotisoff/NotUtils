@@ -10,6 +10,7 @@
 -- ========================aliases==========================
 
 ---@alias neutron.utils.proxy_table table
+---@alias neutron.sandbox.inventories.InventoryController table
 ---@alias neutron.sandbox.blocks.slot { slot_id: int, item_id: int, item_count: int }
 
 -- ========================classes==========================
@@ -202,19 +203,32 @@
 
 -- Server.sandbox
 
+---@class neutron.server.sandbox.block
+---@field unsynced_set fun(x: int, y: int, z: int, id: int, states?: int, cancel_update?: bool) Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах. Не обновляет блок на клиентахъ.
+
 ---@class neutron.server.sandbox.players
 ---@field get_all fun(): table<string, neutron.class.player> Возвращает таблицу со всеми игроками онлайн. Где ключи - идентити игроков, а значения - их объект Player
----@field get_in_radius fun(pos: vec3, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
+---@field is_username_available fun(username: str, identity?: str): bool Проверяет, свободен ли никнейм для конкретного identity (если передан).
+---@field get_client fun(player: neutron.class.player): neutron.class.client Возвращает объект Client для взаимодействия с игроком (отправка пакетов и т.д.).
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
+---@field get_in_radius fun(pos: vec3, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_by_pid fun(pid: int): neutron.class.player | nil Возвращает объект игрока по pid
+---@field by_identity { is_online: (fun(identity: str): bool) }
+---@field by_username { is_online: (fun(username: str): bool) }
 
----@class neutron.server.sandbox.blocks
----@field sync_inventory fun(pos: vec3, client: neutron.class.client) Синхронизирует инвентарь.
----@field sync_slot fun(pos: vec3, slot: neutron.sandbox.blocks.slot, client: neutron.class.client) Синхронизирует определённый слот инвентаря.
+---@class neutron.server.sandbox.inventories
+---@field create_controller fun(source: string | table): neutron.sandbox.inventories.InventoryController Загружает и возвращает контроллер на основе пути к файлу .lua (или можно передать таблицу с описанными ивентами), который управляет серверной логикой инвентарей похож на файлы логики макетов .xml.lua
+---@field set_controller fun(blockid_or_layout: int | str, controller: neutron.sandbox.inventories.InventoryController) Устанавливает контроллер для определённого типа контента. Если ident это айди блока (число), всем инвентарям этого типа блоков будет установлен этот контроллер.  Если ident это макет (строка, пр: "pack:craft_table"), всем виртуальным инвентарям с этим макетом будет установлен этот контроллер.
+---@field open_block fun(player: neutron.class.player, pos: vec3) Открывает инвентарь блока переданному игроку
+---@field open fun(player: neutron.class.player, layout_path: str, disable_player_inventory?: bool, root_invid?: int) Открывает виртуальный инвентарь переданному игроку
+---@field close fun(player: neutron.class.player) Закрывает открытый инвентарь переданному игроку
+---@field echo_close fun(invid: int) Закрывает определённый открытый инвентарь всем игрокам, у которых он открыт
+---@field get_second_inventory fun(player: neutron.class.player): invid: int Возвращает invid открытого инвентаря у игрока
 
 ---@class neutron.server.sandbox
 ---@field players neutron.server.sandbox.players
----@field blocks neutron.server.sandbox.blocks
+---@field inventories neutron.server.sandbox.inventories
+---@field block neutron.server.sandbox.block
 
 -- Server.audio
 

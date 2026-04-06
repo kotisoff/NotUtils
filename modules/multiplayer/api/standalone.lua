@@ -140,10 +140,10 @@ function module.load()
   api.server = {
     accounts = {
       by_identity = {
-        get_account = function (identity)
+        get_account = function(identity)
           return get_account()
         end,
-        get_client = function (identity)
+        get_client = function(identity)
           return get_client()
         end
       },
@@ -275,6 +275,15 @@ function module.load()
           local player = get_player()
           return { [player.username] = player }
         end,
+        is_username_available = function(username, identity)
+          return true
+        end,
+        get_client = function(player)
+          return get_client()
+        end,
+        get_player = function(account)
+          return get_player()
+        end,
         get_in_radius = function(pos, radius)
           local len = vec3.length(pos)
           if len <= radius then
@@ -283,38 +292,48 @@ function module.load()
           end
           return {}
         end,
-        get_player = function(account)
-          return get_player()
-        end,
         get_by_pid = function(pid)
           if pid == 0 then
             return get_player()
           end
         end,
-        sync_states = function(_player, states)
-          if states.pos then
-            local pos = states.pos --[[@as vec3]]
-            ---@diagnostic disable-next-line: need-check-nil
-            player.set_pos(_player.pid, unpack(pos))
+        by_identity = {
+          is_online = function(identity)
+            return true
           end
-          if states.rot then
-            local rot = states.rot --[[@as vec3]]
-            ---@diagnostic disable-next-line: need-check-nil
-            player.set_rot(_player.pid, unpack(rot))
+        },
+        by_username = {
+          is_online = function(username)
+            return true
           end
-          if states.cheats then
-            local noclip, flight = states.cheats.noclip, states.cheats.flight
-            player.set_flight(_player.pid, flight)
-            player.set_noclip(_player.pid, noclip)
+        }
+      },
+      inventories = {
+        create_controller = function(source)
+          -- nu pizdec.
+          return {};
+        end,
+        set_controller = function(blockid_or_layout, controller)
+          -- nu pizdec 2.
+        end,
+        open_block = function(player, pos)
+          hud.open_block(unpack(pos));
+        end,
+        open = function(player, layout_path, disable_player_inventory, root_invid)
+          hud.open(string.format("%s:%s", file.prefix(layout_path), file.stem(layout_path)), disable_player_inventory,
+            root_invid);
+        end,
+        close = function(player)
+          hud.close_inventory()
+        end,
+        echo_close = function(invid)
+          if hud.get_block_inventory() == invid then
+            hud.close_inventory()
           end
         end,
-        is_online = function(name)
-          return type(name) == "string" and true or false
+        get_second_inventory = function(player)
+          return hud.get_second_inventory()
         end
-      },
-      blocks = {
-        sync_inventory = function(...) end,
-        sync_slot = function(...) end
       }
     },
     audio = audio,
