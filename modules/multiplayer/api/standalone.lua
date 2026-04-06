@@ -334,6 +334,11 @@ function module.load()
         get_second_inventory = function(player)
           return hud.get_second_inventory()
         end
+      },
+      block = {
+        unsynced_set = function(...)
+          block.set(...);
+        end
       }
     },
     audio = audio,
