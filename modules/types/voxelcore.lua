@@ -34,13 +34,13 @@
 -- =========================enum============================
 
 ---@alias voxelcore.events.inventory_interact.action
----| '0' Put item
----| '1' Take item
----| '2' Shift-click on item
+---| 0 Put item
+---| 1 Take item
+---| 2 Shift-click on item
 
 ---@alias voxelcore.events.inventory_interact.mode
----| '0' Left mouse button
----| '1' Right mouse button
+---| 0 Left mouse button
+---| 1 Right mouse button
 
 -- =========================funcs===========================
 
