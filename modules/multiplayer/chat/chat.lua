@@ -7,7 +7,7 @@ local handlers = {}
 local COMMAND_PREFIX = '/'
 
 function module.echo(message)
-   console.log(message)
+    console.log(message)
 end
 
 function module.echo_with_mentions(message)

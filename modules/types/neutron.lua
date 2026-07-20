@@ -396,7 +396,6 @@
 ---@field roles table<string, { priority: integer, game_rules: neutron.server.constants.config.roles.class.role.game_rules, server_rules: neutron.server.constants.config.roles.class.role.server_rules }> | { default_role: string }
 
 ---@class neutron.server.constants
----@field render_distance integer
 ---@field tps { tps: number, mspt: number }
 ---@field config neutron.server.constants.config
 

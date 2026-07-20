@@ -74,6 +74,7 @@ local function __parse_arg_name(arg)
     return { key, value }
 end
 
+
 function module.create_state(name)
     return states.create_state(name)
 end
@@ -175,27 +176,42 @@ end
 module.set_command("help: command=[string] -> Shows a list of available commands.", {}, function(args, client)
     local command = args.command
     local handlers = chat.get_handlers()
+
     local message = string.format("\n%s----- Help (/help) -----\n", module.colors.yellow)
 
-    local function concat(schem)
-        local main_part = schem[1]
-
-        local action = schem[#schem]
-
+    local function concat_decl(schem)
+        local def = schem[1]
         local _args = {}
+
         for i = 2, #schem - 1 do
             table.insert(_args, schem[i])
         end
 
         local args_part = table.concat(_args, ", ")
+        return def .. ": " .. args_part
+    end
 
-        local scheme = main_part .. ": " .. args_part .. " -> " .. action
+    local function concat(schem, size)
+        local action = schem[#schem]
+
+        local decl = concat_decl(schem)
+
+        local scheme = string.right_pad(decl, size) .. "-> " .. action
         return scheme
     end
 
     if not command then
-        for _, com in pairs(handlers) do
-            local schem = concat(com.schem)
+        local max_size = 0
+        local n_handlers = table.copy(handlers);
+        n_handlers["/help"] = {
+            schem = __parse_scheme("/help: -> Vanilla help."),
+        }
+
+        for _, com in pairs(n_handlers) do
+            max_size = math.max(max_size, #concat_decl(com.schem))
+        end
+        for _, com in pairs(n_handlers) do
+            local schem = concat(com.schem, max_size + 1)
             message = message .. module.colors.yellow .. schem .. '\n'
         end
     else

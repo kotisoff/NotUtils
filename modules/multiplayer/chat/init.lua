@@ -15,11 +15,22 @@ console.add_command(
     end,
     false
 )
+
 console.submit = function(command)
-    local name, _ = command:match("^(%S+)%s*(.*)$")
+    local name, body = command:match("^(%S+)%s*(.*)$")
 
     if name == "chat" then
         console.execute(command)
+    elseif string.starts_with(name, "/") then
+        local valid_name = string.sub(name, 2)
+        -- if rules.get("cheat-commands") then
+
+        -- end
+        if #body > 0 then body = " " .. body end
+
+        print(valid_name, body);
+        local msg = console.execute(valid_name .. body);
+        console.log(msg);
     else
         console.execute("chat '/" .. command .. "'")
     end
