@@ -201,7 +201,7 @@ module.set_command("help: command=[string] -> Shows a list of available commands
     else
         command = handlers[command]
         if not command then
-            module.tell(string.format("%s %s", module.colors.red, "Unknow command"), client)
+            module.tell(string.format("%s %s", module.colors.red, "Unknown command"), client)
             return
         end
 

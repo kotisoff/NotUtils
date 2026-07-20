@@ -46,7 +46,7 @@ function module.command(message, client)
     elseif state then
         handlers[state.id].handler(message, state, client)
     else
-        module.tell("[#ff0000] Unknow command: " .. executable, client)
+        module.tell("[#ff0000] Unknown command: " .. executable, client)
     end
 end
 
