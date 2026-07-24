@@ -1061,6 +1061,8 @@ session = session
 ---@class voxelcore.libvec2: voxelcore.libvector
 ---@field angle fun(v: vec2): number Возвращает угол направления вектора v в градусах [0, 360]
 ---@field angle fun(x: number, y: number): number Возвращает угол направления вектора {x, y} в градусах [0, 360]
+---@field rotate fun(v: vec2, angle: number): vec2 Возвращает повернутый вектор на угол в градусах против часовой стрелки
+---@field rotate fun(v: vec2, angle: number, dst: vec2): vec2 Записывает повернутый вектор на угол в градусах против часовой стрелки в dst
 vec2 = vec2
 
 ---@class voxelcore.libvec3: voxelcore.libvector
