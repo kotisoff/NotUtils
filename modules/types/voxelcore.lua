@@ -1205,7 +1205,7 @@ assets = assets
 ---@field set_vel fun(self: voxelcore.class.entity.rigidbody, vel: vec3) Устанавливает линейную скорость
 ---@field get_size fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает размер хитбокса
 ---@field set_size fun(self: voxelcore.class.entity.rigidbody, size: vec3) Устанавливает размер хитбокса
----@field get_gravity_scale fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает множитель гравитации
+---@field get_gravity_scale fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель гравитации
 ---@field set_gravity_scale fun(self: voxelcore.class.entity.rigidbody, scale: number) Устанавливает множитель гравитации
 ---@field get_linear_damping fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель затухания линейной скорости (используется для имитации сопротивления воздуха и трения)
 ---@field set_linear_damping fun(self: voxelcore.class.entity.rigidbody, value: number) Устанавливает множитель затухания линейной скорости
