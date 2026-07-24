@@ -1,3 +1,5 @@
+---@meta
+
 --[[
   ВНИМАНИЕ
   Старайтесь не импортировать этот скрипт. Он работает просто находясь в поле зрения языкового сервера.
@@ -8,7 +10,7 @@
     VoxelCore Lua Types (WIP)
     Engine version: 0.31.x
     Version: v0.0.8
-    ]]
+  ]]
 
 ---@diagnostic disable: duplicate-doc-alias
 ---@diagnostic disable: duplicate-doc-field

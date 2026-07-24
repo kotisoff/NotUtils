@@ -1,6 +1,8 @@
+---@meta
+
 --[[
-  Neutron/Quartz Lua Types
-  Neutron version: v1.2.0 / Quartz version: v0.1.5
+  Neutron/Quartz Lua Types (WIP)
+  Neutron Server version: v0.3.1 / Neutron Client version: v0.5.1 / Quartz version v0.1.1
   Version: v0.0.4
   ]]
 
