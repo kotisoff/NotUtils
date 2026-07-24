@@ -391,7 +391,7 @@ cameras = cameras
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по UID
 ---@field def_name fun(uid: int): str Возвращает имя определения сущности по индексу (строковый ID)
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
----@field def_index fun(uid: int): int Возвращает индекс определения сущности по имени (числовой ID)
+---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
 ---@field get_all fun(): table Возвращает таблицу всех загруженных сущностей
 ---@field get_all fun(uids: int[]): table Возвращает таблицу загруженных сущностей по переданному списку UID
