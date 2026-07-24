@@ -391,7 +391,7 @@ cameras = cameras
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по UID
 ---@field def_name fun(uid: int): str Возвращает имя определения сущности по индексу (строковый ID)
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
----@field def_index fun(uid: int): int Возвращает индекс определения сущности по имени (числовой ID)
+---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
 ---@field get_all fun(): table Возвращает таблицу всех загруженных сущностей
 ---@field get_all fun(uids: int[]): table Возвращает таблицу загруженных сущностей по переданному списку UID
@@ -1061,6 +1061,8 @@ session = session
 ---@class voxelcore.libvec2: voxelcore.libvector
 ---@field angle fun(v: vec2): number Возвращает угол направления вектора v в градусах [0, 360]
 ---@field angle fun(x: number, y: number): number Возвращает угол направления вектора {x, y} в градусах [0, 360]
+---@field rotate fun(v: vec2, angle: number): vec2 Возвращает повернутый вектор на угол в градусах против часовой стрелки
+---@field rotate fun(v: vec2, angle: number, dst: vec2): vec2 Записывает повернутый вектор на угол в градусах против часовой стрелки в dst
 vec2 = vec2
 
 ---@class voxelcore.libvec3: voxelcore.libvector
@@ -1203,7 +1205,7 @@ assets = assets
 ---@field set_vel fun(self: voxelcore.class.entity.rigidbody, vel: vec3) Устанавливает линейную скорость
 ---@field get_size fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает размер хитбокса
 ---@field set_size fun(self: voxelcore.class.entity.rigidbody, size: vec3) Устанавливает размер хитбокса
----@field get_gravity_scale fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает множитель гравитации
+---@field get_gravity_scale fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель гравитации
 ---@field set_gravity_scale fun(self: voxelcore.class.entity.rigidbody, scale: number) Устанавливает множитель гравитации
 ---@field get_linear_damping fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель затухания линейной скорости (используется для имитации сопротивления воздуха и трения)
 ---@field set_linear_damping fun(self: voxelcore.class.entity.rigidbody, value: number) Устанавливает множитель затухания линейной скорости
