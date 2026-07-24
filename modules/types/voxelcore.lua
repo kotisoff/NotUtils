@@ -80,6 +80,8 @@ crc32 = crc32;
 ---@field sum fun(...): number Возвращает сумму всех принимаемых аргументов.
 ---@field sum fun(x: number, t: number[]): number Возвращает сумму всех принимаемых аргументов.
 ---@field normal_random fun(): number Рандом из генератора в C++
+---@field noise fun(x: number, octaves?: int): number Одномерный шум с значениями в диапазоне [-1..1]
+---@field noise2d fun(x: number, y: number, octaves: int): number Двумерный шум с значениями в диапазоне [-1..1]
 math = math
 
 -- =========================table===========================
@@ -179,7 +181,10 @@ stdcomp = stdcomp
 ---@class voxelcore.libcore
 ---@field blank fun() Ничего не делает. xD
 ---@field capture_output fun(func: function): str Перехватывает все принты и возвращает их в виде строки
----@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
+---@field get_core_token fun(): str Возвращает токен сессии движка (рандомная строка)
+core = core
+
+--[[-@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
 ---@field open_world fun(name: str) Открывает мир по названию.
 ---@field reopen_world fun() Переоткрывает мир.
 ---@field save_world fun() Сохраняет мир.
@@ -198,7 +203,7 @@ stdcomp = stdcomp
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field str_setting fun(name: str): str Возвращает значение настройки в виде строки.
-core = core
+]]
 
 -- ==========================app============================
 
@@ -207,7 +212,7 @@ core = core
 ---@field tick fun() Выполняет один такт основного цикла движка.
 ---@field sleep fun(time: number) Ожидает указанное время в секундах, выполняя основной цикл движка.
 ---@field sleep_until fun(predicate: (fun():bool), max_ticks?: number, timeout?: number) Ожидает истинности утверждения (условия), проверяемого функцией, выполнячя основной цикл движка.
----@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
+---@field quit fun(silent?: bool) Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
 ---@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
@@ -218,6 +223,7 @@ core = core
 ---@field close_world fun(save_world: bool) Закрывает мир.
 ---@field delete_world fun(name: str) Удаляет мир по названию.
 ---@field get_version fun(): int, int Возвращает мажорную и минорную версии движка.
+---@field str_setting fun(name: str): str
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
@@ -226,6 +232,7 @@ core = core
 ---@field set_content_sources fun(sources: str[]) Устанавливает список источников контента (путей). Указывается в порядке убывания приоритета.
 ---@field reset_content_sources fun() Сбрасывает список источников контента.
 ---@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
+---@field set_title fun(title: str) Устанавливает заголовок окна.
 ---@field reset_content fun() Сбрасывает контент загруженных паков.
 ---@field load_content fun() Загружает контент конфигурированных паков.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
@@ -273,6 +280,14 @@ Bytearray = Bytearray
 ---@field bytes fun(n: number): bytearray Генерирует случайный массив байт длиной n
 ---@field uuid fun(): str Генерирует UUID версии 4
 ---@field Random fun(seed?: number): voxelcore.librandom.Random Создаёт изолированный генератор с использованием сида.
+random = random
+
+-- ======================compression========================
+
+---@class voxelcore.libcompression
+---@field encode fun(bytes: bytearray | table<int>, algo?: "gzip" | str, use_table?: bool): bytearray Сжимает массив байт.
+---@field decode fun(bytes: bytearray | table<int>, algo?: "gzip" | str, use_table?: bool): bytearray Разжимает массив байт.
+compression = compression;
 
 -- =========================block===========================
 
@@ -381,6 +396,7 @@ byteutil = byteutil
 ---@class voxelcore.libcameras
 ---@field get fun(name: str): voxelcore.class.camera Возвращает камеру по имени.
 ---@field get fun(index: int): voxelcore.class.camera Возвращает камеру по индексу.
+---@field index fun(name: string): int Возвращает индекс камеры по имени.
 cameras = cameras
 
 -- =======================entities==========================
@@ -473,8 +489,10 @@ file = file
 ---@field write fun(self: voxelcore.class.io_stream, arg: voxelcore.class.io_stream.data, ...) Записывает данные в поток. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
 ---@field read_line fun(self: voxelcore.class.io_stream): str Читает одну строку с окончанием CRLF/LF из потока вне зависимости от двоичного режима
 ---@field write_line fun(self: voxelcore.class.io_stream, line: str) Записывает одну строку с окончанием LF в поток вне зависимости от двоичного режима
----@field read_fully fun(self: voxelcore.class.io_stream, useTable?: bool): voxelcore.class.io_stream.data Читает все доступные данные из потока. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
+---@field read_fully fun(self: voxelcore.class.io_stream, use_table?: bool): voxelcore.class.io_stream.data Читает все доступные данные из потока. Читайте доки: https://github.com/MihailRis/voxelcore/blob/main/doc/ru/scripting/io_stream.md
 ---@field available fun(self: voxelcore.class.io_stream, length?: int): int | bool Если length определён, то возвращает true, если length байт доступно к чтению. Иначе возвращает false. Если не определён, то возвращает количество байт, которое можно прочитать
+---@field seek fun(self: voxelcore.class.io_stream, mode: str, offset: int) Устанавливает позицию в потоке (всегда в байтах). Режимы: "b" - из начала, "c" - с текущей позиции, "e" - от конца. Может бросать ошибку, если поток не поддерживает seek
+---@field tell fun(self: voxelcore.class.io_stream): int Возвращает текущую позицию в потоке от начала. Может бросать ошибку, если поток не поддерживает tell
 ---@field get_max_buffer_size fun(self: voxelcore.class.io_stream): int Возвращает максимальный размер буферов
 ---@field set_max_buffer_size fun(self: voxelcore.class.io_stream, size: int) Задаёт новый максимальный размер буферов
 ---@field is_alive fun(self: voxelcore.class.io_stream): bool Возвращает true, если поток открыт на данный момент
@@ -490,7 +508,8 @@ file = file
 ---@field close fun(descriptor: int) Закрывает поток
 
 ---@class voxelcore.class.io_stream.constructor
----@field new fun(descriptor: int, binaryMode: bool, ioLib: voxelcore.class.io_stream.lib, mode?: voxelcore.class.io_stream.mode, flushmode?: voxelcore.class.io_stream.flushmode): voxelcore.class.io_stream Создаёт новый поток с переданным дескриптором и использующим переданную I/O библиотеку. (Более подробно в core:io_stream.lua)
+---@field new fun(descriptor: int, binary_mode: bool, io_lib: voxelcore.class.io_stream.lib, mode?: voxelcore.class.io_stream.mode, flush_mode?: voxelcore.class.io_stream.flushmode): voxelcore.class.io_stream Создаёт новый поток с переданным дескриптором и использующим переданную I/O библиотеку. (Более подробно в core:io_stream.lua)
+---@field wrap_bytearray fun(buffer: bytearray, binary_mode?: bool): voxelcore.class.io_stream Создаёт новый поток из Bytearray. Может использоваться одновременно как для чтения, так и для записи. Результат записи будет записан в тот же Bytearray, что был передан в функцию.
 io_stream = io_stream
 
 -- ===================data=serializers======================
@@ -513,6 +532,12 @@ toml = toml
 ---@field parse fun(code: str): table Парсит YAML строку в таблицу.
 yaml = yaml
 
+---@class voxelcore.xml
+---@field tostring fun(value: table, nice?: bool): str Сериализует таблицу в XML строку.
+---@field parse fun(code: str): table Парсит XML строку в таблицу.
+---@field parse_vcd fun(code: str, root?: str): table Парсит vcd формат в таблицу.
+xml = xml
+
 ---Библиотека содержит функции для работы с двоичным форматом обмена данными vcbjson(git).
 ---@class voxelcore.bjson
 ---@field tobytes fun(object: table, compression?: bool): table|bytearray Кодирует таблицу в массив байт
@@ -523,7 +548,7 @@ bjson = bjson
 
 ---Библиотека для работы с обертками блоков.
 ---@class voxelcore.libgfx.blockwraps Библиотека для работы с обертками блоков.
----@field wrap fun(position: vec3, texture: str, emission?: int): int Создаёт обертку на указанной позиции, с указанной текстурой. emission [0.0, 1.0]. Возвращает id обёртки.
+---@field wrap fun(position: vec3, texture: str, emission?: int, tint?: vec4): int Создаёт обертку на указанной позиции, с указанной текстурой. emission [0.0, 1.0]. Возвращает id обёртки.
 ---@field unwrap fun(id: int) Удаляет обертку, если она существует.
 ---@field set_pos fun(id: int, position: vec3) Меняет позицию обёртки, если она существует.
 ---@field set_texture fun(id: int, texture: str) Меняет текстуру обёртки, если она существует.
@@ -628,11 +653,11 @@ local text3d = {}
 ---Библиотека для работы с эффектами пост-обработки
 ---@class voxelcore.libgfx.posteffects Библиотека для работы с эффектами пост-обработки
 ---@field index fun(name: str): int Возвращает индекс слота эффектов по имени (пак:имя_слота). При отсутствии указанного слота возвращает -1
----@field set fun(slot: int, effect: str) Назначает эффект на слот
+---@field set_effect fun(slot: int, effect: str) Назначает эффект на слот
 ---@field get_intensity fun(slot: int): number Возвращает интенсивность эффекта (от 0.0 до 1.0). Если слот пуст, возвращает 0.0
 ---@field set_intensity fun(slot: int, intensity: number) Устанавливает интенсивность эффекта (от 0.0 до 1.0). Корректность обработки параметра между значениями 0.0 и 1.0 зависит от эффекта
 ---@field is_active fun(slot: int): bool Возвращает true если слот не пуст и интенсивность эффекта ненулевая
----@field set_params fun(params: table) Устанавливает значения параметров (директивы 'param')
+---@field set_params fun(slot: int, params: table) Устанавливает значения параметров (директивы 'param')
 ---@field set_array fun(slot: int, name: str, data: str) Устанавливает значения в массив. slot: индекс слота эффектов; name: имя параметра (масссива); data: строка данных (используйте функцию Bytearray_as_string)
 ---@field set_effect fun(slot: int, name: str) Назначает эффект на слот
 local posteffects = {}
@@ -671,7 +696,7 @@ gfx = gfx or {
 
 ---Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex: document
 ---@class voxelcore.libgui Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex: document
----@field str fun(text: str, context: str): str Возращает переведенный текст.
+---@field str fun(text: str, context?: str): str Возвращает перевод строки.
 ---@field get_viewport fun(): [int, int] Возвращает размер главного контейнера (окна).
 ---@field get_env fun(document: str): table Возвращает окружение (таблица глобальных переменных) указанного документа.
 ---@field get_locales_info fun(): table<str, table> Возвращает информацию о всех загруженных локалях (res/texts/*).
@@ -685,11 +710,12 @@ gfx = gfx or {
 ---@field getattr fun(docname: str, elementname: str, key: str): any Возвращает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field setattr fun(docname: str, elementname: str, key: str, value: any) Устанавливает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field template fun(name: str, params: table<str, any>): str Возвращает темплейт как строку xml элемента. (Параметры в xml'ке темплейта можно использовать с помощью "%{param_name}")
----@field str fun(text: str, context?: str): str Возвращает перевод строки.
 ---@field close_menu fun() Замена для menu:reset() для закрытия меню паузы, деактивирующая основной фрейм UI.
 ---@field create_frame fun(id: str, output_texture: str, size: vec2): Element: voxelcore.ui.document.any, Document: voxelcore.ui.document.any
 ---@field get_active_frame fun(): str Возвращает id активного фрейма (не id элемента).
 ---@field set_active_frame fun(id: str, cursorLocationProvider: (fun(): number, number)) Устанавливает активный фрейм, получающий пользовательский ввод. Пустая строка указывает null-фрейм, при котором захватывается курсор.
+---@field set_syntax_styles fun(styles: table) Устанавливает стили движка из таблицы (пока только шрифт)
+---@field main_frame_id str Идентификатор корневого элемента
 ---@field root voxelcore.ui.document.any Корневой UI документ
 gui = gui
 
@@ -849,13 +875,14 @@ mat4 = mat4
 
 ---@class voxelcore.class.tcp_socket
 ---@field send fun(self: voxelcore.class.tcp_socket, data: table|bytearray|str) Отправляет массив байт
----@field recv fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Читает полученные данные. В случае ошибки возвращает nil (сокет закрыт или несуществует). Если данных пока нет, возвращает пустой массив байт.
----@field recv_async fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Асинхронный вариант для использования в корутинах. Ожидает получение всего указанного числа байт. При закрытии сокета работает как socket:recv.
+---@field recv fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Читает полученные данные. В случае ошибки возвращает nil (сокет закрыт или несуществует). Если данных пока нет, возвращает пустой массив байт
+---@field recv_async fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Асинхронный вариант для использования в корутинах. Ожидает получение всего указанного числа байт. При закрытии сокета работает как socket:recv
+---@field as_stream fun(self: voxelcore.class.tcp_socket, binary_mode?: bool): voxelcore.class.io_stream Оборачивает сокет в io_stream
 ---@field close fun(self: voxelcore.class.tcp_socket) Закрывает соединение
 ---@field available fun(self: voxelcore.class.tcp_socket): int Возвращает количество доступных для чтения байт данных
----@field is_alive fun(self: voxelcore.class.tcp_socket): bool Проверяет, что сокет существует и не закрыт.
----@field is_connected fun(self: voxelcore.class.tcp_socket): bool Проверяет наличие соединения (доступно использование socket:send(...)).
----@field get_address fun(self: voxelcore.class.tcp_socket): address: str, port: int Возвращает адрес и порт соединения.
+---@field is_alive fun(self: voxelcore.class.tcp_socket): bool Проверяет, что сокет существует и не закрыт
+---@field is_connected fun(self: voxelcore.class.tcp_socket): bool Проверяет наличие соединения (доступно использование socket:send(...))
+---@field get_address fun(self: voxelcore.class.tcp_socket): address: str, port: int Возвращает адрес и порт соединения
 ---@field is_nodelay fun(): bool Возвращает состояние NoDelay
 ---@field set_nodelay fun(state: bool) Устанавливает состояние NoDelay
 
@@ -926,7 +953,7 @@ pack = pack
 
 ---Библиотека player
 ---@class voxelcore.libplayer Библиотека player
----@field create fun(name: str): int Создаёт игрока и возвращает его id.
+---@field create fun(name: str, pid?: int): int Создаёт игрока и возвращает его id.
 ---@field delete fun(id: int) Удаляет игрока по id.
 ---@field get_pos fun(playerid?: int): number, number, number Возвращает x, y, z координаты игрока
 ---@field set_pos fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z координаты игрока
@@ -1080,7 +1107,7 @@ vec4 = vec4
 ---Библиотека world
 ---@class voxelcore.libworld Библиотека world
 ---@field is_open fun(): bool Проверяет, открыт ли мир
----@field get_list fun(): { name: str, icon: str, version: [int, int] }[] Возвращает информацию о мирах.
+---@field get_list fun(): { name: str, path: str, version: [int, int] }[] Возвращает информацию о мирах.
 ---@field get_day_time fun(): number Возвращает текущее игровое время от 0.0 до 1.0, где 0.0 и 1.0 - полночь, 0.5 - полдень.
 ---@field set_day_time fun(time: number) Устанавливает указанное игровое время.
 ---@field get_day_time_speed fun(): number Устанавливает указанную скорость смены времени суток.
@@ -1123,10 +1150,18 @@ events = events
 ---@field share fun(self: voxelcore.class.PCMStream, alias: str) Публикация источника PCM данных для использования системами движка
 ---@field create_sound fun(self: voxelcore.class.PCMStream, name: str) Создание звука из имеющихся в потоке PCM данных
 
+---@class voxelcore.class.input_info
+---@field bits_per_sample 8|16|24|32|int
+---@field device_specifier str
+---@field channels 1|2|int
+---@field sample_rate 44100|48000|int
+
 ---@class voxelcore.libaudio.input
 ---@field request_open fun(callback: fun(access_token: str)) Запрашивает доступ к записи звука. При подтверждении, в callback передаётся токен для использовании в audio.input.fetch
 ---@field fetch fun(access_token: str, max_read_size?: int): bytearray Читает новые PCM данные аудио ввода
----@field get_input_info fun(): any
+---@field get_input_info fun(): voxelcore.class.input_info Возвращает таблицу с информацией об устройстве ввода
+---@field get_core_token fun(): str Токен сессии движка
+---@field get_max_amplitude fun(): number Возвращает некое число. У меня 0 :P
 
 ---Библиотека для управления звуками
 ---@class voxelcore.libaudio
@@ -1165,7 +1200,7 @@ audio = audio
 ---@field args { optional?: bool, type: str, name: str }[]
 
 ---@class voxelcore.libconsole
----@field add_command fun(scheme: str, description: str, handler: fun(args: any[], kwargs: str[]), cheat_comand?: bool) Создаёт команду
+---@field add_command fun(scheme: str, description: str, handler: (fun(args: any[], kwargs: str[]): string?), cheat_comand?: bool) Создаёт команду
 ---@field log fun(message: str) Выводит сообщение в консоль
 ---@field chat fun(message: str) Выводит сообщение в чат
 ---@field get_commands_list fun(): str[] Возвращает список команд
@@ -1238,6 +1273,7 @@ assets = assets
 ---@field set_visible fun(self: voxelcore.class.entity.skeleton, index?: int, status: bool) Устанавливает статус видимости кости по индексу или всего скелета, если индекс не указан
 ---@field get_color fun(self: voxelcore.class.entity.skeleton): vec3 Возвращает цвет сущности
 ---@field set_color fun(self: voxelcore.class.entity.skeleton, color: vec3) Устанавливает цвет сущности
+---@field set_interpolated fun(self: voxelcore.class.entity.skeleton, flag: bool) Устанавливает флаг интерполяции скелета
 
 ---@alias voxelcore.class.entity.components "core:pathfinding" | str
 
@@ -1264,23 +1300,27 @@ entity = entity
 
 -- ======================pathfinding========================
 
----@class voxelcore.class.pathfinding
+---@class voxelcore.class.pathfinding: voxelcore.libpathfinding
 ---@field set_target fun(target: vec3) Установка цели для агента
 ---@field get_target fun(): target: vec3 | nil Получение текущей цели агента
 ---@field get_route fun(): route: vec3[] | nil Получение текущего маршрута агента
+
+---Доступен при получении из компонента сущности: entity:get_component("core:pathfinding")
+---@type voxelcore.class.pathfinding
+pf = pf
+
+---@class voxelcore.libpathfinding
 ---@field create_agent fun(): agent: int Создаёт нового агента и возвращает его идентификатор
 ---@field remove_agent fun(agent: int): bool Удаление агента по идентификатору, если он существует. Возвращает булевое значение того существовал он или нет.
----@field set_enabled fun(agent: int, enabled: bool) Установка состояния агента
 ---@field is_enabled fun(agent: int): enabled: bool Возвращает состояние агента
+---@field set_enabled fun(agent: int, enabled: bool) Установка состояния агента
+---@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
+---@field set_jump_height fun(agent: int, height: int) Установка максимальной высоты прыжка
+---@field avoid_tag fun(agent: int, tag?: str, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
 ---@field make_route fun(start: vec3, target: vec3): vec3[] Создание маршрута на основе заданных точек
 ---@field make_route_async fun(agent: int, start: vec3, target: vec3) Асинхронное создание маршрута на основе заданных точек (получение маршрута происходит в pull_route)
 ---@field pull_route fun(agent: int): route: vec3[] | nil Получение маршрута, который агент уже нашел. Используется для получения маршрута после асинхронного поиска. Если поиск ещё не завершён, возвращает nil. Если маршрут не найден, возвращает пустую таблицу.
----@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
----@field avoid_tag fun(agent: int, tag?: str, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
-
----Доступен при получении из компонента сущности
----@type voxelcore.class.pathfinding
-pf = pf
+pathfinding = pathfinding
 
 -- =======================document==========================
 
@@ -1403,6 +1443,8 @@ RadioGroup = RadioGroup
 -- ========================canvas===========================
 
 ---@class voxelcore.class.canvas
+---@field width number
+---@field height number
 ---@field at fun(self: voxelcore.class.canvas, x: int, y: int): vec4 Возвращает RGBA пиксель по указанным координатам
 ---@field set fun(self: voxelcore.class.canvas, x: int, y: int, rgba: int) Изменяет RGBA пиксель по указанным координатам
 ---@field set fun(self: voxelcore.class.canvas, x: int, y: int, r: int, g: int, b: int, a?: int) Изменяет RGBA пиксель по указанным координатам
@@ -1419,13 +1461,13 @@ RadioGroup = RadioGroup
 ---@field create_texture fun(self: voxelcore.class.canvas, name: str) Создаёт и делится текстурой с рендерером
 ---@field unbind_texture fun(self: voxelcore.class.canvas) Отвязывает текстуру от холста
 ---@field mul fun(self: voxelcore.class.canvas, rgba: int)
----@field mul fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field mul fun(self: voxelcore.class.canvas, r: int, g: int, b: int, a?: int)
 ---@field mul fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
 ---@field add fun(self: voxelcore.class.canvas, rgba: int)
----@field add fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field add fun(self: voxelcore.class.canvas, r: int, g: int, b: int, a?: int)
 ---@field add fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
 ---@field sub fun(self: voxelcore.class.canvas, rgba: int)
----@field sub fun(self: voxelcore.class.canvas, r: int ,g: int,b, int, a?: int)
+---@field sub fun(self: voxelcore.class.canvas, r: int, g: int, b: int, a?: int)
 ---@field sub fun(self: voxelcore.class.canvas, canvas: voxelcore.class.canvas)
 ---@field encode fun(self: voxelcore.class.canvas, format: str): bytearray Кодирует изображение в указанный формат и возращает массив байт
 
