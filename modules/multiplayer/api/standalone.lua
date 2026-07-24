@@ -55,13 +55,15 @@ local function get_player()
 
   if hud then
     pid = hud.get_player();
-    name = player.get_name(pid) or name;
+    local pname = player.get_name(pid);
+    if #pname ~= 0 then name = pname end;
     local x, _, z = player.get_pos(pid)
     region_pos = { x = math.floor(x / 16), z = math.floor(z / 16) }
   end
 
   return {
     username = name,
+    identity = name,
     active = true,
     pid = pid,
     region_pos = region_pos
