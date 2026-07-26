@@ -631,6 +631,7 @@ local weather = {}
 ---@field render_distance? number Дистанция отрисовки текста
 ---@field xray_opacity? number Коэффициент видимости через препятствия (просвечивание)
 ---@field perspective? number Коэффициент перспективы
+---@field font? str Шрифт. При отсутствии используется основной
 
 ---Библиотека для управления 2D текстом в 3D пространстве
 ---@class voxelcore.libgfx.text3d Библиотека для управления 2D текстом в 3D пространстве
