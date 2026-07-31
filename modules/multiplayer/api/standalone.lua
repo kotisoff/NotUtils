@@ -63,7 +63,7 @@ local function get_player()
 
   return {
     username = name,
-    identity = name,
+    identity = tostring(pid),
     active = true,
     pid = pid,
     region_pos = region_pos
