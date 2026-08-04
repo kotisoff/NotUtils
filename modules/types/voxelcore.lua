@@ -8,8 +8,8 @@
 
 --[[
     VoxelCore Lua Types (WIP)
-    Engine version: 0.31.x
-    Version: v0.0.8
+    Engine version: pre 0.32.x
+    Version: v0.0.9
   ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -25,7 +25,9 @@
 ---@alias vec4 [number, number, number, number] Вектор размерностью 4
 ---@alias vec3 [number, number, number] Вектор размерностью 3
 ---@alias vec2 [number, number] Вектор размерностью 2
----@alias bytearray voxelcore.Bytearray|table<int> Массив байт. Собран на ffi и метатаблицах.
+
+---@alias bytearray voxelcore.Bytearray|table<int> Массив байт. Собран на ffi и метатаблицах
+---@alias ctype_int integer Int из языка C
 
 -- Short names
 
@@ -44,6 +46,11 @@
 ---| 0 Left mouse button
 ---| 1 Right mouse button
 
+-- ========================globals==========================
+
+---@type _G
+PACK_ENV = PACK_ENV;
+
 -- =========================funcs===========================
 
 ---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
@@ -61,14 +68,11 @@ sleep = sleep;
 ---@type fun(co: thread): result: any, error: str Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
 await = await;
 
----@type fun(bytes: bytearray): str Возвращает строковое представление массива байт
-Bytearray_as_string = Bytearray_as_string;
-
----@type fun(...): bytearray Собирает аргументы в массив байт
-Bytearray_construct = Bytearray_construct;
-
 ---@type fun(bytes: bytearray | str, chksum: int): int Вычисляет контрольную сумму массива байт
 crc32 = crc32;
+
+---@type fun(path: str, no_cache?: bool, env?: table): any Require до того как стал известен
+__load_script = __load_script;
 
 -- =========================math============================
 
@@ -205,6 +209,17 @@ core = core
 ---@field str_setting fun(name: str): str Возвращает значение настройки в виде строки.
 ]]
 
+-- ==========================vc=============================
+
+---@class voxelcore.libvc
+---@field is_headless fun(): bool Возвращает true, если движок запущен как консоль, в headless режиме.
+---@field is_client fun(): bool Возвращает true, если движок запущен с окном, не в headless режиме.
+---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
+---@field str_setting fun(name: str): str Возвращает значение настройки в качестве строки. Бросает исключение, если настройки не существует.
+---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает информацию о настройке. Бросает исключение, если настройки не существует.
+---@field get_version fun(): int, int Возвращает версию движка в формате major.minor
+vc = vc;
+
 -- ==========================app============================
 
 ---Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
@@ -213,8 +228,6 @@ core = core
 ---@field sleep fun(time: number) Ожидает указанное время в секундах, выполняя основной цикл движка.
 ---@field sleep_until fun(predicate: (fun():bool), max_ticks?: number, timeout?: number) Ожидает истинности утверждения (условия), проверяемого функцией, выполнячя основной цикл движка.
 ---@field quit fun(silent?: bool) Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
----@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
----@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
 ---@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
 ---@field open_world fun(name: str) Открывает мир по названию.
@@ -222,8 +235,8 @@ core = core
 ---@field save_world fun() Сохраняет мир.
 ---@field close_world fun(save_world: bool) Закрывает мир.
 ---@field delete_world fun(name: str) Удаляет мир по названию.
----@field get_version fun(): int, int Возвращает мажорную и минорную версии движка.
----@field str_setting fun(name: str): str
+---@field get_version fun(): int, int Возвращает версию движка в формате major.minor
+---@field str_setting fun(name: str): str Возвращает значение настройки в качестве строки. Бросает исключение, если настройки не существует.
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
@@ -231,11 +244,18 @@ core = core
 ---@field get_content_sources fun(): str[] Возвращает список источников контента (путей), в порядке убывания приоритета.
 ---@field set_content_sources fun(sources: str[]) Устанавливает список источников контента (путей). Указывается в порядке убывания приоритета.
 ---@field reset_content_sources fun() Сбрасывает список источников контента.
+---@field open_folder fun(path: str) Открывает движком папку по указанного пути
+---@field open_url fun(url: str) Открывает URL в браузере
 ---@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
 ---@field set_title fun(title: str) Устанавливает заголовок окна.
----@field reset_content fun() Сбрасывает контент загруженных паков.
+---@field reset_content fun(non_reset_packs?: str[]) Сбрасывает контент загруженных паков.
+---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
+---@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
 ---@field load_content fun() Загружает контент конфигурированных паков.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
+---@field start_background_instance fun(app_script: str, output_file?: str): int Создаёт headless-экземпляр движка с текущим проектом и указанным сценарием.
+---@field is_instance_alive fun(handle: int): bool Проверяет, жив ли под-экземпляр движка.
+---@field terminate_instance fun(handle: int): bool Останавливает под-экземпляр движка. Если был жив в момент вызова: true
 ---@field script str
 app = app
 
@@ -255,15 +275,58 @@ base64 = base64
 ---Класс FFIBytearray
 ---@class voxelcore.Bytearray
 ---@field append fun(self: bytearray, b: bytearray | int) Дополняет массив байт
----@field clear fun(self: bytearray) Очищает массив байт
----@field get_capacity fun(self: bytearray) Возвращает размер массива байт
 ---@field insert fun(self: bytearray, index_or_val: int, val?: int) Устанавливает или дополняет массив байт
 ---@field remove fun(self: bytearray, index: int, elements?: int) Удаляет elements или 1 значение из массива байт начиная с позиции index
----@field reserve fun(self: bytearray, new_capacity: int) Расширяет массив байт до new_capacity
 ---@field trim fun(self: bytearray) Устанавливает максимальный размер массива байт до настоящего размера
+---@field clear fun(self: bytearray) Очищает массив байт
+---@field reserve fun(self: bytearray, new_capacity: int) Расширяет массив байт до new_capacity
+---@field get_capacity fun(self: bytearray) Возвращает размер массива байт
+---@field fill fun(self: bytearray, index?: int, size?: int, byte: int) Заполняет массив определённым байтом полностью либо в определённом диапазоне. byte: uint8
+---@field slice fun(self: bytearray, offset: int, length: int): bytearray Создаёт новый Bytearray, содержащий копию части данных с offset до offset + length
+---@field copy fun(self: bytearray, src_index: int, dst: bytearray, dst_index: int, size: int) Копирует блок байт из исходного массива, начиная с src_index в массив dst, начиная в нём с dst_index.  В случае выхода за пределы размера массива или при некорректном size кидает ошибку.
+---@field move fun(self: bytearray, from: int, to: int, size: int) Безопасно копирует перекрывающиеся области памяти (байт) в пределах одного массива. В случае выхода за пределы диапазона кидает ошибку.
 
 ---@type voxelcore.Bytearray | (fun(...): bytearray)
 Bytearray = Bytearray
+
+---@type fun(bytes: bytearray): str Возвращает строковое представление массива байт
+Bytearray_as_string = Bytearray_as_string
+
+---@type fun(bytes: bytearray): "0" | str, int? Возвращает строку-указатель на массив байт и его размер или "0".
+Bytearray_as_ptr = Bytearray_as_ptr
+
+---@type fun(...): bytearray Собирает аргументы в массив байт
+Bytearray_construct = Bytearray_construct
+
+-- ====================bytearray=view=======================
+
+---@class voxelcore.Bytearray.view
+---@field typesize fun(): int Возвращает размер типа. Аналог sizeof() из языка C.
+
+---@alias voxelcore.Bytearray.view.func fun(bytes: bytearray): voxelcore.Bytearray.view
+
+I8view = I8view --[[@as voxelcore.Bytearray.view.func]]
+U16view = U16view --[[@as voxelcore.Bytearray.view.func]]
+I16view = U16view --[[@as voxelcore.Bytearray.view.func]]
+U32view = U32view --[[@as voxelcore.Bytearray.view.func]]
+I32view = I32view --[[@as voxelcore.Bytearray.view.func]]
+U64view = U64view --[[@as voxelcore.Bytearray.view.func]]
+I64view = I64view --[[@as voxelcore.Bytearray.view.func]]
+FLTview = FLTview --[[@as voxelcore.Bytearray.view.func]]
+DBLview = DBLview --[[@as voxelcore.Bytearray.view.func]]
+
+-- ========================ctypes===========================
+
+---@class voxelcore.libctypes
+---@field uint8 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: 0 Max: 2^8-1
+---@field uint16 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: 0 Max: 2^16-1
+---@field uint32 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: 0 Max: 2^32-1
+---@field uint64 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: 0 Max: 2^64-1
+---@field int8 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: -2^7 Max: 2^7-1
+---@field int16 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: -2^15 Max: 2^15-1
+---@field int32 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: -2^31 Max: 2^31-1
+---@field int64 fun(value: str|number): ctype_int Превращает число в тип языка C. Min: -2^63 Max: 2^63-1
+ctypes = ctypes
 
 -- ========================random===========================
 
@@ -405,6 +468,7 @@ cameras = cameras
 ---@class voxelcore.libentities Библиотека предназначена для работы с реестром сущностей.
 ---@field get fun(uid: int): voxelcore.class.entity Возвращает сущность по уникальному идентификатору.
 ---@field spawn fun(name: str, pos: vec3, args?: table<str, any>): voxelcore.class.entity Создает указанную сущность
+---@field despawn fun(uid: int) Удаляет сущность по уникальному идентификатору
 ---@field exists fun(uid: int): bool Проверяет наличие сущности по уникальному идентификатору
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по UID
 ---@field def_name fun(uid: int): str Возвращает имя определения сущности по индексу (строковый ID)
@@ -1235,7 +1299,7 @@ assets = assets
 ---@field get_rot fun(self: voxelcore.class.entity.transform): mat4 Возвращает вращение сущности
 ---@field set_rot fun(self: voxelcore.class.entity.transform, rotation: mat4) Устанавливает вращение сущности
 
----@alias voxelcore.class.entity.body_types "dyncamic" | "kinematic" | "static"
+---@alias voxelcore.class.entity.body_types "dyncamic" | "kinematic" | "static" | string
 
 ---@class voxelcore.class.entity.rigidbody
 ---@field is_enabled fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включен ли рассчет физики тела
