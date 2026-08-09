@@ -49,30 +49,30 @@
 -- ========================globals==========================
 
 ---@type _G
-PACK_ENV = PACK_ENV;
+PACK_ENV = PACK_ENV
 
 -- =========================funcs===========================
 
 ---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
-is_array = is_array;
+is_array = is_array
 
 ---@type fun(path: str): str, str Разбивает путь на две части и возвращает их: входную точку и путь к файлу.
-parse_path = parse_path;
+parse_path = parse_path
 
 ---@type fun(iters: int, func: function, ...) Вызывает функцию func iters раз, передавая ей аргументы ..., а после выводит в консоль время в микросекундах, которое прошло с момента вызова timeit.
-timeit = timeit;
+timeit = timeit
 
 ---@type fun(timesec: number) Вызывает остановку корутины до тех пор, пока не пройдёт количество секунд, указанное в timesec. Функция может быть использована только внутри корутины.
-sleep = sleep;
+sleep = sleep
 
 ---@type fun(co: thread): result: any, error: str Ожидает завершение переданной корутины, возвращая поток управления. Функция может быть использована только внутри корутины. Аналог *pcall*.
-await = await;
+await = await
 
 ---@type fun(bytes: bytearray | str, chksum: int): int Вычисляет контрольную сумму массива байт
-crc32 = crc32;
+crc32 = crc32
 
 ---@type fun(path: str, no_cache?: bool, env?: table): any Require до того как стал известен
-__load_script = __load_script;
+__load_script = __load_script
 
 -- =========================math============================
 
@@ -218,7 +218,7 @@ core = core
 ---@field str_setting fun(name: str): str Возвращает значение настройки в качестве строки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает информацию о настройке. Бросает исключение, если настройки не существует.
 ---@field get_version fun(): int, int Возвращает версию движка в формате major.minor
-vc = vc;
+vc = vc
 
 -- ==========================app============================
 
@@ -350,7 +350,7 @@ random = random
 ---@class voxelcore.libcompression
 ---@field encode fun(bytes: bytearray | table<int>, algo?: "gzip" | str, use_table?: bool): bytearray Сжимает массив байт.
 ---@field decode fun(bytes: bytearray | table<int>, algo?: "gzip" | str, use_table?: bool): bytearray Разжимает массив байт.
-compression = compression;
+compression = compression
 
 -- =========================block===========================
 
@@ -537,7 +537,6 @@ file = file
 
 -- =======================io_stream=========================
 
-
 ---@alias voxelcore.class.io_stream.data bytearray | int[] | str | str[]
 ---@alias voxelcore.class.io_stream.mode "default" | "yield" | "buffered"
 ---@alias voxelcore.class.io_stream.flushmode "all" | "buffer"
@@ -623,26 +622,26 @@ local blockwraps = {}
 -- =====================gfx.particles=======================
 
 ---@class voxelcore.class.particle
----@field texture?	str Текстура частицы.	
----@field frames? str[] Кадры анимации (массив имен текстур). Должны находиться в одном атласе.	
----@field lighting? bool Освещение.	
----@field collision? bool Обнаружение столкновений.	
----@field max_distance? number Максимальная дистанция от камеры, при которой происходит спавн частиц.	
----@field spawn_interval? number Интервал спавна частиц в секундах.	
----@field lifetime? number Среднее время жизни частиц в секундах.	
----@field lifetime_spread? number Максимальное отклонение времени жизни частицы (от 0.0 до 1.0).	
----@field velocity? vec3 Начальная линейная скорость частиц.	
----@field acceleration? vec3 Ускорение частиц.	
----@field explosion? vec3 Сила разлёта частиц при спавне.	
----@field size? vec3 Размер частиц.	
----@field size_spread? number Максимальное отклонение времени размера частиц.	
----@field angle_spread? number Максимальное отклонение начального угла поворота (от 0 до 1)	
----@field min_angular_vel? number Минимальная угловая скорость (радианы в сек.). Неотрицательное.	
----@field max_angular_vel? number Максимальная угловая скорость (радианы в сек.). Неотрицательное.	
----@field spawn_shape? "ball"|"sphere"|"box" Форма области спавна частиц. (ball/sphere/box)	
----@field spawn_spread? vec3 Размер области спавна частиц.	
+---@field texture?	str Текстура частицы.
+---@field frames? str[] Кадры анимации (массив имен текстур). Должны находиться в одном атласе.
+---@field lighting? bool Освещение.
+---@field collision? bool Обнаружение столкновений.
+---@field max_distance? number Максимальная дистанция от камеры, при которой происходит спавн частиц.
+---@field spawn_interval? number Интервал спавна частиц в секундах.
+---@field lifetime? number Среднее время жизни частиц в секундах.
+---@field lifetime_spread? number Максимальное отклонение времени жизни частицы (от 0.0 до 1.0).
+---@field velocity? vec3 Начальная линейная скорость частиц.
+---@field acceleration? vec3 Ускорение частиц.
+---@field explosion? vec3 Сила разлёта частиц при спавне.
+---@field size? vec3 Размер частиц.
+---@field size_spread? number Максимальное отклонение времени размера частиц.
+---@field angle_spread? number Максимальное отклонение начального угла поворота (от 0 до 1)
+---@field min_angular_vel? number Минимальная угловая скорость (радианы в сек.). Неотрицательное.
+---@field max_angular_vel? number Максимальная угловая скорость (радианы в сек.). Неотрицательное.
+---@field spawn_shape? "ball"|"sphere"|"box" Форма области спавна частиц. (ball/sphere/box)
+---@field spawn_spread? vec3 Размер области спавна частиц.
 ---@field spawn_offset? vec3 Смещение области спавна частиц.
----@field random_sub_uv? number Размер случайного подрегиона текстуры (1 - будет использована вся текстура).	
+---@field random_sub_uv? number Размер случайного подрегиона текстуры (1 - будет использована вся текстура).
 
 ---Библиотека для упрпавления частицами.
 ---@class voxelcore.libgfx.particles Библиотека для упрпавления частицами.
@@ -659,13 +658,13 @@ local particles = {}
 ---@field texture? str Текстура осадков
 ---@field noise? str Шум осадков
 ---@field vspeed? number Вертикальная скорость осадков
----@field hspeed? number Максимальная горизонтальная скорость осадков	
----@field scale? number Масштаб UV развертки осадков	
----@field min_opacity? number Минимальный множитель alpha-канала осадков	
----@field max_opacity? number Максимальный множитель alpha-канала осадков	
----@field max_intencity? number Масимальная интенсивность осадков	
----@field opaque? bool Отключение полупрозрачности осадков	
----@field splash? voxelcore.class.particle Таблица настроек частиц всплесков от осадков	
+---@field hspeed? number Максимальная горизонтальная скорость осадков
+---@field scale? number Масштаб UV развертки осадков
+---@field min_opacity? number Минимальный множитель alpha-канала осадков
+---@field max_opacity? number Максимальный множитель alpha-канала осадков
+---@field max_intencity? number Масимальная интенсивность осадков
+---@field opaque? bool Отключение полупрозрачности осадков
+---@field splash? voxelcore.class.particle Таблица настроек частиц всплесков от осадков
 
 ---@class voxelcore.class.weather
 ---@field fall? voxelcore.class.weather.fall Осадки
@@ -743,19 +742,20 @@ local posteffects = {}
 ---@field set_visible fun(skeleton: str, index?: int, status: bool) Устанавливает статус видимости кости по индексу или всего скелета, если индекс не указан
 ---@field get_color fun(skeleton: str): vec3 Возвращает цвет сущности
 ---@field set_color fun(skeleton: str, color: vec3) Устанавливает цвет сущности
-local skeletons = {};
+local skeletons = {}
 
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
-gfx = gfx or {
-  text3d = text3d,
-  blockwraps = blockwraps,
-  weather = weather,
-  particles = particles,
-  posteffects = posteffects,
-  skeletons = skeletons
-}
+gfx = gfx
+	or {
+		text3d = text3d,
+		blockwraps = blockwraps,
+		weather = weather,
+		particles = particles,
+		posteffects = posteffects,
+		skeletons = skeletons,
+	}
 
 -- ==========================gui============================
 
@@ -967,7 +967,6 @@ mat4 = mat4
 ---@field close fun(self: voxelcore.class.udp_serversocket) Завершает принятие датаграмм
 ---@field is_open fun(self: voxelcore.class.udp_serversocket): bool Проверяет возможность принятия датаграмм
 ---@field get_port fun(self: voxelcore.class.udp_serversocket): int Возвращает порт, который слушает сервер
-
 
 ---Библиотека для работы с сетью.
 ---@class voxelcore.libnetwork Библиотека для работы с сетью.
@@ -1543,24 +1542,24 @@ Canvas = Canvas
 
 -- ====================world=generator======================
 
----@alias voxelcore.class.HeightMapConstructor fun(width, height)
+---@alias voxelcore.class.HeightMapConstructor fun(width, height): voxelcore.class.HeightMap
 
 ---@class voxelcore.class.HeightMap
 ---@field noiseSeed number
 ---@field abs fun(self: voxelcore.class.HeightMap): voxelcore.class.HeightMap Приводит значения высот к абсолютным.
----@field add fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Прибавление
----@field sub fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Вычитание
----@field mul fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Умножение
----@field pow fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Возведение в степень
----@field min fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Минимум
----@field max fun(value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Максимум
----@field mixin fun(value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap): voxelcore.class.HeightMap Перемешивание
----@field dump fun(path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
----@field noise fun(offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
----@field cellnoise fun(offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY: voxelcore.class.HeightMap) Аналог heightmap:noise генерирующий клеточный шум.
----@field resize fun(width: number, height: number, lerp: "nearest"|"linear"|"cubic"): voxelcore.class.HeightMap Изменяет размер карты высот.
----@field crop fun(x: number, y: number, width: number, height: number): voxelcore.class.HeightMap Обрезает карту высот до заданной области.
----@field at fun(x:number,y:number): number Возвращает значение высота на заданной позиции.
+---@field add fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Прибавление
+---@field sub fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Вычитание
+---@field mul fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Умножение
+---@field pow fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Возведение в степень
+---@field min fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Минимум
+---@field max fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Максимум
+---@field mixin fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap): voxelcore.class.HeightMap Перемешивание
+---@field dump fun(self: voxelcore.class.HeightMap, path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
+---@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
+---@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Аналог heightmap:noise генерирующий клеточный шум.
+---@field resize fun(self: voxelcore.class.HeightMap, width: number, height: number, lerp: "nearest"|"linear"|"cubic"): voxelcore.class.HeightMap Изменяет размер карты высот.
+---@field crop fun(self: voxelcore.class.HeightMap, x: number, y: number, width: number, height: number): voxelcore.class.HeightMap Обрезает карту высот до заданной области.
+---@field at fun(self: voxelcore.class.HeightMap, x:number,y:number): number Возвращает значение высота на заданной позиции.
 
 ---@type voxelcore.class.HeightMapConstructor
 Heightmap = Heightmap
