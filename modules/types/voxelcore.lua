@@ -1546,20 +1546,20 @@ Canvas = Canvas
 
 ---@class voxelcore.class.HeightMap
 ---@field noiseSeed number
----@field abs fun(self: voxelcore.class.HeightMap): voxelcore.class.HeightMap Приводит значения высот к абсолютным.
----@field add fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Прибавление
----@field sub fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Вычитание
----@field mul fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Умножение
----@field pow fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Возведение в степень
----@field min fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Минимум
----@field max fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number): voxelcore.class.HeightMap Максимум
----@field mixin fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap): voxelcore.class.HeightMap Перемешивание
+---@field abs fun(self: voxelcore.class.HeightMap) Приводит значения высот к абсолютным.
+---@field add fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Прибавление
+---@field sub fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Вычитание
+---@field mul fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Умножение
+---@field pow fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Возведение в степень
+---@field min fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Минимум
+---@field max fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Максимум
+---@field mixin fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap) Перемешивание
 ---@field dump fun(self: voxelcore.class.HeightMap, path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
 ---@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
----@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Аналог heightmap:noise генерирующий клеточный шум.
----@field resize fun(self: voxelcore.class.HeightMap, width: number, height: number, lerp: "nearest"|"linear"|"cubic"): voxelcore.class.HeightMap Изменяет размер карты высот.
----@field crop fun(self: voxelcore.class.HeightMap, x: number, y: number, width: number, height: number): voxelcore.class.HeightMap Обрезает карту высот до заданной области.
----@field at fun(self: voxelcore.class.HeightMap, x:number,y:number): number Возвращает значение высота на заданной позиции.
+---@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Аналог heightmap:noise, генерирующий клеточный шум.
+---@field resize fun(self: voxelcore.class.HeightMap, width: number, height: number, lerp: "nearest"|"linear"|"cubic") Изменяет размер карты высот.
+---@field crop fun(self: voxelcore.class.HeightMap, x: number, y: number, width: number, height: number) Обрезает карту высот до заданной области.
+---@field at fun(self: voxelcore.class.HeightMap, x:number,y:number): number Возвращает значение высоты на заданной позиции.
 
 ---@type voxelcore.class.HeightMapConstructor
 Heightmap = Heightmap
