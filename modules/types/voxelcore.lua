@@ -1555,8 +1555,8 @@ Canvas = Canvas
 ---@field max fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Максимум
 ---@field mixin fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap) Перемешивание
 ---@field dump fun(self: voxelcore.class.HeightMap, path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
----@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) -шум, прибавляя его к имеющимся значениям.
----@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) генерирующий клеточный шум.
+---@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
+---@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Аналог heightmap:noise, генерирующий клеточный шум.
 ---@field resize fun(self: voxelcore.class.HeightMap, width: number, height: number, lerp: "nearest"|"linear"|"cubic") Изменяет размер карты высот.
 ---@field crop fun(self: voxelcore.class.HeightMap, x: number, y: number, width: number, height: number) Обрезает карту высот до заданной области.
 ---@field at fun(self: voxelcore.class.HeightMap, x:number,y:number): number Возвращает значение высоты на заданной позиции.
