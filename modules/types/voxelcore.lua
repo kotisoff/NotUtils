@@ -747,15 +747,14 @@ local skeletons = {}
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
-gfx = gfx
-	or {
-		text3d = text3d,
-		blockwraps = blockwraps,
-		weather = weather,
-		particles = particles,
-		posteffects = posteffects,
-		skeletons = skeletons,
-	}
+gfx = gfx or {
+  text3d = text3d,
+  blockwraps = blockwraps,
+  weather = weather,
+  particles = particles,
+  posteffects = posteffects,
+  skeletons = skeletons,
+}
 
 -- ==========================gui============================
 
@@ -1546,7 +1545,13 @@ Canvas = Canvas
 
 ---@class voxelcore.class.HeightMap
 ---@field noiseSeed number
----@field abs fun(self: voxelcore.class.HeightMap) Приводит значения высот к абсолютным.
+---@field abs fun(self: voxelcore.class.HeightMap) Приведение значений высот к абсолютным
+---@field floor fun(self: voxelcore.class.HeightMap) Округление к меньшему целому
+---@field ceil fun(self: voxelcore.class.HeightMap) Округление к большему целому
+---@field round fun(self: voxelcore.class.HeightMap) Округление к ближайшему целому
+---@field sin fun(self: voxelcore.class.HeightMap) Синус от значений высот (в радианах)
+---@field cos fun(self: voxelcore.class.HeightMap) Косинус от значений высот (в радианах)
+---@field tan fun(self: voxelcore.class.HeightMap) Тангенс от значений высот (в радианах)
 ---@field add fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Прибавление
 ---@field sub fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Вычитание
 ---@field mul fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Умножение
