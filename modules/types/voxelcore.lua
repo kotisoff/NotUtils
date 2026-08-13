@@ -51,6 +51,9 @@
 ---@type _G
 PACK_ENV = PACK_ENV
 
+---@type str
+PACK_ID = PACK_ID
+
 -- =========================funcs===========================
 
 ---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
@@ -1174,7 +1177,7 @@ vec4 = vec4
 ---@field get_day_time fun(): number Возвращает текущее игровое время от 0.0 до 1.0, где 0.0 и 1.0 - полночь, 0.5 - полдень.
 ---@field set_day_time fun(time: number) Устанавливает указанное игровое время.
 ---@field get_day_time_speed fun(): number Устанавливает указанную скорость смены времени суток.
----@field set_day_time_speed fun(value: number) Возвращает скорость скорость смены времени суток.
+---@field set_day_time_speed fun(value: number) Устанавливает указанную скорость смены времени суток.
 ---@field get_total_time fun(): number Возвращает суммарное время, прошедшее в мире.
 ---@field get_seed fun(): int Возвращает зерно мира.
 ---@field get_generator fun(): str Возвращает имя генератора.
