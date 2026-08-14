@@ -51,6 +51,9 @@
 ---@type _G
 PACK_ENV = PACK_ENV
 
+---@type str
+PACK_ID = PACK_ID
+
 -- =========================funcs===========================
 
 ---@type fun(x: table): bool Возвращает true, если переданная таблица является массивом, тоесть если каждый ключ это целое число больше или равное единице и если каждый ключ следует за прошлым.
@@ -747,15 +750,14 @@ local skeletons = {}
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
-gfx = gfx
-	or {
-		text3d = text3d,
-		blockwraps = blockwraps,
-		weather = weather,
-		particles = particles,
-		posteffects = posteffects,
-		skeletons = skeletons,
-	}
+gfx = gfx or {
+  text3d = text3d,
+  blockwraps = blockwraps,
+  weather = weather,
+  particles = particles,
+  posteffects = posteffects,
+  skeletons = skeletons,
+}
 
 -- ==========================gui============================
 
@@ -1176,7 +1178,7 @@ vec4 = vec4
 ---@field get_day_time fun(): number Возвращает текущее игровое время от 0.0 до 1.0, где 0.0 и 1.0 - полночь, 0.5 - полдень.
 ---@field set_day_time fun(time: number) Устанавливает указанное игровое время.
 ---@field get_day_time_speed fun(): number Устанавливает указанную скорость смены времени суток.
----@field set_day_time_speed fun(value: number) Возвращает скорость скорость смены времени суток.
+---@field set_day_time_speed fun(value: number) Устанавливает указанную скорость смены времени суток.
 ---@field get_total_time fun(): number Возвращает суммарное время, прошедшее в мире.
 ---@field get_seed fun(): int Возвращает зерно мира.
 ---@field get_generator fun(): str Возвращает имя генератора.
@@ -1547,7 +1549,13 @@ Canvas = Canvas
 
 ---@class voxelcore.class.HeightMap
 ---@field noiseSeed number
----@field abs fun(self: voxelcore.class.HeightMap) Приводит значения высот к абсолютным.
+---@field abs fun(self: voxelcore.class.HeightMap) Приведение значений высот к абсолютным
+---@field floor fun(self: voxelcore.class.HeightMap) Округление к меньшему целому
+---@field ceil fun(self: voxelcore.class.HeightMap) Округление к большему целому
+---@field round fun(self: voxelcore.class.HeightMap) Округление к ближайшему целому
+---@field sin fun(self: voxelcore.class.HeightMap) Синус от значений высот (в радианах)
+---@field cos fun(self: voxelcore.class.HeightMap) Косинус от значений высот (в радианах)
+---@field tan fun(self: voxelcore.class.HeightMap) Тангенс от значений высот (в радианах)
 ---@field add fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Прибавление
 ---@field sub fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Вычитание
 ---@field mul fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Умножение
@@ -1556,8 +1564,8 @@ Canvas = Canvas
 ---@field max fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number) Максимум
 ---@field mixin fun(self: voxelcore.class.HeightMap, value: voxelcore.class.HeightMap|number, t: voxelcore.class.HeightMap) Перемешивание
 ---@field dump fun(self: voxelcore.class.HeightMap, path: str) Ссоздает изображение на основе карты высот переводя значения из дипазона [-1.0, 1.0] в значения яркости [0, 255], сохраняя в указанный файл.
----@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) -шум, прибавляя его к имеющимся значениям.
----@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) генерирующий клеточный шум.
+---@field noise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Метод генерирующий симплекс-шум, прибавляя его к имеющимся значениям.
+---@field cellnoise fun(self: voxelcore.class.HeightMap, offset: vec2, scale: number, octaves?: int, multiplier?: number, shiftMapX?: voxelcore.class.HeightMap, shiftMapY?: voxelcore.class.HeightMap) Аналог heightmap:noise, генерирующий клеточный шум.
 ---@field resize fun(self: voxelcore.class.HeightMap, width: number, height: number, lerp: "nearest"|"linear"|"cubic") Изменяет размер карты высот.
 ---@field crop fun(self: voxelcore.class.HeightMap, x: number, y: number, width: number, height: number) Обрезает карту высот до заданной области.
 ---@field at fun(self: voxelcore.class.HeightMap, x:number,y:number): number Возвращает значение высоты на заданной позиции.
