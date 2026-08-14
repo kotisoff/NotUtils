@@ -800,6 +800,8 @@ gui = gui
 ---@field open_permanent fun(layout: str) Добавляет постоянный элемент на экран. Элемент не удаляется при закрытии инвентаря. Чтобы не перекрывать затенение в режиме инвентаря нужно установить z-index элемента меньшим чем -1. В случае тега inventory, произойдет привязка слотов к инвентарю игрока.
 ---@field close fun(layoutid: str) Удаляет элемент с экрана.
 ---@field get_block_inventory fun(): int Дает ID инвентаря открытого блока или 0.
+---@field get_second_inventory fun(): int Дает ID второго открытого инвентаря (блок, виртуальный инвентарь...) или 0.
+---@field get_exchange_inventory fun(): int Доступно с 0.32: Получить ID инвентаря, в котором находится предмет во время его перемещения в инвентаре, или 0 если его не существует. Имеет единственный слот - 0
 ---@field get_player fun(): int Дает ID игрока, к которому привязан пользовательский интерфейс.
 ---@field pause fun() Открывает меню паузы.
 ---@field resume fun() Закрывает меню паузы.
@@ -808,7 +810,6 @@ gui = gui
 ---@field set_allow_pause fun(flag: bool) Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
 ---@field hand_controller function Функция, управляющая именованным скелетом 'hand' (см. gfx.skeletons).
 ---@field reload_script fun(layout: str) Перезагружает скрипт лейаута
----@field get_second_inventory fun(): int Дает ID второго открытого инвентаря (блок, виртуальный инвентарь...) или 0.
 ---@field is_player_inventory_open fun(): bool Возвращает true если открыт инвентарь игрока.
 ---@field default_hand_controller function
 hud = hud
