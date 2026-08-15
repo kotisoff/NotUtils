@@ -1,7 +1,7 @@
 ---@meta
 
 --[[
-  Neutron/Quartz Lua Types (WIP)
+  Neutron/Quartz Lua Types
   Neutron Server version: v0.3.1 / Neutron Client version: v0.5.1 / Quartz version v0.1.1
   Version: v0.0.4
   ]]
@@ -28,12 +28,21 @@
 ---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
 ---@field pid number PlayerID игрока
----@field region_pos { x: int, z: int } Позиция региона 2x2 чанка, в котором находится игрок
+---@field region_pos { x: int, y: int, z: int } Позиция региона 2x2 чанка, в котором находится игрок
 
 ---@class neutron.class.client
 ---@field active boolean Статус активности клиента (false - вне сети)
 ---@field account neutron.class.account Аккаунт, привязанный к клиенту
 ---@field player neutron.class.player Игрок, привязанный к клиенту
+
+---@class neutron.class.world
+---@field active bool Статус активности мира
+---@field name str Название мира
+---@field rules table Таблица с правилами мира
+
+---@class neturon.class.rule
+---@field listen fun(handler: (fun(obj: neutron.class.world|neutron.class.player, value: bool))): id: str Подписка на изменения правил
+---@field unlisten fun(id: str) Отписка от изменений
 
 -- ========================shared===========================
 
@@ -47,13 +56,26 @@
 ---@field serialize fun(inv: neutron.class.inventory): bytearray Возвращает inv в виде байт
 ---@field deserialize fun(bytes: bytearray): neutron.class.inventory Читает инвентарь из массива байт
 
+---@class neutron.shared.rules.define_properties
+---@field default bool
+---@field level "player"|"world"
+
+---@class neutron.shared.utils.Module
+---@field shared table
+---@field client table
+---@field server table
+---@field build fun(self: neutron.shared.utils.Module): table Объединяет таблицы в зависимости от того сервер это или клиент
+
+---@class neutron.shared.utils
+---@field classes.module fun(shared?: table): neutron.shared.utils.Module
+
 -- ========================server===========================
 
 -- Server.accounts
 
 ---@class neutron.server.accounts.roles
 ---@field get fun(account: neutron.class.account): table Возвращает конфиг роли по аккаунту
----@field get_rules fun(account: neutron.class.account, category: boolean | string): table Возвращает таблицу правил роли по аккаунту. Category - категория тех правил, которые надо вернуть (false -> game_rules / true -> server_rules). Или можно строчкой прописать нужную category
+---@field get_permissions fun(account: neutron.class.account): table Возвращает таблицу правил роли по аккаунту.
 ---@field is_higher fun(role1: table, role2: table): boolean Возвращает true если первая роль имеет больший приоритет, чем вторая
 ---@field exists fun(role: table): boolean Возвращает true если роль существует
 
@@ -128,20 +150,19 @@
 ---@field provider? fun(uid, field_name): boolean | any Для своих полей: Получения значения поля. Для компонентов: Получение значения поля, всегда bool. Если provider вернёт true, компонент включится у клиента, если false - выключится.
 
 ---@class neutron.entity.registration_config
+---@field on_client_spawn fun(player: neutron.class.player, uid: int): args: table Вызывается при первом появлении сущности на клиенте. Возвращает таблицу аргументов спавна
+---@field on_client_despawn fun(player: neutron.class.player, uid: int) Вызывается при удалении сущности на клиенте
 ---@field standart_fields? table<string, neutron.entity.field>
 ---@field custom_fields? table<string, neutron.entity.field>
 ---@field textures? table<string, neutron.entity.field>
----@field models? table<string, neutron.entity.field>
+---@field models? table<int, neutron.entity.field>
+---@field matrix? table<int, neutron.entity.field>
 ---@field components? table<string, neutron.entity.field>
-
----@class neutron.server.entities.players
----@field add_field fun( field_type: string, key: string, field: neutron.entity.field ) Функция именно что ДОБАВЛЯЕТ новые поля ВСЕМ игрокам, а не заменяет старые, если создаваемое поле уже существует, функция вернёт false во избежании конфликтов
 
 ---@class neutron.server.entities
 ---@field register fun(entity_name: string, config: neutron.entity.registration_config, spawn_handler: fun(name: string, args: table | nil, client: neutron.class.client)) Регистрация сущности
 ---@field eval { NotEquals: (fun(): number), Always: (fun(): number), Never: (fun(): number) }
----@field players neutron.server.entities.players
----@field types { Custom: string, Standart: string, Models: string, Textures: string, Components: string } Доступные типы
+---@field types { Custom: "custom_fields", Standard: "standard_fields", Models: "models", Matrix: "matrix", Textures: "textures", Components: "components" } Доступные типы
 
 -- Server.env
 
@@ -160,7 +181,73 @@
 ---@class neutron.server.events
 ---@field tell fun(pack: string, event: string, client: neutron.class.client, bytes: bytearray) Отправляет событие event с данными bytes моду pack на сторону указанного клиента client.
 ---@field echo fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack всем подключённым клиентам.
+---@field selective_echo fun(pack: string, event: string, bytes: bytearray, selector: (fun(client: neutron.class.client): bool)) Отправляет событие только тем клиентам, для которых selector вернул true
 ---@field on fun(pack: string, event: string, handler: fun(client: neutron.class.client, bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes и Client, с которого пришло сообщение
+
+-- Server.messages
+
+---@class neutron.server.messages.Message
+---@field tell fun(self: neutron.server.messages.Message, client: neutron.class.client, data: table) Отправляет сообщение определённому клиенту
+---@field echo fun(self: neutron.server.messages.Message, data: table) Отравляет сообщение всем подключенным клиентам
+---@field selective_echo fun(self: neutron.server.messages.Message, data: table, selector: (fun(client: neutron.class.client): bool)) Отправляет сообщение только тем клиентам, для которых selector вернул true
+---@field on fun(self: neutron.server.messages.Message, handler: (fun(client: neutron.class.client, data: table))) Обработчик входящих сообщений
+
+---@class neutron.server.messages
+---@field new fun(pack: string, event: string, schema: table): neutron.server.messages.Message Создаёт сообщение
+
+-- Server.replications
+
+---@class neutron.server.replications.Replicator
+---@field create_public_replica fun(id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table Создаёт публичную реплику с селектором
+---@field create_private_replica fun(id: int, initial_value: table, client: neutron.class.client): table Создаёт приватную реплику с конкретным игроком
+---@field remove_replica fun(id: int) Удаляет реплику
+
+---@class neutron.server.replications
+---@field new fun(pack: string, event: string, schema: table): neutron.server.replications.Replicator Создаёт репликатор
+
+-- Server.predicted_events
+
+---@class neutron.server.predicted_events.Instance
+---@field event_id int
+---@field client neutron.class.client
+---@field data table
+---@field start_time number
+---@field progress number
+---@field active bool
+---@field interrupt fun(self: neutron.server.predicted_events.Instance) Прерывает действие
+---@field get_progress fun(self: neutron.server.predicted_events.Instance): number Возвращает прогресс
+---@field get_elapsed fun(self: neutron.server.predicted_events.Instance): number Возвращает прошедшее время с начала выполнения действия
+
+---@class neutron.server.predicted_events.PredictedEvent
+---@field хуй nil В принципе больше тут ничё и нет.
+
+---@class neutron.server.predicted_events.config
+---@field on_start fun(client: neutron.class.client, data: table): allow: bool Вызывается когда клиент начал событие. Возвращаемное значение allow решает, принять ли действие. (Следует учитывать, что чанк pos должен быть загружен)
+---@field on_interrupt fun(client: neutron.class.client, instance: neutron.server.predicted_events.Instance) Вызывается когда клиент прервал событие
+---@field on_tick fun(client: neutron.class.client, instance: neutron.server.predicted_events.Instance): number Вызывается каждый серверный тик для каждого активного Instance. Возвращает текущий прогресс текущего Instance.
+---@field on_finish fun(client: neutron.class.client, instance: neutron.server.predicted_events.Instance) Вызывается когда прогресс >= 1
+
+---@class neutron.server.predicted_events
+---@field new fun(pack: string, event: string, schema: ({ pos: str }|table), config: neutron.server.predicted_events.config): neutron.server.predicted_events.PredictedEvent Создаёт PredictedEvent.
+
+-- Server.rules
+
+---@class neutron.server.rules.players
+---@field get_value fun(player: neutron.class.player, rule: neturon.class.rule): bool Получает значения правила
+---@field set_value fun(player: neutron.class.player, rule: neturon.class.rule, value: bool) Устанавливает значение правила
+---@field get_all_values fun(player: neutron.class.player): table<str, bool> Получает все правила игрока
+
+---@class neutron.server.rules.worlds
+---@field get_value fun(world: neutron.class.world, rule: neturon.class.rule): bool Получает значения правила
+---@field set_value fun(world: neutron.class.world, rule: neturon.class.rule, value: bool) Устанавливает значение правила
+
+---@class neutron.server.rules
+---@field define fun(name: string, properties: neutron.shared.rules.define_properties): neturon.class.rule Определяет правило
+---@field define_if_absent fun(name: string, properties: neutron.shared.rules.define_properties): neturon.class.rule Определяет правило, если его ещё нет
+---@field is_defined fun(name: string): bool Проверяет существование
+---@field get_rule fun(name: string): neturon.class.rule? Получает правило, если оно есть
+---@field players neutron.server.rules.players
+---@field worlds neutron.server.rules.worlds
 
 -- Server.interceptors
 
@@ -215,6 +302,8 @@
 ---@field get_player fun(account: neutron.class.account): neutron.class.player Возвращает объект игрока по аккаунту
 ---@field get_in_radius fun(pos: vec3, radius: number): table<string, neutron.class.player> Возвращает таблицу игроков в определённом радиусе
 ---@field get_by_pid fun(pid: int): neutron.class.player | nil Возвращает объект игрока по pid
+---@field chunk_is_loaded fun(player: neutron.class.player, x: int, z: int): bool Проверяет, загружен ли чанк у игрока
+---@field get_world fun(player: neutron.class.player): neutron.class.world Возвращает объект мира, в котором находится игрок
 ---@field by_identity { is_online: (fun(identity: str): bool) }
 ---@field by_username { is_online: (fun(username: str): bool) }
 
@@ -305,6 +394,12 @@
 ---@field set_axis_y fun(self: neutron.gfx.text3d, axis: vec3) Устанавливает вектор оси X
 ---@field set_rotation fun(self: neutron.gfx.text3d, rot: mat4) Устанавливает вектора осей
 ---@field update_settings fun(self: neutron.gfx.text3d, preset: voxelcore.class.text3d) Обновляет настройки отображения
+---@field add_blind fun(self: neutron.gfx.text3d, player: neutron.class.player) Добавляет игрока в список тех, кто не видит текст
+---@field remove_blind fun(self: neutron.gfx.text3d, player: neutron.class.player) Удаляет игрока из списка тех, кто не видит текст
+---@field add_sighted fun(self: neutron.gfx.text3d, player: neutron.class.player) Добавляет игрока в список тех, кто видит текст
+---@field remove_sighted fun(self: neutron.gfx.text3d, player: neutron.class.player) Удаляет игрока из списка тех, кто видит текст
+---@field get_entity fun(self: neutron.gfx.text3d): int Получает идентификатор сущности, к которой привязан текст
+---@field set_entity fun(self: neutron.gfx.text3d, entity: int) Устанавливает идентификатор сущности, к которой привязан текст
 
 ---@class neutron.server.text3d
 ---@field show fun(position: vec3, text: string, preset: voxelcore.class.text3d, extension?: voxelcore.class.text3d): number, neutron.gfx.text3d Создаёт 3D текст в указанной позиции с заданными параметрами. Возвращает ID текста и объект для управления.
@@ -421,6 +516,59 @@
 ---@field send fun(pack: string, event: string, bytes: bytearray) Отправляет событие event с данными bytes моду pack на сервер.
 ---@field on fun(pack: string, event: string, func: fun(bytes: bytearray)) Регистрирует функцию func, которая будет вызвана при получении события event от мода pack. В функцию передаются данные bytes.
 
+-- Client.messages
+
+---@class neutron.client.messages.Message
+---@field send fun(self: neutron.client.messages.Message, data: table) Отправляет сообщение на сервер
+---@field on fun(self: neutron.client.messages.Message, handler: (fun(data: table))) Обработчик входящих сообщений
+
+---@class neutron.client.messages
+---@field new fun(pack: string, event: string, schema: table): neutron.client.messages.Message Создаёт сообщение
+
+-- Client.replications
+
+---@class neutron.client.replications.Replicator
+---@field create_listener fun(id: int, initial_value: table): table Создаёт слушающую реплику
+---@field remove_replica fun(id: int) Удаляет реплику
+
+---@class neutron.client.replications
+---@field new fun(pack: string, event: string, schema: table): neutron.client.replications.Replicator Создаёт репликатор
+
+-- Client.predicted_events
+
+---@class neutron.client.predicted_events.Instance
+---@field instance_id int
+---@field evemt_id? int
+---@field data table
+---@field start_time number
+---@field progress number
+---@field active bool
+---@field interrupt fun(self: neutron.client.predicted_events.Instance) Прерывает действие
+---@field get_progress fun(self: neutron.client.predicted_events.Instance): number Возвращает прогресс
+---@field get_elapsed fun(self: neutron.client.predicted_events.Instance): number Возвращает прошедшее время с начала выполнения действия
+
+---@class neutron.client.predicted_events.PredictedEvent
+---@field start fun(self: neutron.client.predicted_events.PredictedEvent, data: table): neutron.client.predicted_events.Instance
+
+---@class neutron.client.predicted_events.config
+---@field on_ack_start fun(instance: neutron.client.predicted_events.Instance) Вызывается когда сервер подтвердил действие, либо пришёл пакет о чужом действии
+---@field on_reject fun(instance: neutron.server.predicted_events.Instance) Вызывается когда сервер отклонил запущенное локально действие
+---@field on_progress fun(instance: neutron.server.predicted_events.Instance) Вызывается когда пришёл прогресс для своего или наблюдаемого действия
+---@field on_finish fun(instance: neutron.server.predicted_events.Instance) Вызывается когда действие завершено
+---@field on_interrupt fun(instance: neutron.client.predicted_events.Instance) Вызывается когда действие прервано сервером или игроком-владельцем действия (в том случае, когда действие наблюдаемое)
+
+---@class neutron.client.predicted_events
+---@field new fun(pack: string, event: string, schema: ({ pos: str }|table), config: neutron.client.predicted_events.config): neutron.client.predicted_events.PredictedEvent Создаёт PredictedEvent
+
+-- Client.rules
+
+---@class neutron.client.rules
+---@field define fun(name: string, properties: neutron.shared.rules.define_properties): neturon.class.rule Определяет правило
+---@field define_if_absent fun(name: string, properties: neutron.shared.rules.define_properties): neturon.class.rule Определяет правило, если его ещё нет
+---@field is_defined fun(name: string): bool Проверяет существование
+---@field get_rule fun(name: string): neturon.class.rule? Получает правило, если оно есть
+---@field get_value fun(rule: neturon.class.rule): bool Получает значение правила
+
 -- Client.rpc
 
 ---@class neutron.client.rpc.emitter
@@ -450,8 +598,13 @@
 ---@field inventory_data neutron.shared.inventory_data
 ---@field env neutron.client.env
 ---@field events neutron.client.events
+---@field messages neutron.client.messages
+---@field replications neutron.client.replications
+---@field predicted_events neutron.client.predicted_events
+---@field rules neutron.client.rules
 ---@field rpc neutron.client.rpc
 ---@field sandbox neutron.client.sandbox
+---@field utils neutron.shared.utils
 
 ---@class neutron.server
 ---@field accounts neutron.server.accounts
@@ -462,6 +615,10 @@
 ---@field entities neutron.server.entities
 ---@field env neutron.server.env
 ---@field events neutron.server.events
+---@field messages neutron.server.messages
+---@field replication neutron.server.replications
+---@field predicted_events neutron.server.predicted_events
+---@field rules neutron.server.rules
 ---@field interceptors neutron.server.interceptors
 ---@field protocol neutron.server.protocol
 ---@field rpc neutron.server.rpc
@@ -473,3 +630,4 @@
 ---@field text3d neutron.server.text3d
 ---@field blockwraps neutron.server.blockwraps
 ---@field constants neutron.server.constants
+---@field utils neutron.shared.utils

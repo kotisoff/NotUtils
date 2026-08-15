@@ -216,6 +216,12 @@ function module.load()
       echo = function(pack, event, bytes)
         events.emit(pack .. ':s:' .. event, bytes)
       end,
+      selective_echo = function(pack, event, bytes, selector)
+        local bool = selector(get_client());
+        if bool then
+          events.emit(pack .. ':s:' .. event, bytes)
+        end
+      end,
       on = function(pack, event, func)
         events.on(pack .. ':c:' .. event, function(data)
           func(get_client(), data)
