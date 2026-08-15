@@ -20,7 +20,7 @@
 -- Aliases
 
 ---@alias mat4 number[] Матрица трансформации размерностью 4x4.
----@alias quat number[] Кватернион
+---@alias quat [number, number, number, number] Кватернион
 ---@alias vector number[] Вектор любой длины
 ---@alias vec4 [number, number, number, number] Вектор размерностью 4
 ---@alias vec3 [number, number, number] Вектор размерностью 3
@@ -750,14 +750,15 @@ local skeletons = {}
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
-gfx = gfx or {
-  text3d = text3d,
-  blockwraps = blockwraps,
-  weather = weather,
-  particles = particles,
-  posteffects = posteffects,
-  skeletons = skeletons,
-}
+gfx = gfx
+	or {
+		text3d = text3d,
+		blockwraps = blockwraps,
+		weather = weather,
+		particles = particles,
+		posteffects = posteffects,
+		skeletons = skeletons,
+	}
 
 -- ==========================gui============================
 
@@ -1064,10 +1065,15 @@ player = player
 ---Библиотека для работы с кватернионами.
 ---@class voxelcore.libquat Библиотека для работы с кватернионами.
 ---@field from_mat4 fun(m: mat4): quat Создает кватернион на основе матрицы вращения
----@field from_mat4 fun(m: mat4, dst: quat) Создает кватернион на основе матрицы вращения
+---@field from_mat4 fun(m: mat4, dst: quat) Создает кватернион на основе матрицы вращения, записывает результат в dst
 ---@field from_euler fun(euler: vec3): quat Создает кватернион на основе углов Эйлера (значения углов строго в градусах)
+---@field from_euler fun(euler: vec3, dst: quat) Создает кватернион на основе углов Эйлера (значения углов строго в градусах), записывает результат в dst
 ---@field slerp fun(a: quat, b: quat, t: number): quat создает кватернион как интерполяцию между a и b, где t - фактор интерполяции
----@field slerp fun(a: quat, b: quat, t: number, dst: quat) создает кватернион как интерполяцию между a и b, где t - фактор интерполяции
+---@field slerp fun(a: quat, b: quat, t: number, dst: quat) создает кватернион как интерполяцию между a и b, где t - фактор интерполяции, записывает результат в dst
+---@field mul fun(a: quat, b: quat): quat Доступно с 0.32: Умножает два кватерниона (композиция поворотов)
+---@field mul fun(a: quat, b: quat, dst: quat) Доступно с 0.32: Умножает два кватерниона (композиция поворотов), записывает результат в dst
+---@field mul_vec3 fun(a: quat, b: vec3): vec3 Доступно с 0.32: Поворачивает вектор на заданный кватернион
+---@field mul_vec3 fun(a: quat, b: vec3, dst: vec3) Доступно с 0.32: Поворачивает вектор на заданный кватернион, записывает результат в dst
 ---@field tostring fun(q: quat): str возвращает строку представляющую содержимое кватерниона
 quat = quat
 
