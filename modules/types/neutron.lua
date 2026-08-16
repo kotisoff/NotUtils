@@ -9,6 +9,19 @@
 ---@diagnostic disable: duplicate-doc-field
 ---@diagnostic disable: duplicate-doc-alias
 
+
+
+-- =====================global=table========================
+
+---@class neutron.struct.MultiplayerData
+---@field side "server"|"client"
+---@field pack_id str
+---@field api_references { Neutron: {latest:str}|str[] } | table<str,{latest:str}|str[]>
+
+---@class _G
+---@field ["$Multiplayer"] neutron.struct.MultiplayerData
+_G = _G
+
 -- ========================aliases==========================
 
 ---@alias neutron.utils.proxy_table table
