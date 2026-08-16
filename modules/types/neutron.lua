@@ -9,8 +9,6 @@
 ---@diagnostic disable: duplicate-doc-field
 ---@diagnostic disable: duplicate-doc-alias
 
-
-
 -- =====================global=table========================
 
 ---@class neutron.struct.MultiplayerData
@@ -166,8 +164,8 @@ _G = _G
 ---@field provider? fun(uid, field_name): boolean | any Для своих полей: Получения значения поля. Для компонентов: Получение значения поля, всегда bool. Если provider вернёт true, компонент включится у клиента, если false - выключится.
 
 ---@class neutron.entity.registration_config
----@field on_client_spawn fun(player: neutron.class.player, uid: int): args: table Вызывается при первом появлении сущности на клиенте. Возвращает таблицу аргументов спавна
----@field on_client_despawn fun(player: neutron.class.player, uid: int) Вызывается при удалении сущности на клиенте
+---@field on_client_spawn? fun(player: neutron.class.player, uid: int): args: table Вызывается при первом появлении сущности на клиенте. Возвращает таблицу аргументов спавна
+---@field on_client_despawn? fun(player: neutron.class.player, uid: int) Вызывается при удалении сущности на клиенте
 ---@field standart_fields? table<string, neutron.entity.field>
 ---@field custom_fields? table<string, neutron.entity.field>
 ---@field textures? table<string, neutron.entity.field>
@@ -176,8 +174,8 @@ _G = _G
 ---@field components? table<string, neutron.entity.field>
 
 ---@class neutron.server.entities
----@field register fun(entity_name: string, config: neutron.entity.registration_config, spawn_handler: fun(name: string, args: table | nil, client: neutron.class.client)) Регистрация сущности
----@field eval { NotEquals: (fun(): number), Always: (fun(): number), Never: (fun(): number) }
+---@field register fun(entity_name: string, config: neutron.entity.registration_config, spawn_handler: fun(name: string, args: table | nil, client: neutron.class.client) | nil) Регистрация сущности
+---@field eval { NotEquals: (fun(): number), Always: (fun(): number), Never: (fun(): number), VectorNotEquals: (fun(): number) }
 ---@field types { Custom: "custom_fields", Standard: "standard_fields", Models: "models", Matrix: "matrix", Textures: "textures", Components: "components" } Доступные типы
 
 -- Server.env
@@ -281,7 +279,6 @@ _G = _G
 ---@field packets neutron.server.interceptors.packets
 ---@field receive neutron.server.interceptors.universal
 ---@field send neutron.server.interceptors.universal
-
 
 -- Server.protocol
 
