@@ -54,8 +54,8 @@ _G = _G
 ---@field rules table Таблица с правилами мира
 
 ---@class neturon.class.rule
----@field listen fun(handler: (fun(obj: neutron.class.world|neutron.class.player, value: bool))): id: str Подписка на изменения правил
----@field unlisten fun(id: str) Отписка от изменений
+---@field listen fun(self: neturon.class.rule, handler: (fun(obj: neutron.class.world|neutron.class.player, value: bool))): id: str Подписка на изменения правил
+---@field unlisten fun(self: neturon.class.rule, id: str) Отписка от изменений
 
 -- ========================shared===========================
 
@@ -214,9 +214,9 @@ _G = _G
 -- Server.replications
 
 ---@class neutron.server.replications.Replicator
----@field create_public_replica fun(id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table Создаёт публичную реплику с селектором
----@field create_private_replica fun(id: int, initial_value: table, client: neutron.class.client): table Создаёт приватную реплику с конкретным игроком
----@field remove_replica fun(id: int) Удаляет реплику
+---@field create_public_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table Создаёт публичную реплику с селектором
+---@field create_private_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, client: neutron.class.client): table Создаёт приватную реплику с конкретным игроком
+---@field remove_replica fun(self: neutron.server.replications.Replicator, id: int) Удаляет реплику
 
 ---@class neutron.server.replications
 ---@field new fun(pack: string, event: string, schema: table): neutron.server.replications.Replicator Создаёт репликатор
@@ -544,8 +544,8 @@ _G = _G
 -- Client.replications
 
 ---@class neutron.client.replications.Replicator
----@field create_listener fun(id: int, initial_value: table): table Создаёт слушающую реплику
----@field remove_replica fun(id: int) Удаляет реплику
+---@field create_listener fun(self: neutron.client.replications.Replicator, id: int, initial_value: table): table Создаёт слушающую реплику
+---@field remove_replica fun(self: neutron.client.replications.Replicator, id: int) Удаляет реплику
 
 ---@class neutron.client.replications
 ---@field new fun(pack: string, event: string, schema: table): neutron.client.replications.Replicator Создаёт репликатор
