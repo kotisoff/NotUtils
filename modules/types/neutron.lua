@@ -66,8 +66,11 @@
 ---@field server table
 ---@field build fun(self: neutron.shared.utils.Module): table Объединяет таблицы в зависимости от того сервер это или клиент
 
+---@class neutron.shared.utils.classes
+---@field module fun(shared?: table): neutron.shared.utils.Module
+
 ---@class neutron.shared.utils
----@field classes.module fun(shared?: table): neutron.shared.utils.Module
+---@field classes neutron.shared.utils.classes
 
 -- ========================server===========================
 
@@ -616,7 +619,7 @@
 ---@field env neutron.server.env
 ---@field events neutron.server.events
 ---@field messages neutron.server.messages
----@field replication neutron.server.replications
+---@field replications neutron.server.replications
 ---@field predicted_events neutron.server.predicted_events
 ---@field rules neutron.server.rules
 ---@field interceptors neutron.server.interceptors
