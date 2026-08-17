@@ -474,7 +474,7 @@ cameras = cameras
 ---@field despawn fun(uid: int) Удаляет сущность по уникальному идентификатору
 ---@field exists fun(uid: int): bool Проверяет наличие сущности по уникальному идентификатору
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по уникальному идентификатору (числовой ID)
----@field def_name fun(id: int): str Возвращает имя определения сущности по числовому индексу (строковый ID)
+---@field def_name fun(id: int): str Возвращает имя определения сущности по числовому ID (строковый ID)
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
 ---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
