@@ -473,8 +473,8 @@ cameras = cameras
 ---@field spawn fun(name: str, pos: vec3, args?: table<str, any>): voxelcore.class.entity Создает указанную сущность
 ---@field despawn fun(uid: int) Удаляет сущность по уникальному идентификатору
 ---@field exists fun(uid: int): bool Проверяет наличие сущности по уникальному идентификатору
----@field get_def fun(uid: int): int Возвращает индекс определения сущности по UID
----@field def_name fun(uid: int): str Возвращает имя определения сущности по индексу (строковый ID)
+---@field get_def fun(uid: int): int Возвращает индекс определения сущности по уникальному идентификатору (числовой ID)
+---@field def_name fun(id: int): str Возвращает имя определения сущности по числовому ID (строковый ID)
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
 ---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
@@ -625,7 +625,7 @@ local blockwraps = {}
 -- =====================gfx.particles=======================
 
 ---@class voxelcore.class.particle
----@field texture?	str Текстура частицы.
+---@field texture?  str Текстура частицы.
 ---@field frames? str[] Кадры анимации (массив имен текстур). Должны находиться в одном атласе.
 ---@field lighting? bool Освещение.
 ---@field collision? bool Обнаружение столкновений.
@@ -751,14 +751,14 @@ local skeletons = {}
 
 ---Библиотеки для работы с графическими эффектами
 gfx = gfx
-	or {
-		text3d = text3d,
-		blockwraps = blockwraps,
-		weather = weather,
-		particles = particles,
-		posteffects = posteffects,
-		skeletons = skeletons,
-	}
+    or {
+        text3d = text3d,
+        blockwraps = blockwraps,
+        weather = weather,
+        particles = particles,
+        posteffects = posteffects,
+        skeletons = skeletons,
+    }
 
 -- ==========================gui============================
 
