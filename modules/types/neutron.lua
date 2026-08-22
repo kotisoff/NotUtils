@@ -38,7 +38,8 @@ _G = _G
 ---@field username string Имя игрока
 ---@field identity string Идентити игрока (Идентично идентити аккаунта)
 ---@field active boolean Статус активности игрока (false - вне сети)
----@field pid number PlayerID игрока
+---@field pid int PlayerID игрока
+---@field invid int InventoryID игрока
 ---@field region_pos { x: int, y: int, z: int } Позиция региона 2x2 чанка, в котором находится игрок
 
 ---@class neutron.class.client
@@ -215,6 +216,7 @@ _G = _G
 ---@field create_public_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table Создаёт публичную реплику с селектором
 ---@field create_private_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, client: neutron.class.client): table Создаёт приватную реплику с конкретным игроком
 ---@field remove_replica fun(self: neutron.server.replications.Replicator, id: int) Удаляет реплику
+---@field get_replica fun(self: neutron.server.replications.Replicator, id: int): table Возвращает реплику с указанным id.
 
 ---@class neutron.server.replications
 ---@field new fun(pack: string, event: string, schema: table): neutron.server.replications.Replicator Создаёт репликатор
@@ -320,9 +322,11 @@ _G = _G
 ---@field by_identity { is_online: (fun(identity: str): bool) }
 ---@field by_username { is_online: (fun(username: str): bool) }
 
+---WARNING: invid -1 юзать харам.
 ---@class neutron.server.sandbox.inventories
 ---@field create_controller fun(source: string | table): neutron.sandbox.inventories.InventoryController Загружает и возвращает контроллер на основе пути к файлу .lua (или можно передать таблицу с описанными ивентами), который управляет серверной логикой инвентарей похож на файлы логики макетов .xml.lua
 ---@field set_controller fun(blockid_or_layout: int | str, controller: neutron.sandbox.inventories.InventoryController) Устанавливает контроллер для определённого типа контента. Если ident это айди блока (число), всем инвентарям этого типа блоков будет установлен этот контроллер.  Если ident это макет (строка, пр: "pack:craft_table"), всем виртуальным инвентарям с этим макетом будет установлен этот контроллер.
+---@field set_invid_controller fun(invid: int, controller: neutron.sandbox.inventories.InventoryController) Устанавливает контроллер для определённого инвентаря
 ---@field open_block fun(player: neutron.class.player, pos: vec3) Открывает инвентарь блока переданному игроку
 ---@field open fun(player: neutron.class.player, layout_path: str, disable_player_inventory?: bool, root_invid?: int) Открывает виртуальный инвентарь переданному игроку
 ---@field close fun(player: neutron.class.player) Закрывает открытый инвентарь переданному игроку
@@ -644,3 +648,8 @@ _G = _G
 ---@field blockwraps neutron.server.blockwraps
 ---@field constants neutron.server.constants
 ---@field utils neutron.shared.utils
+
+---@class neutron.api
+---@field server neutron.server May be nil
+---@field client neutron.client May be nil
+---@field shell table May be nil
