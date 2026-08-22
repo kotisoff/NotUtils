@@ -102,7 +102,10 @@ math = math
 ---@field index fun(t: table, x: any): int Возвращает индекс обьекта x в t. Если переданный обьект не содержится в таблице, то функция вернёт значение -1.
 ---@field remove_value fun(t: table, x: any) Удаляет элемент x из t.
 ---@field shuffle fun(t: table): table Перемешивает значения в таблице.
----@field merge fun(t1: table, t2: table): table Добавляет в таблицу t1 значения из таблицы t2. Если в таблице t2 присутствует ключ из t1, то значение ключа не будет изменено.
+---Добавляет в таблицу t1 значения из таблицы t2.
+---Если в таблице t2 присутствует ключ из t1, то значение ключа не будет изменено.
+---Изменяет таблицу t1 и возвращает её
+---@field merge fun(t1: table, t2: table): table
 ---@field map fun(t: table, func: (fun(index: str | number, value: any): any)): table Проходится по таблице и применяет ко всем её элементам указанную функцию. Меняет исходную таблицу.
 ---@field filter fun(t: table, func: (fun(index: str | number, value: any): bool)): table Проходится по таблице с помощью func, которая возвращает true если элемент надо сохранить и false, если его надо удалить.
 ---@field set_default fun(t: table, key: number | str, default: any): any Позволяет безопасно получать значение по указанному ключу. Если ключ существует в таблице, метод вернет его значение. Если ключ отсутствует, метод установит его со значением default и вернет его.
@@ -478,10 +481,15 @@ cameras = cameras
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
 ---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
----@field get_all fun(): table Возвращает таблицу всех загруженных сущностей
----@field get_all fun(uids: int[]): table Возвращает таблицу загруженных сущностей по переданному списку UID
----@field get_all_in_box fun(pos: vec3, size: vec3): int[] Возвращает список UID сущностей, попадающих в прямоугольную область
----@field get_all_in_radius fun(center: vec3, radius: number): int[] Возвращает список UID сущностей, попадающих в радиус
+---Возвращает таблицу всех загруженных сущностей.
+---Итерировать по ней нужно с помощью:
+---`for uid, entity in pairs(entities.get_all()) do`
+---Если передать uids, то вернёт только entity с UID из переданного списка
+---@field get_all fun(uids: int[]|nil): table<int, voxelcore.class.entity>
+---Возвращает список UID сущностей, центр которых попадает в прямоугольную область
+---@field get_all_in_box fun(pos: vec3, size: vec3): int[]
+---Возвращает список UID сущностей, центр которых попадает в радиус
+---@field get_all_in_radius fun(center: vec3, radius: number): int[]
 ---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
 ---@field reload_component fun(name: str) Перезагружает скрипт энтити
 entities = entities
@@ -646,9 +654,9 @@ local blockwraps = {}
 ---@field spawn_offset? vec3 Смещение области спавна частиц.
 ---@field random_sub_uv? number Размер случайного подрегиона текстуры (1 - будет использована вся текстура).
 
----Библиотека для упрпавления частицами.
----@class voxelcore.libgfx.particles Библиотека для упрпавления частицами.
----@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle)
+---Библиотека для управления частицами.
+---@class voxelcore.libgfx.particles Библиотека для управления частицами.
+---@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle): int
 ---@field stop fun(id: int)
 ---@field is_alive fun(id: int): bool
 ---@field get_origin fun(id: int): vec3|int
@@ -1101,7 +1109,8 @@ rules = rules
 ---@field uptime fun(): number Возвращает время с момента запуска движка в секундах.
 ---@field delta fun(): number Возвращает дельту времени (время прошедшее с предыдущего кадра)
 ---@field post_runnable fun(func: function) Вызывает функцию после такта обновления движка
----@field utc_time fun(): int Возвращает время UTC в секундах
+---@field utc_time fun(): int Возвращает время UTC (секунды с 1970-01-01 UTC)
+---@field precise_utc_time fun(): number Возвращает время UTC (секунды с 1970-01-01 UTC) с точностью до миллисекунд
 ---@field local_time fun(): int Возвращает локальное (системное) время в секундах
 ---@field utc_offset fun(): int Возвращает смещение локального времени от UTC в секундах
 time = time
@@ -1307,7 +1316,7 @@ assets = assets
 ---@field get_rot fun(self: voxelcore.class.entity.transform): mat4 Возвращает вращение сущности
 ---@field set_rot fun(self: voxelcore.class.entity.transform, rotation: mat4) Устанавливает вращение сущности
 
----@alias voxelcore.class.entity.body_types "dyncamic" | "kinematic" | "static" | string
+---@alias voxelcore.class.entity.body_types "dynamic" | "kinematic" | "static" | string
 
 ---@class voxelcore.class.entity.rigidbody
 ---@field is_enabled fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включен ли рассчет физики тела
