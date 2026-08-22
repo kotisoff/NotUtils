@@ -1101,7 +1101,8 @@ rules = rules
 ---@field uptime fun(): number Возвращает время с момента запуска движка в секундах.
 ---@field delta fun(): number Возвращает дельту времени (время прошедшее с предыдущего кадра)
 ---@field post_runnable fun(func: function) Вызывает функцию после такта обновления движка
----@field utc_time fun(): int Возвращает время UTC в секундах
+---@field utc_time fun(): int Возвращает время UTC (секунды с 1970-01-01 UTC)
+---@field precise_utc_time fun(): number Возвращает время UTC (секунды с 1970-01-01 UTC) с точностью до миллисекунд
 ---@field local_time fun(): int Возвращает локальное (системное) время в секундах
 ---@field utc_offset fun(): int Возвращает смещение локального времени от UTC в секундах
 time = time
