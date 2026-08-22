@@ -486,8 +486,10 @@ cameras = cameras
 ---`for uid, entity in pairs(entities.get_all()) do`
 ---Если передать uids, то вернёт только entity с UID из переданного списка
 ---@field get_all fun(uids: int[]|nil): table<int, voxelcore.class.entity>
----@field get_all_in_box fun(pos: vec3, size: vec3): int[] Возвращает список UID сущностей, попадающих в прямоугольную область
----@field get_all_in_radius fun(center: vec3, radius: number): int[] Возвращает список UID сущностей, попадающих в радиус
+---Возвращает список UID сущностей, центр которых попадает в прямоугольную область
+---@field get_all_in_box fun(pos: vec3, size: vec3): int[]
+---Возвращает список UID сущностей, центр которых попадает в радиус
+---@field get_all_in_radius fun(center: vec3, radius: number): int[]
 ---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
 ---@field reload_component fun(name: str) Перезагружает скрипт энтити
 entities = entities
