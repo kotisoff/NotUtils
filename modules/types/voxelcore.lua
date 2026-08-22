@@ -651,7 +651,7 @@ local blockwraps = {}
 
 ---Библиотека для упрпавления частицами.
 ---@class voxelcore.libgfx.particles Библиотека для упрпавления частицами.
----@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle)
+---@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle): int
 ---@field stop fun(id: int)
 ---@field is_alive fun(id: int): bool
 ---@field get_origin fun(id: int): vec3|int
