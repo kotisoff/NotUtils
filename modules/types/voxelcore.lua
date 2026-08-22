@@ -654,8 +654,8 @@ local blockwraps = {}
 ---@field spawn_offset? vec3 Смещение области спавна частиц.
 ---@field random_sub_uv? number Размер случайного подрегиона текстуры (1 - будет использована вся текстура).
 
----Библиотека для упрпавления частицами.
----@class voxelcore.libgfx.particles Библиотека для упрпавления частицами.
+---Библиотека для управления частицами.
+---@class voxelcore.libgfx.particles Библиотека для управления частицами.
 ---@field emit fun(origin: vec3|int, count: int, preset: voxelcore.class.particle, extension?: voxelcore.class.particle): int
 ---@field stop fun(id: int)
 ---@field is_alive fun(id: int): bool
