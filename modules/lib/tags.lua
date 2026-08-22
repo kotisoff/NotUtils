@@ -29,7 +29,7 @@ end
 
 local tags_prop = "tags_set";
 
-events.on("not_utils:hud_open", function()
+events.on("not_utils:world_open", function()
   local elements = registry.elements;
 
   log("I", "Reading block tags...")
@@ -71,13 +71,17 @@ end)
 ---@return int[]
 local function get_elements_unstrict(list, ...)
   local elements = {};
-
+  local seen = {};
   local tags = { ... };
+
   for _, tag in ipairs(tags) do
     local tmp = registry.elements[list][tag] or {};
 
     for _, id in ipairs(tmp) do
-      table.insert(elements, id);
+      if not seen[id] then
+        table.insert(elements, id);
+        seen[id] = true;
+      end
     end
   end
 
@@ -96,8 +100,8 @@ local function get_elements_strict(lib, ...)
     local prop = value[tags_prop];
     if prop then
       local flag = true;
-      for _, tag in ipairs(prop) do
-        if not table.has(tags, tag) then
+      for _, tag in ipairs(tags) do
+        if not prop[tag] then
           flag = false;
         end
       end

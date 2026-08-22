@@ -1,0 +1,11 @@
+{
+  "runtime": {
+    "path": ["modules/?.lua"],
+    "version": "LuaJIT"
+  },
+  "diagnostics": {
+    "neededFileStatus": {
+      "undefined-field": "Any"
+    }
+  }
+}
