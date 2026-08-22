@@ -48,7 +48,7 @@
 
 -- ========================globals==========================
 
----@type _G
+---@type _G | table
 PACK_ENV = PACK_ENV
 
 ---@type str
@@ -760,12 +760,12 @@ local skeletons = {}
 ---Библиотеки для работы с графическими эффектами
 gfx = gfx
     or {
-        text3d = text3d,
-        blockwraps = blockwraps,
-        weather = weather,
-        particles = particles,
-        posteffects = posteffects,
-        skeletons = skeletons,
+      text3d = text3d,
+      blockwraps = blockwraps,
+      weather = weather,
+      particles = particles,
+      posteffects = posteffects,
+      skeletons = skeletons,
     }
 
 -- ==========================gui============================
@@ -1330,7 +1330,8 @@ assets = assets
 ---@field get_linear_damping fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель затухания линейной скорости (используется для имитации сопротивления воздуха и трения)
 ---@field set_linear_damping fun(self: voxelcore.class.entity.rigidbody, value: number) Устанавливает множитель затухания линейной скорости
 ---@field is_vdamping fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включено ли вертикальное затухание скорости
----@field set_vdamping fun(self: voxelcore.class.entity.rigidbody, flag: bool) Включает/выключает вертикальное затухание скорости
+---@field get_vdamping fun(self: voxelcore.class.entity.rigidbody): number Возвращает множитель вертикального затухания скорости
+---@field set_vdamping fun(self: voxelcore.class.entity.rigidbody, value: bool|number) Включает/выключает/устанавливает вертикальное затухание скорости
 ---@field is_grounded fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, находится ли сущность на земле (приземлена)
 ---@field is_crouching fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, находится ли сущность в "крадущемся" состоянии (не может упасть с блоков)
 ---@field set_crouching fun(self: voxelcore.class.entity.rigidbody, flag: bool) Включает/выключает "крадущееся" состояние
