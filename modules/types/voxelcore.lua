@@ -478,8 +478,11 @@ cameras = cameras
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
 ---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
----@field get_all fun(): table Возвращает таблицу всех загруженных сущностей
----@field get_all fun(uids: int[]): table Возвращает таблицу загруженных сущностей по переданному списку UID
+---Возвращает таблицу всех загруженных сущностей.
+---Итерировать по ней нужно с помощью:
+---`for uid, entity in pairs(entities.get_all()) do`
+---Если передать uids, то вернёт только entity с UID из переданного списка
+---@field get_all fun(uids: int[]|nil): table<int, voxelcore.class.entity>
 ---@field get_all_in_box fun(pos: vec3, size: vec3): int[] Возвращает список UID сущностей, попадающих в прямоугольную область
 ---@field get_all_in_radius fun(center: vec3, radius: number): int[] Возвращает список UID сущностей, попадающих в радиус
 ---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
