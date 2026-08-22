@@ -32,27 +32,6 @@ function module.as_client(cb)
   end
 end
 
----Выполняет код внутри функции с любой доступной стороны, обеспечивая общие параметры апи, но не более.
----@param cb fun(side: neutron.client | neutron.server, mode: not_utils.mp.mode): any
----@return any
-function module.as_any(cb)
-  local api = module.api;
-  ---@type neutron.server | neutron.client
-  local side = api.server and api.server or api.client; -- Ну по моим рассчётам одна из сторон должна гарантированно быть.
-
-  if side then
-    return cb(side, module.mode);
-  end
-end
-
----@param vec vec3
----@return { x: number, y: number, z: number }
-function module.convert_vector(vec)
-  local pos = { x = vec[1], y = vec[2], z = vec[3] };
-
-  return pos;
-end
-
 ---@class not_utils.mp.api_template
 ---@field check fun(): boolean
 ---@field mode fun(): not_utils.mp.mode
