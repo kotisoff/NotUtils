@@ -1314,7 +1314,7 @@ assets = assets
 ---@field get_rot fun(self: voxelcore.class.entity.transform): mat4 Возвращает вращение сущности
 ---@field set_rot fun(self: voxelcore.class.entity.transform, rotation: mat4) Устанавливает вращение сущности
 
----@alias voxelcore.class.entity.body_types "dyncamic" | "kinematic" | "static" | string
+---@alias voxelcore.class.entity.body_types "dynamic" | "kinematic" | "static" | string
 
 ---@class voxelcore.class.entity.rigidbody
 ---@field is_enabled fun(self: voxelcore.class.entity.rigidbody): bool Проверяет, включен ли рассчет физики тела
