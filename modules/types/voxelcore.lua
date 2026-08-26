@@ -760,12 +760,12 @@ local skeletons = {}
 ---Библиотеки для работы с графическими эффектами
 gfx = gfx
     or {
-      text3d = text3d,
-      blockwraps = blockwraps,
-      weather = weather,
-      particles = particles,
-      posteffects = posteffects,
-      skeletons = skeletons,
+        text3d = text3d,
+        blockwraps = blockwraps,
+        weather = weather,
+        particles = particles,
+        posteffects = posteffects,
+        skeletons = skeletons,
     }
 
 -- ==========================gui============================
@@ -1565,6 +1565,8 @@ Canvas = Canvas
 
 ---@class voxelcore.class.HeightMap
 ---@field noiseSeed number
+---При значении true, функции шума будут нормализованы, даже при октавах > 1
+---@field normalNoise bool
 ---@field abs fun(self: voxelcore.class.HeightMap) Приведение значений высот к абсолютным
 ---@field floor fun(self: voxelcore.class.HeightMap) Округление к меньшему целому
 ---@field ceil fun(self: voxelcore.class.HeightMap) Округление к большему целому
