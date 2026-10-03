@@ -1,15 +1,9 @@
 ---@meta
 
 --[[
-  ВНИМАНИЕ
-  Старайтесь не импортировать этот скрипт. Он работает просто находясь в поле зрения языкового сервера.
-  При импорте он может сломать работу мода/модов, но защита от дебилов имеется.
-  ]]
-
---[[
-    VoxelCore Lua Types (WIP)
-    Engine version: pre 0.32.x
-    Version: v0.0.9
+    VoxelCore Lua Types
+    Engine version: 0.32.0
+    Version: v0.32.0 (prev: v0.0.9, synced with engine major + minor)
   ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -77,9 +71,40 @@ crc32 = crc32
 ---@type fun(path: str, no_cache?: bool, env?: table): any Require до того как стал известен
 __load_script = __load_script
 
+-- =========================stdlib=extensions============================
+
+-- ==========================bit============================
+
+---@class voxelcore.stdlib.bit
+---@field compile fun(string: str): function
+bit = bit
+
+-- =======================coroutine=========================
+
+---@class voxelcore.stdlib.coroutine
+---@field stop nil | (fun(co: thread): noerror: bool, errorobject: any)
+coroutine = coroutine
+
+-- =========================debug===========================
+
+---@class voxelcore.stdlib.debug
+---@field print fun(...) Рекурсивно читает и выводит в консоль объект. Максимальная глубина: 10.
+---@field error fun(message: str) Выводит в консоль сообщение в виде ошибки
+---@field warning fun(message: str) Выводит в консоль сообщение в виде предупреждения
+---@field log fun(message: str) Выводит в консоль сообщение
+---@field count_frames fun(): int Выводит количество неких кадров
+---@field get_traceback fun(start: int): debuginfo[] Возвращает трейсбек в виде массива debuginfo
+---@field pause fun(reason: str, message: str)
+---@field __pull_events nil | fun(): table Внутренняя функция. Осторожно, пошлёт вас лесом
+---@field __sendvalue nil | fun(value: any, frame: int, local_index: int, keys: (str | nil)[]) Внутренняя функция. Осторожно, пошлёт вас лесом
+---@field is_debugging fun(): bool
+---@field set_breakpoint fun(source: int, line: int)
+---@field remove_breakpoint fun(source: int, line: int)
+debug = debug
+
 -- =========================math============================
 
----@class voxelcore.math
+---@class voxelcore.stdlib.math
 ---@field clamp fun(_in: number, low: number, high: number): number Ограничивает число _in по лимитам low и high. Т.е.: Если _in больше чем high - вернётся high, если _in меньше чем low - вернётся low. В противном случае вернётся само число.
 ---@field rand fun(min: number, max: number): number Возвращает случайное дробное число в диапазоне от low до high.
 ---@field normalize fun(number: number, places?: number): number Возвращает нормализованное значение number относительно conf.
@@ -91,9 +116,15 @@ __load_script = __load_script
 ---@field noise2d fun(x: number, y: number, octaves: int): number Двумерный шум с значениями в диапазоне [-1..1]
 math = math
 
+-- ==========================os=============================
+
+---@class voxelcore.stdlib.os
+---@field pid int Идентификатор процесса движка
+os = os
+
 -- =========================table===========================
 
----@class voxelcore.table
+---@class voxelcore.stdlib.table
 ---@field copy fun(t: table): table Создаёт и возвращает копию переданной таблицы путём создания новой и копирования в неё всех элементов из переданной.
 ---@field deep_copy fun(t: table): table Функция глубокого копирования создает полную копию исходной таблицы, включая все её вложенные таблицы.
 ---@field count_pairs fun(t: table): int Возвращает количество пар в переданной таблице.
@@ -119,7 +150,7 @@ table = table
 
 -- ========================string===========================
 
----@class voxelcore.string
+---@class voxelcore.stdlib.string
 ---@field explode fun(separator: str, str: str, withpattern: bool): str[] Разбивает строку str на части по указанному разделителю/выражению separator и возвращает результат ввиде таблицы из строк. Если withpattern равен true, то параметр separator будет определяться как регулярное выражение.
 ---@field split fun(str: str, delimeter: str): table<str> Разбивает строку str на части по указанному разделителю delimiter и возвращает результат ввиде таблицы из строк.
 ---@field pattern_safe fun(str: str): str Экранирует специальные символы в строке, такие как ()[]+-.$%^?* в формате %символ. Символ NUL (\0) будет преобразован в %z.
@@ -137,45 +168,10 @@ table = table
 ---@field escape_xml fun(text: str): str Экранирует спец-символы XML. (utf8.escape_xml)
 string = string
 
--- =======================coroutine=========================
-
----@class voxelcore.coroutine
----@field stop nil | (fun(co: thread): noerror: bool, errorobject: any)
-coroutine = coroutine
-
--- ==========================os=============================
-
----@class voxelcore.os
----@field pid int Идентификатор процесса движка
-os = os
-
--- ==========================bit============================
-
----@class voxelcore.bit
----@field compile fun(string: str): function
-bit = bit
-
--- =========================debug===========================
-
----@class voxelcore.libdebug
----@field print fun(...) Рекурсивно читает и выводит в консоль объект. Максимальная глубина: 10.
----@field error fun(message: str) Выводит в консоль сообщение в виде ошибки
----@field warning fun(message: str) Выводит в консоль сообщение в виде предупреждения
----@field log fun(message: str) Выводит в консоль сообщение
----@field count_frames fun(): int Выводит количество неких кадров
----@field get_traceback fun(start: int): debuginfo[] Возвращает трейсбек в виде массива debuginfo
----@field pause fun(reason: str, message: str)
----@field __pull_events nil | fun(): table Внутренняя функция. Осторожно, пошлёт вас лесом
----@field __sendvalue nil | fun(value: any, frame: int, local_index: int, keys: (str | nil)[]) Внутренняя функция. Осторожно, пошлёт вас лесом
----@field is_debugging fun(): bool
----@field set_breakpoint fun(source: int, line: int)
----@field remove_breakpoint fun(source: int, line: int)
-debug = debug
-
 -- ========================stdcomp==========================
 
----Сомнительная библиотека. Лучше использовать entities.
----@class voxelcore.stdcomp
+---Сомнительная скрытая библиотека. Лучше использовать entities.
+---@class voxelcore.lib.stdcomp
 ---@field __reset fun() Удаляет все энтити (из lua, не связано напрямую с движком)
 ---@field get_Entity fun(eid: int): voxelcore.class.entity Возращает энтити по идентификатору
 ---@field get_all fun(eids?: int[]): table<int, voxelcore.class.entity> Возвращает все энтити по идентификаторам
@@ -185,6 +181,8 @@ debug = debug
 ---@field update fun(tps: number, parts: number, part: number) Вызывает все события on_update всех энтити
 stdcomp = stdcomp
 
+-- =============================game=libs================================
+
 -- =========================core============================
 
 ---Библиотека для управления работой движка. По идее скрытая, но доступна в скриптинге
@@ -193,27 +191,6 @@ stdcomp = stdcomp
 ---@field capture_output fun(func: function): str Перехватывает все принты и возвращает их в виде строки
 ---@field get_core_token fun(): str Возвращает токен сессии движка (рандомная строка)
 core = core
-
---[[-@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
----@field open_world fun(name: str) Открывает мир по названию.
----@field reopen_world fun() Переоткрывает мир.
----@field save_world fun() Сохраняет мир.
----@field close_world fun(save_world: bool) Закрывает мир.
----@field delete_world fun(name: str) Удаляет мир по названию.
----@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
----@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
----@field get_version fun(): int, int Возвращает мажорную и минорную версии движка.
----@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
----@field reset_content fun() Сбрасывает контент загруженных паков.
----@field load_content fun() Загружает контент конфигурированных паков.
----@field open_folder fun(path: str) Открывает движком папку по указанного пути
----@field open_url fun(url: str) Открывает URL в браузере
----@field quit fun() Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
----@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
----@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
----@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
----@field str_setting fun(name: str): str Возвращает значение настройки в виде строки.
-]]
 
 -- ==========================vc=============================
 
@@ -758,15 +735,14 @@ local skeletons = {}
 -- ==========================gfx============================
 
 ---Библиотеки для работы с графическими эффектами
-gfx = gfx
-    or {
-        text3d = text3d,
-        blockwraps = blockwraps,
-        weather = weather,
-        particles = particles,
-        posteffects = posteffects,
-        skeletons = skeletons,
-    }
+gfx = gfx or {
+  text3d = text3d,
+  blockwraps = blockwraps,
+  weather = weather,
+  particles = particles,
+  posteffects = posteffects,
+  skeletons = skeletons,
+}
 
 -- ==========================gui============================
 
