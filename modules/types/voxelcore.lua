@@ -171,7 +171,7 @@ string = string
 -- ========================stdcomp==========================
 
 ---Сомнительная скрытая библиотека. Лучше использовать entities.
----@class voxelcore.lib.stdcomp
+---@class voxelcore.stdcomp
 ---@field __reset fun() Удаляет все энтити (из lua, не связано напрямую с движком)
 ---@field get_Entity fun(eid: int): voxelcore.class.entity Возращает энтити по идентификатору
 ---@field get_all fun(eids?: int[]): table<int, voxelcore.class.entity> Возвращает все энтити по идентификаторам
@@ -208,37 +208,36 @@ vc = vc
 ---Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
 ---@class voxelcore.libapp Библиотека для высокоуровневого управления работой движка, доступная только в режиме сценария или теста.
 ---@field tick fun() Выполняет один такт основного цикла движка.
+---@field quit fun(silent?: bool) Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field sleep fun(time: number) Ожидает указанное время в секундах, выполняя основной цикл движка.
 ---@field sleep_until fun(predicate: (fun():bool), max_ticks?: number, timeout?: number) Ожидает истинности утверждения (условия), проверяемого функцией, выполнячя основной цикл движка.
----@field quit fun(silent?: bool) Завершает выполнение движка, выводя стек вызовов для ослеживания места вызова функции.
 ---@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
+---@field get_content fun(): table<string> Возвращает текущую конфигурацию контента (список id паков в порядке загрузки)
+---@field load_content fun() Загружает контент конфигурированных паков.
+---@field reset_content fun(non_reset_packs?: str[]) Сбрасывает контент загруженных паков.
+---@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
+---@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
 ---@field new_world fun(name: str, seed: str, generator: str, local_player?: int) Создаёт новый мир и открывает его.
+---@field delete_world fun(name: str) Удаляет мир по названию.
 ---@field open_world fun(name: str) Открывает мир по названию.
 ---@field reopen_world fun() Переоткрывает мир.
 ---@field save_world fun() Сохраняет мир.
 ---@field close_world fun(save_world: bool) Закрывает мир.
----@field delete_world fun(name: str) Удаляет мир по названию.
 ---@field get_version fun(): int, int Возвращает версию движка в формате major.minor
----@field str_setting fun(name: str): str Возвращает значение настройки в качестве строки. Бросает исключение, если настройки не существует.
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
+---@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
 ---@field create_memory_device fun(name: str) Создаёт файловую систему в памяти с указанной точкой входа. (name:)
 ---@field get_content_sources fun(): str[] Возвращает список источников контента (путей), в порядке убывания приоритета.
 ---@field set_content_sources fun(sources: str[]) Устанавливает список источников контента (путей). Указывается в порядке убывания приоритета.
 ---@field reset_content_sources fun() Сбрасывает список источников контента.
----@field open_folder fun(path: str) Открывает движком папку по указанного пути
----@field open_url fun(url: str) Открывает URL в браузере
----@field focus fun() Переводит окно на передний план и устанавливает фокус ввода.
----@field set_title fun(title: str) Устанавливает заголовок окна.
----@field reset_content fun(non_reset_packs?: str[]) Сбрасывает контент загруженных паков.
----@field reconfig_packs fun(add_packs: str[], remove_packs: str[]) Обновляет конфигурацию паков, проверяя её корректность (зависимости и доступность паков). Автоматически добавляет зависимости.
----@field config_packs fun(packs: str[]) Обновляет конфигурацию паков, автоматически удаляя лишние, добавляя отсутствующие в прошлой конфигурации. Использует app.reconfig_packs.
----@field load_content fun() Загружает контент конфигурированных паков.
----@field is_content_loaded fun(): bool Проверяет, загружен ли контент.
----@field start_background_instance fun(app_script: str, output_file?: str): int Создаёт headless-экземпляр движка с текущим проектом и указанным сценарием.
+---@field start_background_instance fun(app_script: str, output_file?: str, project_args?: table<string, string>): int Создаёт headless-экземпляр движка с текущим проектом и указанным сценарием.
 ---@field is_instance_alive fun(handle: int): bool Проверяет, жив ли под-экземпляр движка.
 ---@field terminate_instance fun(handle: int): bool Останавливает под-экземпляр движка. Если был жив в момент вызова: true
+---@field open_folder fun(path: str) Открывает движком папку по указанного пути
+---@field open_url fun(url: str) Открывает URL в браузере
+---@field set_title fun(title: str) Устанавливает заголовок окна.
 ---@field script str
 app = app
 
@@ -801,6 +800,13 @@ gui = gui
 ---@field default_hand_controller function
 hud = hud
 
+-- =======================animation=========================
+
+---@class voxelcore.libanimation Библиотека animation.
+---@field play fun(name: string, target: voxelcore.class.camera | voxelcore.class.entity.skeleton | table) Воспроизводит анимацию на указанном объекте
+---@field action fun(func: function) Запускает корутину, обновляющуюся вне паузы и завершающуюся вместе с выходом из мира.
+animation = animation
+
 -- =========================input===========================
 
 ---@alias voxelcore.libinput.bindings
@@ -1279,6 +1285,7 @@ console = console
 ---@field request_texture fun(filename: str, name: str) Запрашивает фоновую загрузку текстуры
 ---@field load_texture fun(data: table|bytearray, name: str, format?: "png" | str) Загружает текстуру из таблицы или массива байт на место текстуры name
 ---@field parse_model fun(format: "xml"|"vcm"|"obj", content: str, name: str, skeleton_name?: str) Парсит и загружает 3D модель
+---@field parse_animation fun(format: "vca"|str, content: str, name: str) Парсит и загружает анимацию
 ---@field to_canvas fun(name: str): voxelcore.class.canvas Создаёт холст (Canvas) из загруженной текстуры. Поддерживается как отдельные ("имя_текстуры"), так и находящиеся в атласе ("атлас:имя_текстуры").
 assets = assets
 
