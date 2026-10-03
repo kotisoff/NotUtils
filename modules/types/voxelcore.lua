@@ -76,7 +76,8 @@ __load_script = __load_script
 -- ==========================bit============================
 
 ---@class voxelcore.stdlib.bit
----@field compile fun(string: str): function
+---@field compile fun(expr: str, args?: table, asFunction?: bool): function | str Компилирует функцию для выполнения побитовых операций. asFunction: при значении true возвращает функцию, иначе строку кода функции.
+---@field execute fun(expr: str, args?: table, ...): number Компилирует функцию для выполнения побитовых операций и на месте выполняет её.
 bit = bit
 
 -- =======================coroutine=========================
@@ -111,6 +112,7 @@ debug = debug
 ---@field round fun(number: number, places?: number): number Возвращает округлённое значение number до указанного количества знаков после запятой places.
 ---@field sum fun(...): number Возвращает сумму всех принимаемых аргументов.
 ---@field sum fun(x: number, t: number[]): number Возвращает сумму всех принимаемых аргументов.
+---@field sign fun(x: number): int Возвращает целое число, указывающее знак числа (-1/0/1)
 ---@field normal_random fun(): number Рандом из генератора в C++
 ---@field noise fun(x: number, octaves?: int): number Одномерный шум с значениями в диапазоне [-1..1]
 ---@field noise2d fun(x: number, y: number, octaves: int): number Двумерный шум с значениями в диапазоне [-1..1]
@@ -146,6 +148,8 @@ os = os
 ---@field tostring fun(t: table): str Конвертирует переданную таблицу в строку.
 ---@field insert_unique fun(t: table, value: any) Добавляет значение в таблицу, только если его там не было.
 ---@field insert_unique fun(t: table, pos: int, value: any) Добавляет значение в таблицу, только если его там не было.
+---@field keys fun(t: table): table Возвращает таблицу, содержащую все ключи переданной таблицы, включая числовые.
+---@field extend fun(t: table, extension: table): table Добавляет в таблицу t все пары ключ-значение из таблицы extension, при этом если в extension присутствует ключ из t, то его значение будет перезаписано.
 table = table
 
 -- ========================string===========================
@@ -166,6 +170,8 @@ table = table
 ---@field left_pad fun(str: str, size: number, char?: str): str Добавляет char слева от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 ---@field right_pad fun(str: str, size: number, char?: str): str Добавляет char справа от строки, пока её размер не будет равен size. По стандарту char равен символу пробела
 ---@field escape_xml fun(text: str): str Экранирует спец-символы XML. (utf8.escape_xml)
+---@field url_encode fun(str: str): str Кодирует строку в формат URL, заменяя специальные символы на их шестнадцатеричные представления.
+---@field url_decode fun(str: str): str Декодирует строку из формата URL, заменяя шестнадцатеричные представления на соответствующие символы.
 string = string
 
 -- ========================stdcomp==========================
@@ -251,6 +257,53 @@ app = app
 ---@field decode_urlsafe fun(base64string: str, usetable?: bool): table | bytearray Декодирует urlsafe-base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
 
 base64 = base64
+
+-- =========================crypto==========================
+
+---Контекст для пошагового хеширования. Позволяет передавать большой файл частями.
+---@class voxelcore.libcrypto.hash
+---@field update fun(self: voxelcore.libcrypto.hash, data: str) Передаёт часть данных в контекст хеширования
+---@field final fun(self: voxelcore.libcrypto.hash): str Завершает хеширование и возвращает результат
+---@field reset fun(self: voxelcore.libcrypto.hash) Очищает контекст после final
+
+---Библиотека предоставляет основные криптографические функции.
+---@class voxelcore.libcrypto
+---@field sha256 fun(data: str): str Вычисляет хеш SHA256
+---@field sha384 fun(data: str): str Вычисляет хеш SHA384
+---@field sha512 fun(data: str): str Вычисляет хеш SHA512
+---@field md5 fun(data: str): str Вычисляет хеш MD5. Нужен для совместимости со старыми форматами, для новых данных лучше использовать SHA256
+---@field hash fun(hash: str, data: str): str Вычисляет хеш указанным алгоритмом. Поддерживаются SHA256, SHA384, SHA512 и MD5
+---@field hmac fun(hash: str, key: str, data: str): str Вычисляет HMAC указанным алгоритмом
+---@field hash_new fun(hash: str): voxelcore.libcrypto.hash Создаёт контекст пошагового хеширования. После final контекст можно очистить через reset
+---@field ed25519_keypair fun(): str, str Генерирует пару ключей Ed25519 (private_key, public_key). Ключи имеют длину 32 байта
+---@field ed25519_public fun(private_key: str): str Получает публичный ключ Ed25519 из приватного
+---@field ed25519_sign fun(private_key: str, message: str): str Подписывает сообщение ключом Ed25519. Подпись имеет длину 64 байта
+---@field ed25519_verify fun(public_key: str, message: str, signature: str): bool, str? Проверяет подпись Ed25519. Неверная подпись возвращает false, "invalid_signature"
+---@field ecdsa_keypair fun(curve: str): str, str Генерирует пару ключей ECDSA для кривой. Доступны P-256, P-384 и P-521
+---@field ecdsa_public fun(curve: str, private_key: str): str Получает публичный ключ ECDSA. Записывается как несжатая SEC1 точка
+---@field ecdsa_sign fun(curve: str, private_key: str, message: str, hash: str): str Подписывает сообщение ключом ECDSA. Подпись хранится в DER формате
+---@field ecdsa_verify fun(curve: str, public_key: str, message: str, signature: str, hash: str): bool, str? Проверяет подпись ECDSA. Неверная подпись возвращает false, "invalid_signature"
+---@field rsa_pkcs1_verify fun(hash: str, modulus: str, exponent: str, message: str, signature: str): bool, str? Проверяет подпись RSA PKCS1. Модуль и экспонента передаются в big endian
+---@field rsa_pss_verify fun(hash: str, modulus: str, exponent: str, message: str, signature: str, salt_length: int): bool, str? Проверяет подпись RSA PSS. Значение salt_length = -1 использует размер хеша
+---@field x25519_keypair fun(): str, str Генерирует пару ключей X25519
+---@field x25519_public fun(private_key: str): str Получает публичный ключ X25519 из приватного
+---@field x25519 fun(private_key: str, peer_public_key: str): str Выполняет обмен ключами X25519
+---@field x25519_shared fun(private_key: str, peer_public_key: str): str Выполняет обмен ключами X25519. Аналог x25519
+---@field p256_keypair fun(): str, str Генерирует пару ключей P-256
+---@field p256_public fun(private_key: str): str Получает публичный ключ P-256 из приватного
+---@field p256_shared fun(private_key: str, peer_public_key: str): str Выполняет обмен ключами P-256
+---@field aes_gcm_encrypt fun(key: str, nonce: str, aad: str, plaintext: str): str Шифрует данные AES GCM. Принимает ключи размером 16 или 32 байта. В конец добавляется тег размером 16 байт
+---@field aes_gcm_decrypt fun(key: str, nonce: str, aad: str, ciphertext: str): str?, str? Расшифровывает данные AES GCM. Неверный тег возвращает nil, "authentication_failed"
+---@field chacha20_poly1305_encrypt fun(key: str, nonce: str, aad: str, plaintext: str): str Шифрует данные ChaCha20 Poly1305. Использует ключ 32 байта и nonce 12 байт. В конец добавляется тег размером 16 байт
+---@field chacha20_poly1305_decrypt fun(key: str, nonce: str, aad: str, ciphertext: str): str?, str? Расшифровывает данные ChaCha20 Poly1305. Неверный тег возвращает nil, "authentication_failed"
+---@field random_bytes fun(length: int): str Генерирует случайный массив байт в виде строки
+---@field constant_time_equal fun(left: str, right: str): bool Сравнивает строки за постоянное время
+---@field hkdf_extract fun(hash: str, salt: str, ikm: str): str Выполняет HKDF extract
+---@field hkdf_expand fun(hash: str, prk: str, info: str, length: int): str Выполняет HKDF expand
+---@field pbkdf2 fun(hash: str, password: str, salt: str, iterations: int, length: int): str Выводит ключ по PBKDF2. Для хранения паролей используйте случайную соль
+---@field scrypt fun(password: str, salt: str, n: int, r: int, p: int, length: int, max_memory?: int): str Выводит ключ по scrypt. Для хранения паролей следует использовать scrypt или PBKDF2 со случайной солью
+---@field features fun(): table Возвращает версию OpenSSL и список доступных возможностей
+crypto = crypto
 
 -- =======================Bytearray=========================
 
@@ -392,7 +445,7 @@ compression = compression
 ---@field seek_origin fun(x: int, y: int, z: int): int, int, int Возвращает позицию главного сегмента расширенного блока или исходную позицию, если блок не является расширенным.
 ---@field get_user_bits fun(x: int, y: int, z: int, offset: int, bits: int): int Возвращает выбранное число бит с указанного смещения в виде целого беззнакового числа
 ---@field set_user_bits fun(x: int, y: int, z: int, offset: int, bits: int, value: int) Записывает указанное число бит значения value в user bits по выбранному смещению
----@field get_hitbox fun(id: int, rotation_index: int): [vec3, vec3] Возвращает массив из двух векторов (массивов из 3 чисел): 1. Минимальная точка хитбокса 2. Размер хитбокса 3. Индекс поворота блока
+---@field get_hitbox fun(id: int, rotation_index: int, hitbox_index?: int): [vec3, vec3] Возвращает массив из двух векторов (массивов из 3 чисел): 1. Минимальная точка хитбокса 2. Размер хитбокса 3. Индекс поворота блока
 ---@field get_model fun(id: int, variant_index?: int): str Возвращает тип модели блока (block/aabb/custom/...)
 ---@field model_name fun(id: int, variant_index?: int): str Возвращает имя модели блока
 ---@field get_textures fun(id: int, variant_index?: int): [str, str, str, str, str, str] Возвращает массив из 6 текстур, назначенных на стороны блока
@@ -455,6 +508,7 @@ cameras = cameras
 ---@field get_def fun(uid: int): int Возвращает индекс определения сущности по уникальному идентификатору (числовой ID)
 ---@field def_name fun(id: int): str Возвращает имя определения сущности по числовому ID (строковый ID)
 ---@field def_hitbox fun(uid: int): vec3 Возвращает значение свойства 'hitbox' сущности
+---@field def_solid fun(id: int): bool Возвращает true если сущность является осязаемым препятствием.
 ---@field def_index fun(name: str): int Возвращает индекс определения сущности по имени (числовой ID)
 ---@field defs_count fun(): int Возвращает число доступных определений сущностей
 ---Возвращает таблицу всех загруженных сущностей.
@@ -466,7 +520,7 @@ cameras = cameras
 ---@field get_all_in_box fun(pos: vec3, size: vec3): int[]
 ---Возвращает список UID сущностей, центр которых попадает в радиус
 ---@field get_all_in_radius fun(center: vec3, radius: number): int[]
----@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[]): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности.
+---@field raycast fun(start: vec3, dir: vec3, max_distance: number, ignore: int, destination?: str[], filter?: str[], include_non_selectable?: bool): voxelcore.libblock.raycast_result|table|nil Функция является расширенным вариантом block.raycast. Возвращает таблицу с результатами если луч касается блока, либо сущности. Аргумент `include_non_selectable` определяет, будут ли учтены сущности с selectable=false.
 ---@field reload_component fun(name: str) Перезагружает скрипт энтити
 entities = entities
 
@@ -501,6 +555,7 @@ entities = entities
 ---@field name fun(path: str): str Извлекает имя файла из пути. Пример: world:data/base/config.toml -> config.toml.
 ---@field stem fun(path: str): str Извлекает имя файла из пути, удаляя расширение. Пример: world:data/base/config.toml -> config.
 ---@field ext fun(path: str): str Извлекает расширение из пути. Пример: world:data/base/config.toml -> toml.
+---@field remove_ext fun(path: str): str Возвращает путь без расширения. Пример: world:data/base/config.toml -> world:data/base/config.
 ---@field prefix fun(path: str): str Извлекает точку входа (префикс) из пути. Пример: world:data/base/config.toml -> world.
 ---@field parent fun(path: str): str Возвращает путь на уровень выше. Пример: world:data/base/config.toml -> world:data/base
 ---@field path fun(path: str): str Убирает точку входа (префикс) из пути. Пример: world:data/base/config.toml -> data/base/config.toml
@@ -598,7 +653,7 @@ bjson = bjson
 
 ---Библиотека для работы с обертками блоков.
 ---@class voxelcore.libgfx.blockwraps Библиотека для работы с обертками блоков.
----@field wrap fun(position: vec3, texture: str, emission?: int, tint?: vec4): int Создаёт обертку на указанной позиции, с указанной текстурой. emission [0.0, 1.0]. Возвращает id обёртки.
+---@field wrap fun(position: vec3, texture: str, emission?: number, tint?: vec4): int Создаёт обертку на указанной позиции, с указанной текстурой. emission [0.0, 1.0]. Возвращает id обёртки.
 ---@field unwrap fun(id: int) Удаляет обертку, если она существует.
 ---@field set_pos fun(id: int, position: vec3) Меняет позицию обёртки, если она существует.
 ---@field set_texture fun(id: int, texture: str) Меняет текстуру обёртки, если она существует.
@@ -649,7 +704,7 @@ local particles = {}
 ---@field scale? number Масштаб UV развертки осадков
 ---@field min_opacity? number Минимальный множитель alpha-канала осадков
 ---@field max_opacity? number Максимальный множитель alpha-канала осадков
----@field max_intencity? number Масимальная интенсивность осадков
+---@field max_intensity? number Масимальная интенсивность осадков
 ---@field opaque? bool Отключение полупрозрачности осадков
 ---@field splash? voxelcore.class.particle Таблица настроек частиц всплесков от осадков
 
@@ -660,6 +715,9 @@ local particles = {}
 ---@field fog_dencity? number Плотность тумана
 ---@field fog_curve? number Кривая тумана
 ---@field thunder_rate? number Частота грома
+---@field sky_tint? vec3 Множитель цвета неба
+---@field clouds_tint? vec3 Множитель цвета облаков
+---@field min_sky_light? vec3 Минимальный свет излучаемый небом (лунный)
 
 ---Библиотека для управления аудио/визуальными погодными эффектами.
 ---@class voxelcore.libgfx.weather Библиотека для управления аудио/визуальными погодными эффектами.
@@ -696,6 +754,8 @@ local weather = {}
 ---@field get_axis_y fun(id: int): vec3 Геттер вектора Y.
 ---@field set_axis_y fun(id: int, pos: vec3) Сеттер вектора Y.
 ---@field set_rotation fun(id: int, rotation: mat4) Устанавливает вращение текста (Устанавливает повернутые вектора X,Y).
+---@field get_entity fun(id: int): int Геттер сущности, к позиции которой привязан 3D текст.
+---@field set_entity fun(id: int, entity: int) Сеттер сущности, к позиции которой привязан 3D текст. Позиция, устанавливаемая через gfx.text3d.set_pos, в таком случае, относительна позиции сущности.
 ---@field update_settings fun(id: int, preset: voxelcore.class.text3d) Обновляет настройки отображения текста.
 local text3d = {}
 
@@ -757,14 +817,16 @@ gfx = gfx or {
 ---@field confirm fun(message: str, on_confirm: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает у пользователя подтверждение действия. Не останавливает выполнение кода.
 ---@field ask fun(message: str, on_confirm?: function, on_deny?: function, yes_text?: str, no_text?: str) Запрашивает подтверждение действия. Не останавливает выполнение кода.
 ---@field show_message fun(message: str, on_ok?: function) Выводит окно с сообщением. Не останавливает выполнение кода.
----@field load_document fun(path: str, name: str, args: table): str Загружает UI документ с его скриптом, возвращает имя документа, если успешно загружен.
+---@field load_document fun(path: str, name: str, args: table, namespace_extension?: table): table Загружает UI документ с его скриптом, возвращает пространство имён документа. namespace_extension расширяет пространство имён документа.
 ---@field getattr fun(docname: str, elementname: str, key: str): any Возвращает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field setattr fun(docname: str, elementname: str, key: str, value: any) Устанавливает значение параметра элемента. (Лучше использовать класс Element или Document).
 ---@field template fun(name: str, params: table<str, any>): str Возвращает темплейт как строку xml элемента. (Параметры в xml'ке темплейта можно использовать с помощью "%{param_name}")
+---@field process_template fun(source: str, params: table) Обрабатывает xml шаблон макета из строки.
 ---@field close_menu fun() Замена для menu:reset() для закрытия меню паузы, деактивирующая основной фрейм UI.
 ---@field create_frame fun(id: str, output_texture: str, size: vec2): Element: voxelcore.ui.document.any, Document: voxelcore.ui.document.any
 ---@field get_active_frame fun(): str Возвращает id активного фрейма (не id элемента).
----@field set_active_frame fun(id: str, cursorLocationProvider: (fun(): number, number)) Устанавливает активный фрейм, получающий пользовательский ввод. Пустая строка указывает null-фрейм, при котором захватывается курсор.
+---@field set_active_frame fun(id: str, cursorLocator: (fun(): number, number)) Устанавливает активный фрейм, получающий пользовательский ввод. Пустая строка указывает null-фрейм, при котором захватывается курсор.
+---@field screenshot fun(frameId?: str): voxelcore.class.canvas | nil Создаёт снимок фрейма в виде объекта Canvas если указан id фрейма, или всего окна, в случае nil.
 ---@field set_syntax_styles fun(styles: table) Устанавливает стили движка из таблицы (пока только шрифт)
 ---@field main_frame_id str Идентификатор корневого элемента
 ---@field root voxelcore.ui.document.any Корневой UI документ
@@ -840,6 +902,7 @@ animation = animation
 ---@field add_callback fun(bindname: voxelcore.libinput.bindings, callback: function, owner_document?: voxelcore.ui.document.any, is_top_level?: bool) Назначает функцию, которая будет вызываться при активации привязки. Можно привязать время жизни функции к UI контейнеру, вместо HUD. В таком случае, input.add_callback можно использовать до вызова on_hud_open. Если is_top_level = true, тогда захват ввода ui элементами будет игнорироваться.
 ---@field get_mouse_pos fun(): [int, int] Возвращает позицию курсора на экране.
 ---@field get_mouse_delta fun(): [int, int] Возращает дельту позиции курсора.
+---@field get_mouse_scroll fun(): number Возвращает вертикальное смещение колеса мыши, накопленное за текущий кадр. Положительное значение соответствует прокрутке вверх, отрицательное - вниз.
 ---@field get_bindings fun(): str[] Возвращает названия всех доступных привязок.
 ---@field get_binding_text fun(bindname: str): str Возвращает текстовое представление кнопки по имени привязки.
 ---@field is_active fun(bindname: voxelcore.libinput.bindings): bool Проверяет активность привязки.
@@ -866,6 +929,7 @@ input = input
 ---@field get_data fun(invid: int, slot: int, name: str): any Возвращает копию значения локального свойства предмета по имени или nil.
 ---@field set_data fun(invid: int, slot: int, name: str, value: any) Устанавливает значение локального свойства предмета по имени. Значение nil удаляет свойство.
 ---@field get_all_data fun(invid: int , slot: int): table<str, any> Возвращает копию таблицы всех локальных свойств предмета.
+---@field set_all_data fun(invid: int, slot: int, fields: table, clear?: bool) Устанавливает значения локальных cвойств предмета. Аргумент clear удаляет остальные значения свойств.
 ---@field create fun(size: int): int Создаёт инвентарь и возвращает id.
 ---@field clone fun(invid: int): int Создает копию инвентаря и возвращает id копии. Если копируемого инвентаря не существует, возвращает 0.
 ---@field move fun(invA: int, slotA: int, invB: int, slotB?: int) Перемещает предмет из slotA инвентаря invA в slotB инвентаря invB. invA и invB могут указывать на один инвентарь. slotB будет выбран автоматически, если не указывать явно. Перемещение может быть неполным, если стек слота заполнится.
@@ -928,6 +992,7 @@ item = item
 ---@field look_at fun(eye: vec3, center: vec3, up: vec3, dst: mat4) Записывает матрицу вида в dst
 ---@field tostring fun(m: mat4, multiline?: bool): str Возвращает строку представляющую содержимое матрицы, многострочную, если multiline = true
 ---@field perspective fun(fov: number, ratio: number, near: number, far: number): mat4 Параметр far задаёт расстояние от камеры до плоскости Far.
+---@field perspective fun(fov: number, ratio: number, near: number, far: number, dst: mat4): nil Расчитывает матрицу перспективы и записывает её в dst.
 mat4 = mat4
 
 -- ========================network==========================
@@ -936,6 +1001,8 @@ mat4 = mat4
 ---@field send fun(self: voxelcore.class.tcp_socket, data: table|bytearray|str) Отправляет массив байт
 ---@field recv fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Читает полученные данные. В случае ошибки возвращает nil (сокет закрыт или несуществует). Если данных пока нет, возвращает пустой массив байт
 ---@field recv_async fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Асинхронный вариант для использования в корутинах. Ожидает получение всего указанного числа байт. При закрытии сокета работает как socket:recv
+---@field peek fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Аналог recv, но не двигает позицию буфера сокета (не удаляет байты из сокета)
+---@field peek_async fun(self: voxelcore.class.tcp_socket, length: int, usetable?: bool): table|bytearray|nil Асинхронный вариант peek для использования в корутинах
 ---@field as_stream fun(self: voxelcore.class.tcp_socket, binary_mode?: bool): voxelcore.class.io_stream Оборачивает сокет в io_stream
 ---@field close fun(self: voxelcore.class.tcp_socket) Закрывает соединение
 ---@field available fun(self: voxelcore.class.tcp_socket): int Возвращает количество доступных для чтения байт данных
@@ -958,12 +1025,14 @@ mat4 = mat4
 
 ---@class voxelcore.class.udp_serversocket
 ---@field send fun(self: voxelcore.class.udp_serversocket, address: str, port: int, data: table | bytearray | str) Отправляет датаграмму на переданный адрес и порт
+---@field stop fun(self: voxelcore.class.udp_serversocket) Завершает принятие датаграмм
 ---@field close fun(self: voxelcore.class.udp_serversocket) Завершает принятие датаграмм
 ---@field is_open fun(self: voxelcore.class.udp_serversocket): bool Проверяет возможность принятия датаграмм
 ---@field get_port fun(self: voxelcore.class.udp_serversocket): int Возвращает порт, который слушает сервер
 
 ---Библиотека для работы с сетью.
 ---@class voxelcore.libnetwork Библиотека для работы с сетью.
+---@field request fun(url: str, parameters: { method?: str, body?: table|str, headers?: str[], timeout?: int, verify_ssl?: bool, on_response?: fun(response: { status: int, body: str, headers: str[] }) }) Выполняет HTTP-запрос с настраиваемым методом (GET, POST, PUT, DELETE и т.д.), заголовками, телом и таймаутом. Для передачи двоичных данных используйте массив байт (Bytearray) или строку.
 ---@field get fun(url: str, callback: fun(data:str), onfailure?: fun(response:int), headers?: str[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
 ---@field get_binary fun(url: str, callback: fun(data: table|bytearray), onfailure?: fun(response:int), headers?: str[]) Выполняет GET запрос к указанному URL с указанными заголовками. После получения ответа, передаёт данные в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
 ---@field post fun(url: str, data: table, callback: fun(data:str), onfailure?: fun(response:int), headers?: str[]) Выполняет POST запрос к указанному URL с указанными заголовками. На данный момент реализована поддержка только `Content-Type: application/json`. После получения ответа, передаёт текст в функцию callback. В случае ошибки в onfailure будет передан HTTP-код ответа.
@@ -1069,7 +1138,7 @@ quat = quat
 
 -- =========================rules===========================
 
----@alias voxelcore.class.rulelist "cheat-commands" | "allow-content-access" | "allow-flight" | "allow-noclip" | "allow-attack" | "allow-destroy" | "allow-cheat-movement" | "allow-debug-cheats" | "allow-fast-interaction" | str
+---@alias voxelcore.class.rulelist "allow-cheats" | "allow-content-access" | "allow-flight" | "allow-noclip" | "allow-attack" | "allow-destroy" | "allow-cheat-movement" | "allow-debug-cheats" | "allow-fast-interaction" | str
 
 ---Библиотека rules
 ---@class voxelcore.librules Библиотека rules
@@ -1095,6 +1164,7 @@ rules = rules
 ---@field precise_utc_time fun(): number Возвращает время UTC (секунды с 1970-01-01 UTC) с точностью до миллисекунд
 ---@field local_time fun(): int Возвращает локальное (системное) время в секундах
 ---@field utc_offset fun(): int Возвращает смещение локального времени от UTC в секундах
+---@field precise_time fun(): number Возвращает время высокой точности в секундах. За точку отсчёта берётся запуск движка.
 time = time
 
 -- =========================utf-8===========================
@@ -1146,8 +1216,11 @@ session = session
 ---@field round fun(vec: vector): vector Возвращает вектор с округленными значениями
 ---@field round fun(vec: vector, dst: vector) Записывает округленный вектор в dst
 ---@field pow fun(vec: vector, exponent: number): vector Возвращает вектор с элементами, возведенными в степень
+---@field pow fun(vec: vector, exponent: vector): vector Возвращает вектор с элементами, возведенными в значения другого вектора
 ---@field pow fun(vec: vector, exponent: number, dst: vector) Записывает вектор, возведенный в степень, в dst
----@field dot fun(vecA: vector, vecB: vector): vector Возвращает скалярное произведение векторов
+---@field dot fun(vecA: vector, vecB: vector): number Возвращает скалярное произведение векторов
+---@field mix fun(a: vector, b: vector, t: number): vector Возвращает вектор a * (1.0 - t) + b * t
+---@field mix fun(a: vector, b: vector, t: number, dst: vector) Записывает в dst вектор a * (1.0 - t) + b * t
 ---@field distance fun(a: vector, b: vector): number Возвращает расстояние между двумя векторами
 ---@field tostring fun(vec: vector): str Возвращает строку представляющую содержимое вектора
 
@@ -1171,7 +1244,7 @@ vec4 = vec4
 ---Библиотека world
 ---@class voxelcore.libworld Библиотека world
 ---@field is_open fun(): bool Проверяет, открыт ли мир
----@field get_list fun(): { name: str, path: str, version: [int, int] }[] Возвращает информацию о мирах.
+---@field get_list fun(): { name: str, path: str, icon?: str, version: [int, int] }[] Возвращает информацию о мирах. icon - предпросмотр (автоматически загружаемая текстура).
 ---@field get_day_time fun(): number Возвращает текущее игровое время от 0.0 до 1.0, где 0.0 и 1.0 - полночь, 0.5 - полдень.
 ---@field set_day_time fun(time: number) Устанавливает указанное игровое время.
 ---@field get_day_time_speed fun(): number Устанавливает указанную скорость смены времени суток.
@@ -1186,6 +1259,7 @@ vec4 = vec4
 ---@field get_chunk_data fun(x: int, z: int): bytearray | nil Возвращает сжатые данные чанка для отправки. Если чанк не загружен, возвращает сохранённые данные.
 ---@field set_chunk_data fun(x: int, z: int, data: bytearray)  Изменяет чанк на основе сжатых данных. Возвращает true если чанк существует.
 ---@field save_chunk_data fun(x: int, z: int, data: bytearray) Сохраняет данные чанка в регион. Изменения будет записаны в файл только после сохранения мира.
+---@field raycast fun(params: { start: vec3, dir: vec3, distance: number, entities?: bool, ignore_uid?: int, filter_entities?: (str|int)[], entities_exclusion?: bool, nonselect_entities?: bool, filter_blocks?: (str|int)[], blocks_exclusion?: bool, nonselect_blocks?: bool }): { block: int|nil, entity: int|nil, endpoint: vec3, iendpoint: vec3, length: number, normal: vec3 }|nil Бросает луч из точки start в направлении dir. Позволяет учитывать и фильтровать как блоки, так и сущности.
 ---@field reload_script fun(packid: str) Перезагружает скрипт мира определённого пака
 world = world
 
@@ -1327,6 +1401,8 @@ assets = assets
 ---@field get_material fun(self: voxelcore.class.entity.rigidbody): str Возвращает материал тела (то же, что и у блоков)
 ---@field set_material fun(self: voxelcore.class.entity.rigidbody, material: str) Устанавливает материал тела
 ---@field get_ground_vel fun(self: voxelcore.class.entity.rigidbody): vec3 Возвращает скорость поверхности, на которой находится тело, либо {0,0,0}
+---@field is_selectable fun(self: voxelcore.class.entity.rigidbody): bool Проверяет свойство 'selectable' у сущности (непрозрачность для лучей)
+---@field set_selectable fun(self: voxelcore.class.entity.rigidbody, flag: bool) Устанавливает значение свойства 'selectable' у сущности
 
 ---@class voxelcore.class.entity.skeleton
 ---@field index fun(self: voxelcore.class.entity.skeleton, name: str): int Возвращает индекс кости по имени или nil
@@ -1338,18 +1414,20 @@ assets = assets
 ---@field set_texture fun(self: voxelcore.class.entity.skeleton, key: str, value: str) Назначает текстуру по ключу
 ---@field is_visible fun(self: voxelcore.class.entity.skeleton, index?: int): bool Проверяет статус видимости кости по индесу или всего скелета, если индекс не указан
 ---@field set_visible fun(self: voxelcore.class.entity.skeleton, index?: int, status: bool) Устанавливает статус видимости кости по индексу или всего скелета, если индекс не указан
----@field get_color fun(self: voxelcore.class.entity.skeleton): vec3 Возвращает цвет сущности
----@field set_color fun(self: voxelcore.class.entity.skeleton, color: vec3) Устанавливает цвет сущности
+---@field get_color fun(self: voxelcore.class.entity.skeleton): vec4 Возвращает цвет сущности
+---@field get_color fun(self: voxelcore.class.entity.skeleton, index: int): vec4 Возвращает цвет кости по индексу
+---@field set_color fun(self: voxelcore.class.entity.skeleton, color: vec3 | vec4) Устанавливает цвет сущности
+---@field set_color fun(self: voxelcore.class.entity.skeleton, color: vec3 | vec4, index: int) Устанавливает цвет кости по индексу
 ---@field set_interpolated fun(self: voxelcore.class.entity.skeleton, flag: bool) Устанавливает флаг интерполяции скелета
 
----@alias voxelcore.class.entity.components "core:pathfinding" | str
+---@alias voxelcore.class.entity.components "core:pathfinding" | "core:mob" | str
 
 ---@class voxelcore.class.entity
 ---@field despawn fun(self: voxelcore.class.entity) Удаляет сущность (сущность может продолжать существовать до завершения кадра, но не будет отображена в этом кадре)
 ---@field def_index fun(self: voxelcore.class.entity): eid: int Возвращает индекс определения сущности (числовой ID)
 ---@field def_name fun(self: voxelcore.class.entity): entity_name: str Возвращает имя определения сущности (строковый ID)
 ---@field get_skeleton fun(self: voxelcore.class.entity): skeleton_name: str Возращает имя скелета сущности
----@field set_skeleton fun(self: voxelcore.class.entity, name: str) Заменяет скелет сущности
+---@field set_skeleton fun(self: voxelcore.class.entity, name: str | nil) Заменяет скелет сущности
 ---@field get_uid fun(self: voxelcore.class.entity): int Возращает уникальный идентификатор сущности
 ---@field get_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): component: table | nil Возвращает компонент по имени
 ---@field has_component fun(self: voxelcore.class.entity, name: voxelcore.class.entity.components): has_component: bool Проверяет наличие компонента по имени
@@ -1371,10 +1449,25 @@ entity = entity
 ---@field set_target fun(target: vec3) Установка цели для агента
 ---@field get_target fun(): target: vec3 | nil Получение текущей цели агента
 ---@field get_route fun(): route: vec3[] | nil Получение текущего маршрута агента
+---@field reset_route fun() Сбрасывает текущий построенный маршрут
+---@field next_waypoint fun(): vec3 | nil Возвращает следующую точку маршрута, по текущим координатам.
+---@field set_refresh_interval fun(interval: number) Устанавливает интервал перестройки маршрута в тактах обновления.
+---@field set_jump_height fun(height: number) Устанавливает высоту преодолимого прыжком препятствия
 
 ---Доступен при получении из компонента сущности: entity:get_component("core:pathfinding")
 ---@type voxelcore.class.pathfinding
 pf = pf
+
+---Компонент core:mob. Управляет движением (включая полёт) и вращением мобов.
+---@class voxelcore.class.mob
+---@field jump fun(multiplier?: number) Выполняет прыжок с силой jump_force * multiplier. По умолчанию multiplier = 1.0
+---@field move_vertical fun(speed: number, current_velocity?: vec3) Вертикальное движение (работает в полёте или в плавании)
+---@field go fun(dir: vec2, speed_multiplier: number, sprint: bool, crouch: bool, current_velocity?: vec3) Горизонтальное движение
+---@field look_at fun(point: vec3, change_dir?: bool) Меняет направление взгляда сущности, направляя на указанную точку
+---@field follow_waypoints fun(pathfinding?: voxelcore.class.pathfinding) Движение по построенному маршруту. Если не указан pathfinding, требуется наличие у сущности компонента core:pathfinding
+---@field set_dir fun(dir: vec3) Устанавливает направление всей сущности
+---@field is_flight fun(): bool Проверяет, включён ли режим полёта
+---@field set_flight fun(flag: bool) Включает/выключает режим полёта
 
 ---@class voxelcore.libpathfinding
 ---@field create_agent fun(): agent: int Создаёт нового агента и возвращает его идентификатор
@@ -1391,7 +1484,7 @@ pathfinding = pathfinding
 
 -- =======================document==========================
 
----@alias voxelcore.ui.document.any voxelcore.ui.document.base_element | voxelcore.ui.document.container | voxelcore.ui.document.textbox | voxelcore.ui.document.trackbar | voxelcore.ui.document.pagebox | voxelcore.ui.document.checkbox | voxelcore.ui.document.button | voxelcore.ui.document.label | voxelcore.ui.document.image | voxelcore.ui.document.canvas | voxelcore.ui.document.iframe | voxelcore.ui.document.inventory
+---@alias voxelcore.ui.document.any voxelcore.ui.document.base_element | voxelcore.ui.document.container | voxelcore.ui.document.textbox | voxelcore.ui.document.trackbar | voxelcore.ui.document.pagebox | voxelcore.ui.document.checkbox | voxelcore.ui.document.button | voxelcore.ui.document.label | voxelcore.ui.document.image | voxelcore.ui.document.canvas | voxelcore.ui.document.iframe | voxelcore.ui.document.inventory | voxelcore.ui.document.select | voxelcore.ui.document.slot
 
 ---Доступен при получении или в скрипте лейаута
 ---@type table<str, voxelcore.ui.document.any>
@@ -1599,3 +1692,100 @@ generation = generation
 ---@class voxelcore.modules.base.util
 ---@field drop fun(pos: vec3, itemid: int, count: int, data?: any, pickup_delay?: number): voxelcore.class.entity
 ---@field block_loot fun(blockid: int): { item: int, count: int }[]
+
+-- ==================core:bit_converter=====================
+
+---Доступные порядки байтов. По умолчанию используется LE.
+---@alias voxelcore.modules.core.bit_converter.order "LE" | "BE"
+
+---Модуль core:bit_converter. Конвертация значений в байты и обратно.
+---@class voxelcore.modules.core.bit_converter
+---@field string_to_bytes fun(str: str): table Конвертирует строку в байты
+---@field bool_to_byte fun(bool: bool): int Конвертирует логический булев в байт
+---@field float32_to_bytes fun(float: number, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует плавающее значение одинарной точности в байты
+---@field float64_to_bytes fun(float: number, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует плавающее значение двойной точности в байты
+---@field uint16_to_bytes fun(int: int, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует беззнаковое 2-х байтовое целое число в байты
+---@field uint32_to_bytes fun(int: int, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует беззнаковое 4-х байтовое целое число в байты
+---@field sint16_to_bytes fun(int: int, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует знаковое 2-х байтовое целое число в байты
+---@field sint32_to_bytes fun(int: int, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует знаковое 4-х байтовое целое число в байты
+---@field int64_to_bytes fun(int: int, order?: voxelcore.modules.core.bit_converter.order): table Конвертирует знаковое 8-и байтовое целое число в байты
+---@field bytes_to_string fun(bytes: table): str Конвертирует массив байтов в строку
+---@field byte_to_bool fun(byte: int): bool Конвертирует байт в логическое булево значение
+---@field bytes_to_float32 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): number Конвертирует массив байтов в плавающее число одинарной точности
+---@field bytes_to_float64 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): number Конвертирует массив байтов в плавающее число двойной точности
+---@field bytes_to_uint16 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): int Конвертирует массив байтов в 2-х байтовое беззнаковое число
+---@field bytes_to_uint32 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): int Конвертирует массив байтов в 4-х байтовое беззнаковое число
+---@field bytes_to_sint16 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): int Конвертирует массив байтов в 2-х байтовое знаковое число
+---@field bytes_to_sint32 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): int Конвертирует массив байтов в 4-х байтовое знаковое число
+---@field bytes_to_int64 fun(bytes: table|bytearray, order?: voxelcore.modules.core.bit_converter.order): int Конвертирует массив байтов в 8-х байтовое знаковое число
+
+-- ===================core:data_buffer======================
+
+---Модуль core:data_buffer. Хранит в себе массив байтов и позволяет легко получать или добавлять разные значения.
+---@class voxelcore.modules.core.data_buffer
+---@field set_order fun(self: voxelcore.modules.core.data_buffer, order: str) Задаёт порядок байтов для чисел
+---@field put_byte fun(self: voxelcore.modules.core.data_buffer, byte: int) Записывает байт в буффер
+---@field put_bytes fun(self: voxelcore.modules.core.data_buffer, bytes: table|bytearray) Записывает байты в буффер
+---@field put_string fun(self: voxelcore.modules.core.data_buffer, str: str) Конвертирует строку в байты и записывает их в буффер
+---@field put_bool fun(self: voxelcore.modules.core.data_buffer, bool: bool) Конвертирует булевое значение в байт и записывает его в буффер
+---@field put_float32 fun(self: voxelcore.modules.core.data_buffer, float: number) Конвертирует плавающее число одинарной точности в байты и записывает их в буффер
+---@field put_float64 fun(self: voxelcore.modules.core.data_buffer, float: number) Конвертирует плавающее число двойной точности в байты и записывает их в буффер
+---@field put_uint16 fun(self: voxelcore.modules.core.data_buffer, int: int) Конвертирует беззнаковое 2-х байтовое число в байты и записывает их в буффер
+---@field put_uint32 fun(self: voxelcore.modules.core.data_buffer, int: int) Конвертирует беззнаковое 4-х байтовое число в байты и записывает их в буффер
+---@field put_sint16 fun(self: voxelcore.modules.core.data_buffer, int: int) Конвертирует знаковое 2-х байтовое число в байты и записывает их в буффер
+---@field put_sint32 fun(self: voxelcore.modules.core.data_buffer, int: int) Конвертирует знаковое 4-х байтовое число в байты и записывает их в буффер
+---@field put_int64 fun(self: voxelcore.modules.core.data_buffer, int: int) Конвертирует знаковое 8-и байтовое число в байты и записывает их в буффер
+---@field put_number fun(self: voxelcore.modules.core.data_buffer, num: number) Конвертирует любое число в байты и записывает их в буффер. Первый байт это тип значения
+---@field get_byte fun(self: voxelcore.modules.core.data_buffer): int Возвращает следующий байт из буффера
+---@field get_bytes fun(self: voxelcore.modules.core.data_buffer, n?: int): table|bytearray Возвращает n следующих байтов, если n равен nil или не указан, то возвращается массив всех байтов
+---@field get_string fun(self: voxelcore.modules.core.data_buffer): str Читает следующую строку из буффера
+---@field get_bool fun(self: voxelcore.modules.core.data_buffer): bool Читает следующий логический булев из буффера
+---@field get_float32 fun(self: voxelcore.modules.core.data_buffer): number Читает следующее плавающее число одинарной точности из буффера
+---@field get_float64 fun(self: voxelcore.modules.core.data_buffer): number Читает следующее плавающее число двойной точности из буффера
+---@field get_uint16 fun(self: voxelcore.modules.core.data_buffer): int Читает следующее 2-х байтовое беззнаковое целое число из буффера
+---@field get_uint32 fun(self: voxelcore.modules.core.data_buffer): int Читает следующее 4-х байтовое беззнаковое целое число из буффера
+---@field get_sint16 fun(self: voxelcore.modules.core.data_buffer): int Читает следующее 2-х байтовое знаковое целое число из буффера
+---@field get_sint32 fun(self: voxelcore.modules.core.data_buffer): int Читает следующее 4-х байтовое знаковое целое число из буффера
+---@field get_int64 fun(self: voxelcore.modules.core.data_buffer): int Читает следующее 8-х байтовое знаковое целое число из буффера
+---@field get_number fun(self: voxelcore.modules.core.data_buffer): number Читает следующее число (см. data_buffer:put_number)
+---@field size fun(self: voxelcore.modules.core.data_buffer): int Возвращает размер буффера
+---@field set_position fun(self: voxelcore.modules.core.data_buffer, pos: int) Устанавливает текущую позицию в буффере
+---@field set_bytes fun(self: voxelcore.modules.core.data_buffer, bytes: table) Устанавливает байты в буффер
+
+---@alias voxelcore.modules.core.data_buffer.constructor fun(bytes?: table, order?: str, useBytearray?: bool): voxelcore.modules.core.data_buffer
+
+-- =====================core:vector2========================
+
+---Модуль core:vector2.
+---@class voxelcore.modules.core.vector2
+---@field round fun(self: voxelcore.modules.core.vector2, decimals: number): vec2 Округление компонентов вектора
+---@field len fun(self: voxelcore.modules.core.vector2): number Длина вектора
+---@field norm fun(self: voxelcore.modules.core.vector2): vec2 Нормализация вектора
+---@field abtw fun(self: voxelcore.modules.core.vector2, vector: vec2): number Угол между двумя векторами в радианах
+---@field proj fun(self: voxelcore.modules.core.vector2, vector: vec2): vec2 Проекция вектора
+---@field dot fun(self: voxelcore.modules.core.vector2, vector: vec2): number Векторное (внутреннее) произведение
+---@field lerp fun(self: voxelcore.modules.core.vector2, b: vec2, t: number): vec2 Линейная интерполяция вектора
+---@field dist fun(self: voxelcore.modules.core.vector2, vector: vec2): number Дистанция между двумя векторами
+---@field cross fun(self: voxelcore.modules.core.vector2, vector: vec2): number Векторное (внешнее) произведение
+---@field rot fun(self: voxelcore.modules.core.vector2, angle: number, axis: str, convert2deg: bool): vec2 Поворот вектора
+
+---@alias voxelcore.modules.core.vector2.constructor fun(x: number, y: number): voxelcore.modules.core.vector2
+
+-- =====================core:vector3========================
+
+---Модуль core:vector3.
+---@class voxelcore.modules.core.vector3
+---@field round fun(self: voxelcore.modules.core.vector3, decimals: number): vec3 Округление компонентов вектора
+---@field len fun(self: voxelcore.modules.core.vector3): number Длина вектора
+---@field norm fun(self: voxelcore.modules.core.vector3): vec3 Нормализация вектора
+---@field abtw fun(self: voxelcore.modules.core.vector3, vector: vec3): number Угол между двумя векторами в радианах
+---@field isParallel fun(self: voxelcore.modules.core.vector3, vector: vec3): bool Параллельность вектора к другому вектору
+---@field proj fun(self: voxelcore.modules.core.vector3, vector: vec3): vec3 Проекция вектора
+---@field dot fun(self: voxelcore.modules.core.vector3, vector: vec3): number Векторное (внутреннее) произведение
+---@field lerp fun(self: voxelcore.modules.core.vector3, b: vec3, t: number): vec3 Линейная интерполяция вектора
+---@field dist fun(self: voxelcore.modules.core.vector3, vector: vec3): number Дистанция между двумя векторами
+---@field dist2line fun(self: voxelcore.modules.core.vector3, point1: vec3, point2: vec3): number Дистанция до линии
+---@field cross fun(self: voxelcore.modules.core.vector3, vector: vec3): vec3 Векторное (внешнее) произведение
+---@field rot fun(self: voxelcore.modules.core.vector3, angle: number, axis: str, convert2deg: bool): vec3 Поворот вектора
+
+---@alias voxelcore.modules.core.vector3.constructor fun(x: number, y: number, z: number): voxelcore.modules.core.vector3
