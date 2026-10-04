@@ -521,6 +521,7 @@ _G = _G
 ---@field set_handler fun(entities_table: table<string>, handler: fun(uid:number, def: number, dirty: table)) Указание обработчика
 ---@field desync fun(name: string) Принимает строковый айди сущности и делает её десинхронной. Десинхронные сущности - сущности, которые видны только клиенту. Их можно заспавнить через entities.spawn на клиенте и при этом они не будут отслеживаться стандартными методами ядра
 ---@field sync fun(name: string) Принимает строковый айди сущности и делает её синхронной. Синхронные сущности нельзя заспавнить через entities.spawn на клиенте и они будут отслеживаться стандартными методами ядра.
+---@field server_to_client_uid fun(uid: int): int Переводит серверный UID сущности в клиентский
 
 -- Client.env
 
