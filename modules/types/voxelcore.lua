@@ -829,8 +829,14 @@ gfx = gfx or {
 ---@field screenshot fun(frameId?: str): voxelcore.class.canvas | nil Создаёт снимок фрейма в виде объекта Canvas если указан id фрейма, или всего окна, в случае nil.
 ---@field set_syntax_styles fun(styles: table) Устанавливает стили движка из таблицы (пока только шрифт)
 ---@field main_frame_id str Идентификатор корневого элемента
----@field root voxelcore.ui.document.any Корневой UI документ
+---@field root voxelcore.ui.document.container | table<str, voxelcore.ui.document.any> Корневой UI документ
 gui = gui
+
+--[[
+  Для получения gui.root.root:
+    ---@type voxelcore.ui.document.container
+    local root = gui.root.root
+]]
 
 -- ==========================hud============================
 
@@ -1489,6 +1495,9 @@ pathfinding = pathfinding
 ---Доступен при получении или в скрипте лейаута
 ---@type table<str, voxelcore.ui.document.any>
 document = document
+
+---@type voxelcore.ui.document.pagebox
+menu = menu
 
 ---@class voxelcore.Document
 ---@field new fun(name: str): document: table<str, voxelcore.ui.document.any>

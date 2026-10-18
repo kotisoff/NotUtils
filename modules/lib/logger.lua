@@ -34,7 +34,16 @@ end
 
 ---@param logLevel nu.Logger.levels
 function Logger:println(logLevel, ...)
-  print(prefix(self.name, logLevel) .. table.concat({ ... }, " "))
+  local args;
+
+  if #logLevel > 1 then
+    args = { logLevel, ... };
+    logLevel = "I";
+  else
+    args = { ... };
+  end
+
+  print(prefix(self.name, logLevel) .. table.concat(args, " "))
 end
 
 function Logger:clear_history()

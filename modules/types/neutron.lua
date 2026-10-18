@@ -41,6 +41,7 @@ _G = _G
 ---@field pid int PlayerID игрока
 ---@field invid int InventoryID игрока
 ---@field region_pos { x: int, y: int, z: int } Позиция региона 2x2 чанка, в котором находится игрок
+---@field is_crouching bool
 
 ---@class neutron.class.client
 ---@field active boolean Статус активности клиента (false - вне сети)
@@ -209,17 +210,19 @@ _G = _G
 
 ---@class neutron.server.messages
 ---@field new fun(pack: string, event: string, schema: table): neutron.server.messages.Message Создаёт сообщение
+---@field lazy_new fun(pack: string, event: string, schema_provider: (fun(): table)): neutron.server.messages.Message Лениво создаёт сообщение
 
 -- Server.replications
 
 ---@class neutron.server.replications.Replicator
----@field create_public_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table Создаёт публичную реплику с селектором
----@field create_private_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, client: neutron.class.client): table Создаёт приватную реплику с конкретным игроком
+---@field create_public_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, need_send?: (fun(client: neutron.class.client, dirty: table): bool)): table | { _old_data: table, _need_send: bool, _is_echo: bool } Создаёт публичную реплику с селектором
+---@field create_private_replica fun(self: neutron.server.replications.Replicator, id: int, initial_value: table, client: neutron.class.client): table | { _old_data: table, _client: neutron.class.client } Создаёт приватную реплику с конкретным игроком
 ---@field remove_replica fun(self: neutron.server.replications.Replicator, id: int) Удаляет реплику
 ---@field get_replica fun(self: neutron.server.replications.Replicator, id: int): table Возвращает реплику с указанным id.
 
 ---@class neutron.server.replications
 ---@field new fun(pack: string, event: string, schema: table): neutron.server.replications.Replicator Создаёт репликатор
+---@field lazy_new fun(pack: string, event: string, schema_provider: (fun(): table)): neutron.server.replications.Replicator Лениво создаёт репликатор
 
 -- Server.predicted_events
 
@@ -542,6 +545,7 @@ _G = _G
 
 ---@class neutron.client.messages
 ---@field new fun(pack: string, event: string, schema: table): neutron.client.messages.Message Создаёт сообщение
+---@field lazy_new fun(pack: string, event: string, schema_provider: (fun(): table)): neutron.client.messages.Message Лениво создаёт сообщение
 
 -- Client.replications
 
@@ -551,12 +555,13 @@ _G = _G
 
 ---@class neutron.client.replications
 ---@field new fun(pack: string, event: string, schema: table): neutron.client.replications.Replicator Создаёт репликатор
+---@field lazy_new fun(pack: string, event: string, schema_provider: (fun(): table)): neutron.client.replications.Replicator Лениво создаёт репликатор
 
 -- Client.predicted_events
 
 ---@class neutron.client.predicted_events.Instance
 ---@field instance_id int
----@field evemt_id? int
+---@field event_id? int
 ---@field data table
 ---@field start_time number
 ---@field progress number
