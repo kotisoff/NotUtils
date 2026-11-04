@@ -2,8 +2,8 @@
 
 --[[
     VoxelCore Lua Types
-    Engine version: 0.32.0
-    Version: v0.32.0 (prev: v0.0.9, synced with engine major + minor)
+    Engine version: dev 0.33 (commit: 92f8acd41ab8dfccd48ec0477f85e4181f531763)
+    Version: 0.32.1
   ]]
 
 ---@diagnostic disable: duplicate-doc-alias
@@ -229,7 +229,7 @@ vc = vc
 ---@field reopen_world fun() Переоткрывает мир.
 ---@field save_world fun() Сохраняет мир.
 ---@field close_world fun(save_world: bool) Закрывает мир.
----@field get_version fun(): int, int Возвращает версию движка в формате major.minor
+---@field get_version fun(): int, int, int | nil Возвращает версию движка в формате major.minor.patch(?). Patch может отсутствовать.
 ---@field get_setting fun(name: str): any Возвращает значение настройки. Бросает исключение, если настройки не существует.
 ---@field set_setting fun(name: str, value: any) Устанавливает значение настройки. Бросает исключение, если настройки не существует.
 ---@field get_setting_info fun(name: str): { def: any, min?: number, max?: number } Возвращает таблицу с информацией о настройке. Бросает исключение, если настройки не существует.
@@ -241,6 +241,8 @@ vc = vc
 ---@field start_background_instance fun(app_script: str, output_file?: str, project_args?: table<string, string>): int Создаёт headless-экземпляр движка с текущим проектом и указанным сценарием.
 ---@field is_instance_alive fun(handle: int): bool Проверяет, жив ли под-экземпляр движка.
 ---@field terminate_instance fun(handle: int): bool Останавливает под-экземпляр движка. Если был жив в момент вызова: true
+---@field get_stdin_stream fun(handle: int): voxelcore.class.io_stream Возвращает поток ввода под-экземпляра движка.
+---@field get_stdout_stream fun(handle: int): voxelcore.class.io_stream Возвращает поток вывода под-экземпляра движка.
 ---@field open_folder fun(path: str) Открывает движком папку по указанного пути
 ---@field open_url fun(url: str) Открывает URL в браузере
 ---@field set_title fun(title: str) Устанавливает заголовок окна.
@@ -445,7 +447,7 @@ compression = compression
 ---@field seek_origin fun(x: int, y: int, z: int): int, int, int Возвращает позицию главного сегмента расширенного блока или исходную позицию, если блок не является расширенным.
 ---@field get_user_bits fun(x: int, y: int, z: int, offset: int, bits: int): int Возвращает выбранное число бит с указанного смещения в виде целого беззнакового числа
 ---@field set_user_bits fun(x: int, y: int, z: int, offset: int, bits: int, value: int) Записывает указанное число бит значения value в user bits по выбранному смещению
----@field get_hitbox fun(id: int, rotation_index: int, hitbox_index?: int): [vec3, vec3] Возвращает массив из двух векторов (массивов из 3 чисел): 1. Минимальная точка хитбокса 2. Размер хитбокса 3. Индекс поворота блока
+---@field get_hitbox fun(id: int, rotation_index: int, hitbox_index?: int, variant_index?: int): [vec3, vec3] Возвращает массив из двух векторов (массивов из 3 чисел): 1. Минимальная точка хитбокса 2. Размер хитбокса 3. Индекс поворота блока
 ---@field get_model fun(id: int, variant_index?: int): str Возвращает тип модели блока (block/aabb/custom/...)
 ---@field model_name fun(id: int, variant_index?: int): str Возвращает имя модели блока
 ---@field get_textures fun(id: int, variant_index?: int): [str, str, str, str, str, str] Возвращает массив из 6 текстур, назначенных на стороны блока
@@ -501,6 +503,7 @@ cameras = cameras
 
 ---Библиотека предназначена для работы с реестром сущностей.
 ---@class voxelcore.libentities Библиотека предназначена для работы с реестром сущностей.
+---@field properties table<int, table<str, any>> Таблица пользовательских свойств сущностей
 ---@field get fun(uid: int): voxelcore.class.entity Возвращает сущность по уникальному идентификатору.
 ---@field spawn fun(name: str, pos: vec3, args?: table<str, any>): voxelcore.class.entity Создает указанную сущность
 ---@field despawn fun(uid: int) Удаляет сущность по уникальному идентификатору
@@ -783,6 +786,7 @@ local posteffects = {}
 ---@field set_model fun(skeleton: str, index: int, name: str) Переназначает модель кости с указанным индексом. Сбрасывает до изначальной, если не указывать имя
 ---@field get_matrix fun(skeleton: str, index: int): mat4 Возвращает матрицу трансформации кости с указанным индексом
 ---@field set_matrix fun(skeleton: str, index: int, matrix: mat4) Устанавливает матрицу трансформации кости с указанным индексом
+---@field get_bone_offset fun(index: int): vec3 Возвращает смещение кости с указанным индексом относительно родительской. (конфиг скелета)
 ---@field get_texture fun(skeleton: str, key: str): str Возвращает текстуру по ключу (динамически назначаемые текстуры - '$имя')
 ---@field set_texture fun(skeleton: str, key: str, value: str) Назначает текстуру по ключу
 ---@field is_visible fun(skeleton: str, index?: int): bool Проверяет статус видимости кости по индесу или всего скелета, если индекс не указан
@@ -862,6 +866,8 @@ gui = gui
 ---@field is_paused fun(): bool Возвращает true если открыто меню паузы.
 ---@field is_inventory_open fun(): bool Возвращает true если открыт инвентарь или оверлей.
 ---@field set_allow_pause fun(flag: bool) Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
+---@field is_hotbar_visible fun(): bool Возвращает true, если хотбар не скрыт через hud.set_hotbar_visible.
+---@field set_hotbar_visible fun(flag: bool) Показывает или скрывает хотбар. Выбор слота колесом мыши и цифровыми клавишами продолжает работать.
 ---@field hand_controller function Функция, управляющая именованным скелетом 'hand' (см. gfx.skeletons).
 ---@field reload_script fun(layout: str) Перезагружает скрипт лейаута
 ---@field is_player_inventory_open fun(): bool Возвращает true если открыт инвентарь игрока.
@@ -1095,7 +1101,13 @@ pack = pack
 ---@field get_rot fun(playerid?: int, lerp?: bool): number, number, number Возвращает x, y, z вращения камеры (в градусах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
 ---@field set_rot fun(playerid?: int, x: number, y: number, z: number) Устанавливает x, y, z вращения камеры (в градусах)
 ---@field get_dir fun(playerid?: int): vec3 Возвращает вектор направления взгляда игрока
----@field get_inventory fun(playerid?: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
+---@field get_inventory fun(playerid?: int): int, int Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9). (по модулю размера)
+--- Возвращает / устанавливает размер хотбара - число первых слотов инвентаря игрока,
+--- доступных для выбора. player.set_selected_slot берёт индекс по модулю этого числа,
+--- а при уменьшении размера выбранный слот сдвигается в допустимый диапазон.
+--- По умолчанию - `hotbar-size` из `config/defaults.toml` (10), в мире не сохраняется.
+--- На клиенте эти слоты показывает хотбар, они выбираются колесом мыши и цифровыми клавишами.
+---@field get_hotbar_size fun(playerid?: int): int
 ---@field is_flight fun(playerid?: int): bool Геттер режима полета
 ---@field set_flight fun(playerid?: int, flag: bool) Сеттер режима полета
 ---@field is_noclip fun(playerid?: int): bool Геттер noclip режима (выключенная коллизия игрока)
@@ -1247,6 +1259,10 @@ vec4 = vec4
 
 -- =========================world===========================
 
+---@alias voxelcore.libworld.logic
+---| "random_ticks"
+---| "block_ticks"
+
 ---Библиотека world
 ---@class voxelcore.libworld Библиотека world
 ---@field is_open fun(): bool Проверяет, открыт ли мир
@@ -1257,6 +1273,8 @@ vec4 = vec4
 ---@field set_day_time_speed fun(value: number) Устанавливает указанную скорость смены времени суток.
 ---@field get_total_time fun(): number Возвращает суммарное время, прошедшее в мире.
 ---@field get_seed fun(): int Возвращает зерно мира.
+---@field get_logic fun(name: str): any Возвращает значение параметра логики мира по имени. Поддерживаются только предопределённые параметры.
+---@field set_logic fun(name: str, value: any) Устанавливает параметр логики мира по имени. Поддерживаются только предопределённые параметры.
 ---@field get_generator fun(): str Возвращает имя генератора.
 ---@field exists fun(name: str): bool Проверяет существование мира по имени.
 ---@field is_day fun(): bool Проверяет является ли текущее время днём. От 0.333(8 утра) до 0.833(8 вечера).
@@ -1364,7 +1382,8 @@ console = console
 ---@class voxelcore.libassets
 ---@field request_texture fun(filename: str, name: str) Запрашивает фоновую загрузку текстуры
 ---@field load_texture fun(data: table|bytearray, name: str, format?: "png" | str) Загружает текстуру из таблицы или массива байт на место текстуры name
----@field parse_model fun(format: "xml"|"vcm"|"obj", content: str, name: str, skeleton_name?: str) Парсит и загружает 3D модель
+---@field parse_model fun(format: "xml"|"vcm"|"obj"|"vec3", content: str|bytearray, name: str, skeleton_name?: str) Парсит и загружает 3D модель
+---@field parse_skeleton fun(format: "json"|"vcm"|"xml", content: str, name: str) Парсит и загружает определение скелета
 ---@field parse_animation fun(format: "vca"|str, content: str, name: str) Парсит и загружает анимацию
 ---@field to_canvas fun(name: str): voxelcore.class.canvas Создаёт холст (Canvas) из загруженной текстуры. Поддерживается как отдельные ("имя_текстуры"), так и находящиеся в атласе ("атлас:имя_текстуры").
 assets = assets
@@ -1482,6 +1501,8 @@ pf = pf
 ---@field set_enabled fun(agent: int, enabled: bool) Установка состояния агента
 ---@field set_max_visited fun(agent: int, max_visited: int) Установка максимального количества посещенных блоков для агента. Используется для ограничения объема работы алгоритма поиска пути.
 ---@field set_jump_height fun(agent: int, height: int) Установка максимальной высоты прыжка
+---@field set_width fun(agent: int, width: number) Установка ширины агента в блоках. По-умолчанию 0.6
+---@field set_height fun(agent: int, height: number) Установка высоты агента в блоках. По-умолчанию 2
 ---@field avoid_tag fun(agent: int, tag?: str, cost?: int) Добавление тега избегаемых блоков. По умолчанию: cost = 10.
 ---@field make_route fun(start: vec3, target: vec3): vec3[] Создание маршрута на основе заданных точек
 ---@field make_route_async fun(agent: int, start: vec3, target: vec3) Асинхронное создание маршрута на основе заданных точек (получение маршрута происходит в pull_route)
